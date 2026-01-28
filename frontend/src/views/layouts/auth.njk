@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Title -->
+    <title>NexoLocal Authentication</title>
+    <!-- Icon -->
+    <link rel="icon" href="/public/img/logo.png" />
+    <!-- JS -->
+    <!--<script src="https://cdn.tailwindcss.com"></script>-->
+    <!-- CSS -->
+    <link rel="stylesheet" href="/public/css/animations.css" />
+    <link rel="stylesheet" href="/public/css/tailwind.build.css" />
+</head>
+
+<body class="auth-page flex justify-center items-center h-screen">
+    {% include "components/notifications.njk" %}
+    {% block content %}{% endblock %}
+
+    <!-- JS -->
+    <script src="/public/js/auth.js"></script>
+    <script src="/public/js/notify.js"></script>
+</body>
+
+</html>

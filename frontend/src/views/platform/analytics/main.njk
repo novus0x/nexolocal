@@ -1,0 +1,293 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="card stat-card p-6" style="transition-delay: 0.1s">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Ingresos Totales</p>
+                        <h3 class="text-2xl font-black mt-1">S/ 24,500.00</h3>
+                    </div>
+                    <div class="w-10 h-10 bg-green-500/10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-arrow-trend-up text-green-500"></i>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mt-4">
+                    <span class="text-xs font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded">+12.5%</span>
+                    <span class="text-[10px] text-gray-500 uppercase">vs. mes pasado</span>
+                </div>
+            </div>
+
+            <div class="card stat-card p-6" style="transition-delay: 0.2s">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Gastos Operativos</p>
+                        <h3 class="text-2xl font-black mt-1">S/ 8,240.50</h3>
+                    </div>
+                    <div class="w-10 h-10 bg-red-500/10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-arrow-trend-down text-red-500"></i>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mt-4">
+                    <span class="text-xs font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded">+4.2%</span>
+                    <span class="text-[10px] text-gray-500 uppercase">en insumos</span>
+                </div>
+            </div>
+
+            <div class="card stat-card p-6" style="transition-delay: 0.3s">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Ticket Promedio</p>
+                        <h3 class="text-2xl font-black mt-1">S/ 172.00</h3>
+                    </div>
+                    <div class="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-receipt text-blue-500"></i>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mt-4">
+                    <span class="text-xs font-bold text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded">Estable</span>
+                    <span class="text-[10px] text-gray-500 uppercase">sin variación</span>
+                </div>
+            </div>
+
+            <div class="card stat-card p-6" style="transition-delay: 0.4s">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Crecimiento Red</p>
+                        <h3 class="text-2xl font-black mt-1">24.8%</h3>
+                    </div>
+                    <div class="w-10 h-10 bg-[#FD420A]/10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-fire text-[#FD420A]"></i>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mt-4">
+                    <span class="text-xs font-bold text-[#FD420A] bg-[#FD420A]/10 px-2 py-0.5 rounded">+5.1%</span>
+                    <span class="text-[10px] text-gray-500 uppercase">nuevos locales</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="card p-6 lg:col-span-2" id="salesContainer" style="transition-delay: 0.5s">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h4 class="font-bold text-lg">Flujo de Ingresos</h4>
+                        <p class="text-xs text-gray-500">Monitoreo de ventas en tiempo real por sede</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <div
+                            class="flex items-center gap-2 text-[10px] font-bold text-gray-400 bg-white/5 px-3 py-1 rounded-full border border-white/5">
+                            <span class="w-2 h-2 rounded-full bg-[#FD420A]"></span> SEDE LIMA
+                        </div>
+                    </div>
+                </div>
+                <div class="h-87.5">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card p-6" id="expensesContainer" style="transition-delay: 0.6s">
+                <h4 class="font-bold text-lg mb-2">Composición</h4>
+                <p class="text-xs text-gray-500 mb-8">Desglose de egresos operativos</p>
+                <div class="h-75 relative flex items-center justify-center">
+                    <canvas id="expensesChart"></canvas>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span class="text-3xl font-black">100%</span>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-tighter">Total Gastos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Table -->
+        <div class="card overflow-hidden" style="transition-delay: 0.7s">
+            <div class="p-6 border-b border-[#30363D] flex justify-between items-center bg-[#0D1117]/50">
+                <h4 class="font-bold">Historial de Rendimiento</h4>
+                <div class="flex gap-2">
+                    <input type="text" placeholder="Buscar transacción..."
+                        class="bg-[#0B0F14] border border-[#30363D] text-xs px-4 py-2 rounded-lg focus:border-[#FD420A] outline-none w-64 transition-all">
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-[#0D1117] text-gray-400 font-bold uppercase text-[10px] tracking-widest">
+                        <tr>
+                            <th class="px-6 py-4">Fecha</th>
+                            <th class="px-6 py-4">Entidad</th>
+                            <th class="px-6 py-4">Tipo</th>
+                            <th class="px-6 py-4">Monto</th>
+                            <th class="px-6 py-4 text-right">Rendimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#30363D]">
+                        <tr class="hover:bg-white/5 transition-colors cursor-pointer group">
+                            <td class="px-6 py-4 text-gray-500">Hoy, 14:20</td>
+                            <td class="px-6 py-4 font-bold group-hover:text-[#FD420A] transition-colors">Franquicia
+                                Norte S.A.</td>
+                            <td class="px-6 py-4"><span
+                                    class="px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[10px] font-bold">REGALÍAS</span>
+                            </td>
+                            <td class="px-6 py-4 font-bold">S/ 4,500.00</td>
+                            <td class="px-6 py-4 text-right"><i
+                                    class="fas fa-circle text-green-500 text-[8px] mr-2"></i> Óptimo</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors cursor-pointer group">
+                            <td class="px-6 py-4 text-gray-500">Hoy, 11:05</td>
+                            <td class="px-6 py-4 font-bold group-hover:text-[#FD420A] transition-colors">Cloud Logistics
+                                S.A.</td>
+                            <td class="px-6 py-4"><span
+                                    class="px-2 py-0.5 bg-orange-500/10 text-orange-400 rounded text-[10px] font-bold">SERVICIO</span>
+                            </td>
+                            <td class="px-6 py-4 font-bold">S/ 1,200.00</td>
+                            <td class="px-6 py-4 text-right"><i
+                                    class="fas fa-circle text-yellow-500 text-[8px] mr-2"></i> Revisión</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    // Intersection Observer para disparar animaciones de tarjetas
+    const observerOptions = { threshold: 0.1 };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.card').forEach(card => observer.observe(card));
+
+    // Configuración Global de Chart.js
+    Chart.defaults.color = '#8B949E';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
+
+    // Inicializar Gráficos con Animaciones Personalizadas
+    function initCharts() {
+        // Line Chart: Ventas
+        const ctxSales = document.getElementById('salesChart').getContext('2d');
+
+        // Crear gradiente
+        const gradient = ctxSales.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(253, 66, 10, 0.3)');
+        gradient.addColorStop(1, 'rgba(253, 66, 10, 0)');
+
+        new Chart(ctxSales, {
+            type: 'line',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Ventas S/.',
+                    data: [12000, 19000, 15000, 25000, 22000, 31000, 28000],
+                    borderColor: '#FD420A',
+                    borderWidth: 4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#FD420A',
+                    pointBorderColor: '#0B0F14',
+                    pointHoverRadius: 8,
+                    fill: true,
+                    backgroundColor: gradient,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#151B23',
+                        titleColor: '#FD420A',
+                        bodyColor: '#fff',
+                        borderColor: '#30363D',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: (context) => `S/ ${context.parsed.y.toLocaleString()}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { callback: (v) => 'S/ ' + v / 1000 + 'k' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Doughnut Chart: Gastos
+        const ctxExpenses = document.getElementById('expensesChart').getContext('2d');
+        new Chart(ctxExpenses, {
+            type: 'doughnut',
+            data: {
+                labels: ['Planilla', 'Marketing', 'Infraestructura', 'Otros'],
+                datasets: [{
+                    data: [40, 25, 20, 15],
+                    backgroundColor: [
+                        '#FD420A',
+                        '#4F5864',
+                        '#30363D',
+                        '#1C2128'
+                    ],
+                    hoverOffset: 15,
+                    borderRadius: 5,
+                    spacing: 5,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '80%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 1500,
+                    easing: 'easeOutElastic'
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#8B949E',
+                            padding: 25,
+                            usePointStyle: true,
+                            font: { size: 10, weight: 'bold' }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Ejecutar inicialización al cargar
+    window.onload = initCharts;
+</script>
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

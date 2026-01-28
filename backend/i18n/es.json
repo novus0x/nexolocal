@@ -1,0 +1,71 @@
+{
+    "validation": {
+        "required": "{{field}} es obligatorio",
+        "invalid_json": "JSON inválido",
+        "required_f": "Campos obligatorios",
+        "require_auth": "Debes iniciar sesión para poder acceder al contenido",
+        "not_necessary_permission": "No tienes los permisos necesarios"
+    },
+    "auth": {
+        "login": {
+            "invalid_credentials": "Correo o contraseña incorrectos",
+            "success": "Inicio de sesión exitoso"
+        },
+        "register": {
+            "email_in_use": "El correo electronico ya esta en uso",
+            "pass_dont_match": "Las contraseñas no coinciden",
+            "min_char": "La contraseña debe tener al menos 12 caracteres por razones de seguridad",
+            "invalid_birth": "La fecha de nacimiento no tiene un formato válido. Use YYYY-MM-DD",
+            "too_long": "Es imposible vivir tanto tiempo, ¿estás seguro de que sigues vivo? :|",
+            "success": "Usuario registrado satisfactoriamente"
+        },
+        "token": {
+            "invalid": "Token inválido"
+        },
+        "session": {
+            "expired": "La sesión ha expirado",
+            "success": "Datos del usuario obtenidos con exito"
+        },
+        "logout": {
+            "success": "Cierre de sesión exitoso"
+        }
+    },
+    "platform": {
+        "companies": {
+            "generate_invitation": {
+                "user_not_exist": "El usuario no existe, el usuario debe registrarse para recibir la invitación",
+                "invalid_role_id": "El rol no es válido",
+                "success": "Invitacion generada satisfactoriamente",
+                "get_roles": "Roles obtenidos satisfactoriamente"
+            },
+            "get": "Negocios obtenidas satisfactoriamente"
+        },
+        "roles": {
+            "get": {
+                "success": "Roles obtenidos satisfactoriamente"
+            },
+            "create": {
+                "success": "Rol creado satisfactoriamente"
+            }
+        },
+        "users": {
+            "get": {
+                "success": "Usuarios obtenidos satisfactoriamente"
+            }
+        }
+    },
+    "general": {
+        "invitations": {
+            "get": "Invitaciones obtenidas satisfactoriamente",
+            "accept": {
+                "error": "La invitación no existe",
+                "no_role": "El rol no existe",
+                "no_company": "El negocio no existe",
+                "already_used": "La invitación ya ha sido utilizada"
+            },
+            "decline": {
+                "error": "La invitación no existe"
+            }
+        }
+    }
+}

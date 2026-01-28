@@ -1,0 +1,157 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "description": "Global permissions catalog for NexoLocal"
+  },
+  
+  "platform": {
+    "label": "Platform",
+    "permissions": [
+      {
+        "label": "Core",
+        "permissions": [
+          { "key": "platform.dashboard.view", "label": "View platform dashboard" },
+          { "key": "platform.settings.read", "label": "View platform settings" },
+          { "key": "platform.settings.update", "label": "Update platform settings" }
+        ]
+      },
+      {
+        "label": "Companies",
+        "permissions": [
+          { "key": "platform.companies.read", "label": "View companies" },
+          { "key": "platform.companies.create", "label": "Create companies" },
+          { "key": "platform.companies.update", "label": "Update companies" },
+          { "key": "platform.companies.suspend", "label": "Suspend companies" },
+          { "key": "platform.companies.activate", "label": "Activate companies" },
+          { "key": "platform.companies.delete", "label": "Delete companies" }
+        ]
+      },
+      {
+        "label": "Users",
+        "permissions": [
+          { "key": "platform.users.read", "label": "View users" },
+          { "key": "platform.users.update", "label": "Update users" },
+          { "key": "platform.users.block", "label": "Block users" },
+          { "key": "platform.users.unblock", "label": "Unblock users" }
+        ]
+      },
+      {
+        "label": "Roles",
+        "permissions": [
+          { "key": "platform.roles.read", "label": "View roles" },
+          { "key": "platform.roles.create", "label": "Create roles" },
+          { "key": "platform.roles.update", "label": "Update roles" },
+          { "key": "platform.roles.delete", "label": "Delete users" }
+        ]
+      },
+      {
+        "label": "Analytics",
+        "permissions": [
+          { "key": "platform.analytics.read", "label": "View global analytics" },
+          { "key": "platform.analytics.export.csv", "label": "Export analytics (CSV)" }
+        ]
+      }
+    ]
+  },
+  "company": {
+    "label": "Company",
+    "permissions": [
+      {
+        "label": "Company",
+        "permissions": [
+          { "key": "company.read", "label": "View company information" },
+          { "key": "company.update", "label": "Update company information" }
+        ]
+      },
+      {
+        "label": "Users",
+        "permissions": [
+          { "key": "company.users.read", "label": "View company users" },
+          { "key": "company.users.invite", "label": "Invite users" },
+          { "key": "company.users.remove", "label": "Remove users" }
+        ]
+      },
+      {
+        "label": "Products",
+        "permissions": [
+          { "key": "company.products.read", "label": "View products" },
+          { "key": "company.products.create", "label": "Create products" },
+          { "key": "company.products.update", "label": "Update products" },
+          { "key": "company.products.delete", "label": "Delete products" },
+          { "key": "company.products.import.csv", "label": "Import products (CSV)" },
+          { "key": "company.products.export.csv", "label": "Export products (CSV)" }
+        ]
+      },
+      {
+        "label": "Cash",
+        "permissions": [
+          { "key": "company.cash.read", "label": "Read cash day company" },
+          { "key": "company.cash.create", "label": "Create cash" },
+          { "key": "company.cash.open", "label": "Open cash day company" },
+          { "key": "company.cash.close", "label": "Close cash day company" }
+        ]
+      },
+      {
+        "label": "Sales",
+        "permissions": [
+          { "key": "company.sales.read", "label": "View sales" },
+          { "key": "company.sales.create", "label": "Register sales" },
+          { "key": "company.sales.refund", "label": "Refund sales" }
+        ]
+      },
+      {
+        "label": "Income",
+        "permissions": [
+          { "key": "company.incomes.read", "label": "View income" },
+          { "key": "company.incomes.create", "label": "Register income" }
+        ]
+      },
+      {
+        "label": "Expenses",
+        "permissions": [
+          { "key": "company.expenses.read", "label": "View expenses" },
+          { "key": "company.expenses.create", "label": "Register expenses" }
+        ]
+      },
+      {
+        "label": "Analytics",
+        "permissions": [
+          { "key": "company.analytics.read", "label": "View company analytics" },
+          { "key": "company.analytics.export.csv", "label": "Export analytics (CSV)" }
+        ]
+      },
+      {
+        "label": "Taxes",
+        "permissions": [
+          { "key": "company.taxes.read", "label": "View company taxes" }
+        ]
+      },
+      {
+        "label": "Settings",
+        "permissions": [
+          { "key": "company.settings.read", "label": "View companies settings" },
+          { "key": "company.settings.update", "label": "Update companies settings" }
+        ]
+      }
+    ]
+  },
+  "user": {
+    "label": "User / General",
+    "permissions": [
+      {
+        "label": "Account",
+        "permissions": [
+          { "key": "user.profile.read", "label": "View own profile" },
+          { "key": "user.profile.update", "label": "Update own profile" }
+        ]
+      },
+      {
+        "label": "Sessions",
+        "permissions": [
+          { "key": "user.sessions.read", "label": "View own sessions" },
+          { "key": "user.sessions.revoke", "label": "Revoke own sessions" }
+        ]
+      }
+    ]
+  }
+}

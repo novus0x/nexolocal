@@ -1,0 +1,345 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+
+<style>
+    :root {
+        --bg-main: #0B0F14;
+        --bg-card: #151B23;
+        --accent-primary: #FD420A;
+        --accent-secondary: #3b82f6;
+        /* Blue for expense */
+        --border: #30363D;
+        --current-accent: var(--accent-primary);
+    }
+
+    .premium-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+    }
+
+    .input-premium {
+        background: #0D1117;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        color: white;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .input-premium:focus {
+        border-color: var(--current-accent);
+        box-shadow: 0 0 0 4px rgba(253, 66, 10, 0.1);
+        outline: none;
+    }
+
+    .expense-mode {
+        --current-accent: var(--accent-secondary);
+    }
+
+    .amount-glow {
+        filter: drop-shadow(0 0 15px var(--current-accent));
+        opacity: 0.2;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .status-pill {
+        padding: 4px 12px;
+        border-radius: 99px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .animate-status {
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+</style>
+
+<main class="overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/companies/{{ company_information.id }}"
+                            class="hover:text-white transition-colors">Negocio</a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/companies/{{ company_information.id }}/finance" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Finanzas</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Nuevo</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="flex justify-center">
+            <div id="form-wrapper" class="w-full max-w-xl transition-all duration-500">
+                <div class="flex justify-center mb-6">
+                    <div id="type-pill"
+                        class="status-pill bg-[#FD420A]/10 text-[#FD420A] border border-[#FD420A]/20 animate-status">
+                        <i class="fa-solid fa-arrow-up mr-2"></i>Nueva Entrada de Dinero
+                    </div>
+                </div>
+
+                <div class="premium-card p-8 md:p-10 relative overflow-hidden">
+                    <div id="glow-effect"
+                        class="absolute -top-24 -right-24 w-48 h-48 bg-[#FD420A] opacity-10 blur-[100px] transition-all duration-700">
+                    </div>
+
+                    <header class="mb-10">
+                        <h1 id="main-heading" class="text-3xl font-extrabold tracking-tight mb-2">Registrar Monto</h1>
+                        <p class="text-gray-500 text-sm font-medium">Ingresa un valor negativo para registrar un gasto
+                            automáticamente.</p>
+                    </header>
+
+                    <form id="transaction-form" class="space-y-8"
+                        action="/companies/{{ company_information.id }}/finance/create" method="post">
+
+                        <div class="space-y-3">
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none">
+                                    <span id="symbol"
+                                        class="text-4xl font-black text-[#FD420A] transition-colors duration-500">S/</span>
+                                </div>
+                                <input type="number" step="0.01" id="amount" name="amount" required
+                                    class="w-full bg-transparent text-5xl font-black pl-16 pr-6 py-8 border-b-2 border-white/5 focus:outline-none transition-all duration-500 placeholder:text-white/10"
+                                    placeholder="0.00" value="{{ amount }}">
+                            </div>
+
+                            <div id="feedback" class="flex justify-between items-center px-2">
+                                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Valor
+                                    Neto</span>
+                                <span id="type-desc"
+                                    class="text-[10px] font-bold text-[#FD420A] uppercase tracking-widest transition-colors duration-500">
+                                    Ingreso Ordinario
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-gray-400 ml-1">Nombre de la Operacion</label>
+                                <input type="text" name="title" required placeholder="Ingreso/Egreso de X"
+                                    class="input-premium w-full px-5 py-4 text-sm font-medium" value="{{ title }}">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-gray-400 ml-1">Descripcion</label>
+                                <textarea type="text" name="description" placeholder="Ingreso/Egreso de X"
+                                    class="input-premium w-full px-5 py-4 text-sm font-medium">{{ description }}</textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-4">
+
+                                <div id="expense-category-wrapper" class="space-y-2 hidden">
+                                    <label class="text-xs font-bold text-gray-400 ml-1">Categoria (GASTO)</label>
+                                    <select id="expense-category" name="expense_category"
+                                        class="input-premium w-full px-5 py-4 text-sm font-medium appearance-none cursor-pointer">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="OFFICE_SUPPLIES" {% if expense_category=="OFFICE_SUPPLIES"
+                                            %}selected{% endif %}>
+                                            Office supplies
+                                        </option>
+
+                                        <option value="SUPPLIES" {% if expense_category=="SUPPLIES" %}selected{% endif
+                                            %}>
+                                            Supplies
+                                        </option>
+
+                                        <option value="UTILITIES" {% if expense_category=="UTILITIES" %}selected{% endif
+                                            %}>
+                                            Utilities
+                                        </option>
+
+                                        <option value="SALARIES" {% if expense_category=="SALARIES" %}selected{% endif
+                                            %}>
+                                            Salaries
+                                        </option>
+
+                                        <option value="MARKETING" {% if expense_category=="MARKETING" %}selected{% endif
+                                            %}>
+                                            Marketing
+                                        </option>
+
+                                        <option value="TRAVEL" {% if expense_category=="TRAVEL" %}selected{% endif %}>
+                                            Travel
+                                        </option>
+
+                                        <option value="MAINTENANCE" {% if expense_category=="MAINTENANCE" %}selected{%
+                                            endif %}>
+                                            Maintenance
+                                        </option>
+
+                                        <option value="RENT" {% if expense_category=="RENT" %}selected{% endif %}>
+                                            Rent
+                                        </option>
+
+                                        <option value="OTHER" {% if expense_category=="OTHER" %}selected{% endif %}>
+                                            Other
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div id="subcategory-wrapper" class="space-y-2 hidden">
+                                    <label id="subcategory-label"
+                                        class="text-xs font-bold text-gray-400 ml-1">Subcategoria</label>
+                                    <input id="subcategory" type="text" name="subcategory"
+                                        placeholder="Ej: Venta TikTok / Cliente Juan"
+                                        class="input-premium w-full px-5 py-4 text-sm font-medium"
+                                        value="{{ subcategory }}">
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-gray-400 ml-1">Fecha</label>
+                                <input type="date" name="date" required
+                                    class="input-premium w-full px-5 py-4 text-sm font-medium" value="{{ date }}">
+                            </div>
+
+                            <div id="extra-fields"
+                                class="max-h-0 opacity-0 overflow-hidden transition-all duration-500 space-y-4">
+                                <div class="p-5 rounded-2xl bg-blue-500/5 border border-blue-500/10 space-y-4">
+                                    <div class="space-y-2">
+                                        <label class="text-xs font-bold text-blue-400 ml-1 uppercase">
+                                            URL de Comprobante / Ticket (Opcional)
+                                        </label>
+                                        <div class="relative">
+                                            <i
+                                                class="fa-solid fa-link absolute left-4 top-1/2 -translate-y-1/2 text-blue-500/50"></i>
+                                            <input type="url" name="receipt_url" placeholder="https://..."
+                                                class="input-premium w-full pl-11 pr-5 py-3 text-sm border-blue-500/20"
+                                                value="{{ receipt_value }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="flex flex-col gap-4 pt-4">
+                            <button type="submit" id="btn-submit"
+                                class="w-full py-5 rounded-2xl bg-[#FD420A] text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-[#FD420A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer">
+                                Confirmar Transacción
+                            </button>
+
+                            <a href="/companies/{{ company_information.id }}/finance"
+                                class="text-center py-3 text-base font-bold text-red-500 hover:text-red-800 transition-colors">
+                                Descartar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const amount = document.getElementById('amount');
+    const wrapper = document.getElementById('form-wrapper');
+    const pill = document.getElementById('type-pill');
+    const symbol = document.getElementById('symbol');
+    const desc = document.getElementById('type-desc');
+    const btn = document.getElementById('btn-submit');
+    const extraFields = document.getElementById('extra-fields');
+    const glow = document.getElementById('glow-effect');
+
+    const expense_category_wrapper = document.getElementById("expense-category-wrapper");
+    const expense_category = document.getElementById("expense-category");
+    const subcategory_wrapper = document.getElementById("subcategory-wrapper");
+    const subcategory_input = document.getElementById("subcategory");
+    const subcategory_label = document.getElementById("subcategory-label");
+
+    function set_expense_mode() {
+        wrapper.classList.add('expense-mode');
+
+        expense_category_wrapper.classList.remove("hidden");
+        subcategory_wrapper.classList.add("hidden");
+        subcategory_input.value = "";
+
+        pill.innerHTML = '<i class="fa-solid fa-arrow-down mr-2"></i>Registro de Salida';
+        pill.className = "status-pill bg-blue-500/10 text-blue-400 border border-blue-500/20 animate-status";
+        symbol.className = "text-4xl font-black text-blue-500 transition-colors duration-500";
+        desc.innerText = "Gasto / Egreso Detallado";
+        desc.className = "text-[10px] font-bold text-blue-500 uppercase tracking-widest";
+        amount.style.borderColor = "#3b82f6";
+        btn.className = "w-full py-5 rounded-2xl bg-blue-600 text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer";
+
+        extraFields.style.maxHeight = "200px";
+        extraFields.style.opacity = "1";
+        glow.style.backgroundColor = "#3b82f6";
+    }
+
+    function set_income_mode() {
+        wrapper.classList.remove('expense-mode');
+
+        expense_category_wrapper.classList.add("hidden");
+        expense_category.value = "";
+
+        subcategory_wrapper.classList.remove("hidden");
+        subcategory_label.innerText = "Concepto / Subcategoria";
+        subcategory_input.placeholder = "Ej: Ingreso X";
+
+        pill.innerHTML = '<i class="fa-solid fa-arrow-up mr-2"></i>Nueva Entrada de Dinero';
+        pill.className = "status-pill bg-[#FD420A]/10 text-[#FD420A] border border-[#FD420A]/20 animate-status";
+        symbol.className = "text-4xl font-black text-[#FD420A] transition-colors duration-500";
+        desc.innerText = "Ingreso Ordinario";
+        desc.className = "text-[10px] font-bold text-[#FD420A] uppercase tracking-widest";
+        amount.style.borderColor = "#FD420A";
+        btn.className = "w-full py-5 rounded-2xl bg-[#FD420A] text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-[#FD420A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer";
+
+        extraFields.style.maxHeight = "0";
+        extraFields.style.opacity = "0";
+        glow.style.backgroundColor = "#FD420A";
+    }
+
+    amount.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+
+        if (!isNaN(val) && val < 0) {
+            set_expense_mode();
+        } else {
+            set_income_mode();
+        }
+    });
+
+    expense_category.addEventListener("change", () => {
+        if (expense_category.value === "OTHER") {
+            subcategory_wrapper.classList.remove("hidden");
+            subcategory_label.innerText = "Subcategoria";
+            subcategory_input.placeholder = "Ej: Pago X";
+        } else {
+            subcategory_wrapper.classList.add("hidden");
+            subcategory_input.value = "";
+        }
+    });
+</script>
+
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

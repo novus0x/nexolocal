@@ -1,0 +1,71 @@
+{
+    "validation": {
+        "required": "{{field}} is required",
+        "invalid_json": "Invalid JSON",
+        "required_f": "Fields required",
+        "require_auth": "You must log in to access the content",
+        "not_necessary_permission": "You do not have the necessary permissions"
+    },
+    "auth": {
+        "login": {
+            "invalid_credentials": "Invalid email or password",
+            "success": "Login successful"
+        },
+        "register": {
+            "email_in_use": "Email is already in use",
+            "pass_dont_match": "The passwords do not match",
+            "min_char": "The password must be at least 12 characters long for security reasons",
+            "invalid_birth": "The date of birth is not in a valid format. Use YYYY-MM-DD",
+            "too_long": "It is impossible to live that long, are you sure that you still alive? :|",
+            "success": "Successfully registered user"
+        },
+        "token": {
+            "invalid": "Invalid token"
+        },
+        "session": {
+            "expired": "The session has expired",
+            "success": "User data successfully obtained"
+        },
+        "logout": {
+            "success": "Logout successful"
+        }
+    },
+    "platform": {
+        "companies": {
+            "generate_invitation": {
+                "user_not_exist": "The user does not exist, the user must register in order to receive the invitation",
+                "invalid_role_id": "The role is invalid",
+                "success": "Invitation generated successfully",
+                "get_roles": "Roles successfully obtained"
+            },
+            "get": "Companies successfully obtained"
+        },
+        "roles": {
+            "get": {
+                "success": "Roles successfully obtained"
+            },
+            "create": {
+                "success": "Role created successfully"
+            }
+        },
+        "users": {
+            "get": {
+                "success": "Users successfully obtained"
+            }
+        }
+    },
+    "general": {
+        "invitations": {
+            "get": "Invitations successfully obtained",
+            "accept": {
+                "error": "The invitation does not exist",
+                "no_role": "The role does not exist",
+                "no_company": "The company does not exist",
+                "already_used": "The invitation has already been used"
+            },
+            "decline": {
+                "error": "The invitation does not exist"
+            }
+        }
+    }
+}

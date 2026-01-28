@@ -1,0 +1,233 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div class="bg-[#151B23] p-6 rounded-2xl border border-[#30363D] stat-card transition-all group">
+                <div class="flex justify-between items-start mb-4">
+                    <div
+                        class="p-3 rounded-xl bg-orange-500/10 text-[#FD420A] group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <span
+                            class="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg">+12.5%</span>
+                        <span class="text-[9px] text-gray-500 mt-1 uppercase font-bold tracking-wider">vs ayer</span>
+                    </div>
+                </div>
+                <p class="text-gray-500 text-[11px] font-bold uppercase tracking-widest">Ventas Netas</p>
+                <p class="text-3xl font-black mt-1 text-white">$1,240.50</p>
+            </div>
+
+            <div class="bg-[#151B23] p-6 rounded-2xl border border-[#30363D] stat-card transition-all">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 rounded-xl bg-blue-500/10 text-blue-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
+                        </svg>
+                    </div>
+                    <span
+                        class="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg">+5.2%</span>
+                </div>
+                <p class="text-gray-500 text-[11px] font-bold uppercase tracking-widest">Nuevos Clientes</p>
+                <p class="text-3xl font-black mt-1 text-white">124</p>
+            </div>
+
+            <div class="bg-[#151B23] p-6 rounded-2xl border border-[#30363D] stat-card transition-all">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 rounded-xl bg-red-500/10 text-red-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <span class="text-[10px] font-bold text-red-500 bg-red-500/10 px-2 py-1 rounded-lg">Bajo
+                        Stock</span>
+                </div>
+                <p class="text-gray-500 text-[11px] font-bold uppercase tracking-widest">Sin Existencias</p>
+                <p class="text-3xl font-black mt-1 text-white">8</p>
+            </div>
+
+            <div class="bg-[#151B23] p-6 rounded-2xl border border-[#30363D] stat-card transition-all">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 rounded-xl bg-emerald-500/10 text-emerald-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                    </div>
+                    <span
+                        class="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg">+2.4%</span>
+                </div>
+                <p class="text-gray-500 text-[11px] font-bold uppercase tracking-widest">Tasa Retorno</p>
+                <p class="text-3xl font-black mt-1 text-white">68%</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+
+            <div
+                class="xl:col-span-3 bg-[#151B23] rounded-3xl border border-[#30363D] overflow-hidden flex flex-col shadow-2xl">
+                <div class="p-6 border-b border-[#30363D] flex items-center justify-between bg-[#1C222B]/30">
+                    <h3 class="font-bold text-white flex items-center gap-3">
+                        <span class="w-1.5 h-6 bg-[#FD420A] rounded-full"></span>
+                        Últimas Operaciones
+                    </h3>
+                    <div class="flex items-center gap-4">
+                        <select
+                            class="bg-[#0D1117] border border-[#30363D] text-[10px] font-bold uppercase tracking-widest text-gray-400 rounded-lg px-3 py-1.5 focus:outline-none">
+                            <option>Hoy</option>
+                            <option>Semana</option>
+                        </select>
+                        <button
+                            class="text-[11px] font-bold text-[#FD420A] hover:underline uppercase tracking-widest">Ver
+                            Todo</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left whitespace-nowrap">
+                        <thead>
+                            <tr
+                                class="text-gray-500 text-[10px] uppercase font-bold tracking-widest border-b border-[#30363D]">
+                                <th class="px-8 py-4">ID de Seguimiento</th>
+                                <th class="px-8 py-4">Cliente / Establecimiento</th>
+                                <th class="px-8 py-4">Categoría</th>
+                                <th class="px-8 py-4">Monto Total</th>
+                                <th class="px-8 py-4">Estatus</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#30363D]">
+                            <tr class="hover:bg-[#1C222B]/50 transition-all cursor-pointer group">
+                                <td class="px-8 py-5 text-sm font-medium text-gray-500 group-hover:text-gray-300">
+                                    #NL-7729</td>
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            class="w-9 h-9 rounded-xl bg-[#FD420A]/10 flex items-center justify-center text-[#FD420A] font-bold text-xs italic">
+                                            C</div>
+                                        <div>
+                                            <p class="text-sm font-bold text-white">Cafetería Central</p>
+                                            <p class="text-[10px] text-gray-500 font-medium">Suministro Semanal</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <span
+                                        class="text-[10px] text-gray-400 font-bold uppercase bg-[#0D1117] px-3 py-1 rounded-lg border border-[#30363D]">Retail</span>
+                                </td>
+                                <td class="px-8 py-5 text-sm font-black text-white">$245.00</td>
+                                <td class="px-8 py-5">
+                                    <span
+                                        class="px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-[10px] font-black uppercase tracking-tighter">Completado</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-[#1C222B]/50 transition-all cursor-pointer group">
+                                <td class="px-8 py-5 text-sm font-medium text-gray-500 group-hover:text-gray-300">
+                                    #NL-7728</td>
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            class="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 font-bold text-xs italic">
+                                            U</div>
+                                        <div>
+                                            <p class="text-sm font-bold text-white">Usuario Premium</p>
+                                            <p class="text-[10px] text-gray-500 font-medium">Suscripción Anual</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5">
+                                    <span
+                                        class="text-[10px] text-gray-400 font-bold uppercase bg-[#0D1117] px-3 py-1 rounded-lg border border-[#30363D]">Servicio</span>
+                                </td>
+                                <td class="px-8 py-5 text-sm font-black text-white">$1,200.00</td>
+                                <td class="px-8 py-5">
+                                    <span
+                                        class="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-[10px] font-black uppercase tracking-tighter">Procesando</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div
+                    class="bg-linear-to-br from-[#FD420A] to-[#802205] p-7 rounded-3xl relative overflow-hidden shadow-xl">
+                    <div class="relative z-10">
+                        <div
+                            class="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center mb-4 backdrop-blur-md">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.5"
+                                viewBox="0 0 24 24">
+                                <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Stock Crítico</h3>
+                        <p class="text-orange-100/70 text-xs mb-6 font-medium leading-relaxed">5 productos necesitan
+                            reposición inmediata.</p>
+                        <button
+                            class="w-full bg-white text-black py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-orange-50 transition-all active:scale-95">
+                            Gestionar
+                        </button>
+                    </div>
+                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+                </div>
+
+                <div class="bg-[#151B23] p-6 rounded-3xl border border-[#30363D]">
+                    <h3
+                        class="font-bold text-xs text-white mb-5 flex items-center justify-between uppercase tracking-widest">
+                        Equipo Activo
+                        <span class="flex h-2 w-2 relative">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                    </h3>
+                    <div class="space-y-4">
+                        <div
+                            class="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 rounded-xl transition-all">
+                            <div class="flex items-center gap-3">
+                                <div class="relative">
+                                    <img src="https://ui-avatars.com/api/?name=Sofia+P&background=FD420A&color=fff"
+                                        class="w-9 h-9 rounded-xl" alt="Sofia">
+                                    <div
+                                        class="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-emerald-500 border-2 border-[#151B23] rounded-full">
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-white">Sofia Palmer</p>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase">Admin</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="flex items-center justify-between group cursor-pointer hover:bg-white/5 p-2 rounded-xl transition-all">
+                            <div class="flex items-center gap-3">
+                                <div class="relative">
+                                    <img src="https://ui-avatars.com/api/?name=Juan+M&background=30363D&color=8B949E"
+                                        class="w-9 h-9 rounded-xl" alt="Juan">
+                                    <div
+                                        class="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-emerald-500 border-2 border-[#151B23] rounded-full">
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-white">Juan Merino</p>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase">Ventas</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

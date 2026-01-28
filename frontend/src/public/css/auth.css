@@ -1,0 +1,58 @@
+
+.auth-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow-y: auto;
+    padding: 2rem 0;
+}
+
+/* Efecto de Luces de Fondo */
+.glow-bg {
+    position: fixed;
+    width: 40vw;
+    height: 40vw;
+    background: radial-gradient(circle, rgba(253, 66, 10, 0.08) 0%, rgba(253, 66, 10, 0) 70%);
+    border-radius: 50%;
+    z-index: -1;
+    filter: blur(60px);
+    pointer-events: none;
+}
+
+.input-group:focus-within label {
+    color: var(--accent);
+}
+
+.input-field {
+    background-color: #0D1117;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.input-field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(253, 66, 10, 0.1);
+    outline: none;
+}
+
+.auth-card {
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+}
+
+.btn-oauth {
+    background-color: #0D1117;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.btn-oauth:hover {
+    background-color: #161B22;
+    border-color: #484F58;
+    transform: translateY(-1px);
+}
+
+/* Animación de cambio */
+

@@ -1,0 +1,20 @@
+<div id="notification-container"></div>
+
+{% if errors or notifications %}
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    {% if errors %}
+        {% for err in errors %}
+            notify({{ err | dump | safe }}, "error");
+        {% endfor %}
+    {% endif %}
+
+    {% if notifications %}
+        {% for n in notifications %}
+            notify({{ n.message | dump | safe }}, {{ n.type | dump | safe }});
+        {% endfor %}
+    {% endif %}
+});
+</script>
+{% endif %}

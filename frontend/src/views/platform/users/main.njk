@@ -1,0 +1,121 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 justify-between flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/" class="hover:text-white transition-colors">Dashboard</a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Usuarios</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Advanced Filters -->
+        <div class="flex flex-col md:flex-row gap-4 py-4 rounded-2xl">
+            <div class="relative flex-1">
+                <i
+                    class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                <input type="text" placeholder="Buscar por nombre, ID o encargado..."
+                    class="w-full bg-[#0B0F14] border border-[#30363D] rounded-xl pl-12 pr-4 py-2.5 text-sm focus:border-orange-500 outline-none transition-all">
+            </div>
+        </div>
+
+        <div class="bg-[#151B23] border border-[#30363D] rounded-3xl overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse custom-table">
+                    <thead>
+                        <tr
+                            class="bg-[#0D1117] text-[10px] uppercase font-black tracking-widest text-gray-500 border-b border-[#30363D]">
+                            <th class="px-8 py-5">Nombre / Correo</th>
+                            <th class="px-6 py-5">Verificacion</th>
+                            <th class="px-6 py-5">Estado</th>
+                            <th class="px-6 py-5">Fecha de Registro</th>
+                            <th class="px-8 py-5 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#30363D]">
+                        {% for usr in users %}
+                        <tr class="group">
+                            <td class="px-8 py-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex items-center justify-center font-bold">
+                                        <img src="https://ui-avatars.com/api/?name={{ usr.fullname }}&background=FD420A&color=fff"
+                                            class="w-10 h-10 rounded-xl" alt="Avatar">
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-white capitalize">{{ usr.username }}</p>
+                                        <p class="text-xs text-gray-500">{{ usr.email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-6">
+                                {% if usr.verified %}
+                                <span class="status-badge badge-verified">Verificado</span>
+                                {% else %}
+                                <span class="status-badge badge-pending">Pendiente</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-6">
+                                {% if not usr.block %}
+                                <span class="status-badge badge-active">Activo</span>
+                                {% else %}
+                                <span class="status-badge badge-blocked">Bloqueado</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-6 text-gray-400">
+                                <p class="text-sm text-gray-500">{{ usr.date }}</p>
+                            </td>
+                            <td class="px-8 py-6 text-right">
+                                <div class="flex justify-end gap-1">
+                                    <button
+                                        class="p-2.5 text-green-400 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
+                                        title="Editar">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button
+                                        class="p-2.5 text-yellow-500 hover:bg-yellow-500/10 rounded-xl transition-all cursor-pointer"
+                                        title="Suspender">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                    </button>
+                                    <button
+                                        class="p-2.5 text-red-500 hover:bg-red-500/10 rounded-xl transition-all cursor-pointer">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="mt-6 flex items-center justify-between">
+            <p class="text-xs text-gray-500 font-medium">Mostrando 1-10 de 1,240 usuarios</p>
+            <div class="flex gap-2">
+                <button
+                    class="px-4 py-2 bg-[#151B23] border border-[#30363D] rounded-lg text-xs font-bold hover:bg-[#1C222B] transition-colors cursor-pointer">Anterior</button>
+                <button
+                    class="px-4 py-2 bg-[#FD420A] text-white rounded-lg text-xs font-bold shadow-lg shadow-orange-900/20 active:scale-95 transition-all cursor-pointer">Siguiente</button>
+            </div>
+        </div>
+
+    </div>
+</main>
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

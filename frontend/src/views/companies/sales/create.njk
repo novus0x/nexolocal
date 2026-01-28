@@ -1,0 +1,733 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+    .active-payment {
+        border-color: #FD420A !important;
+        background-color: rgba(253, 66, 10, 0.1) !important;
+        color: white !important;
+    }
+</style>
+<main class="flex-1 flex flex-col min-h-0">
+    <div class="w-full flex-1 flex flex-col md:flex-row min-h-0 relative">
+
+        <div id="scanner-modal"
+            class="hidden fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div class="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl">
+                <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                    <h3 class="text-sm font-black uppercase tracking-widest text-white">Escanear Código</h3>
+                    <button onclick="toggle_scanner()" class="text-slate-500 hover:text-white cursor-pointer"><i
+                            class="fa-solid fa-close text-xl"></i></button>
+                </div>
+                <div class="p-4">
+                    <div id="reader" class="rounded-2xl overflow-hidden bg-black aspect-square"></div>
+                </div>
+                <div class="p-6 pt-0 text-center">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">Apunte al código de barras del producto
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 flex flex-col md:flex-row min-h-0 relative">
+
+            <section class="flex-1 flex flex-col min-h-0 bg-surface">
+                <div class="p-6 pb-2 shrink-0">
+                    <div class="relative flex gap-2">
+                        <div class="relative flex-1">
+                            <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                            <input type="text" id="product_search" autocomplete="off"
+                                placeholder="Buscar por nombre o SKU..."
+                                class="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:border-brand transition-all font-medium"
+                                oninput="search_products_manual()">
+
+                            <div id="product_results"
+                                class="hidden absolute top-full left-0 right-0 glass-card bg-card rounded-2xl mt-2 shadow-2xl z-30 max-h-64 overflow-y-auto p-2">
+                            </div>
+                        </div>
+                        <button onclick="toggle_scanner()"
+                            class="px-5 rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-lg"
+                            style="color: #FD420A; background-color: rgba(253, 67, 10, 0.142); border: 1px solid #FD420A;">
+                            <i class="fa-solid fa-barcode"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-6 pt-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Carrito de Compra
+                        </h3>
+                        <button onclick="clear_cart()"
+                            class="text-[9px] font-bold text-red-500/50 hover:text-red-500 uppercase tracking-tighter transition-colors cursor-pointer">Vaciar
+                            Carrito</button>
+                    </div>
+
+                    <div id="cart_items" class="space-y-3 pb-32 md:pb-6"></div>
+
+                    <div id="empty-cart-msg"
+                        class="h-64 flex flex-col items-center justify-center text-slate-700 opacity-20">
+                        <i class="fa-solid fa-shopping-basket text-6xl mb-4"></i>
+                        <span class="text-xs uppercase font-black tracking-[0.2em]">Esperando Productos</span>
+                    </div>
+                </div>
+            </section>
+
+            <aside id="checkout-sidebar"
+                class="glass-card fixed inset-y-0 right-0 z-60 w-full md:w-100 bg-card border-l border-white/5 flex flex-col translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:relative"
+                style="border-radius: 0px;">
+
+                <div class="flex md:hidden p-4 border-b border-white/5 items-center justify-between">
+                    <span class="font-black uppercase text-xs tracking-widest text-white">Finalizar Venta</span>
+                    <button onclick="toggle_checkout()" class="p-2 text-slate-500"><i
+                            class="fa-solid fa-chevron-right"></i></button>
+                </div>
+
+                <div class="flex-1 p-6 flex flex-col">
+                    <div class="flex-1 space-y-6 overflow-y-auto">
+                        <!-- SECCIÓN CLIENTE -->
+                        <div class="hidden border-b border-white/5 ">
+                            <h3
+                                class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-4 flex justify-between">
+                                <span>Identificación de Cliente</span>
+                                <i class="fa-solid fa-user-plus text-brand cursor-pointer"
+                                    onclick="show_register_form()"></i>
+                            </h3>
+
+                            <div class="relative" id="client_search_container">
+                                <input type="text" id="clientLookup" oninput="search_client()"
+                                    placeholder="Email, Nombre o RUT..."
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-brand transition-all">
+                                <div id="clientDropdown"
+                                    class="hidden absolute top-full left-0 right-0 glass-card rounded-b-xl shadow-2xl z-60 mt-1 max-h-48 overflow-y-auto">
+                                </div>
+                            </div>
+
+                            <!-- Formulario Registro Rápido (Oculto) -->
+                            <div id="register_form" class="hidden space-y-3 animate-in slide-in-from-top duration-300">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" id="newName" placeholder="Nombre completo"
+                                        class="bg-white/5 border border-white/10 rounded-lg p-2 text-xs focus:border-brand outline-none">
+                                    <input type="text" id="newPhone" placeholder="Teléfono"
+                                        class="bg-white/5 border border-white/10 rounded-lg p-2 text-xs focus:border-brand outline-none">
+                                </div>
+                                <input type="email" id="newEmail" placeholder="Correo electrónico"
+                                    class="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs focus:border-brand outline-none">
+                                <div class="flex gap-2">
+                                    <button
+                                        class="bg-[#FD420A] hover:bg-[#ff5a26] text-white px-5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 uppercase cursor-pointer"
+                                        onclick="register_Client()">
+                                        Registrar y Seleccionar
+                                    </button>
+                                    <button onclick="show_search_form()"
+                                        class="px-4 bg-white/5 text-slate-400 py-2 rounded-lg text-[10px] font-black uppercase cursor-pointer">Cancelar</button>
+                                </div>
+                            </div>
+
+                            <!-- Cliente Seleccionado -->
+                            <div id="clientDetails"
+                                class="mt-3 flex items-center justify-between glass-card p-4 rounded-2xl hidden">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500 text-lg">
+                                        <i class="fa-solid fa-user-check"></i>
+                                    </div>
+                                    <div>
+                                        <span id="det-name"
+                                            class="block text-sm font-black text-white uppercase tracking-tight">Andrés
+                                            García</span>
+                                        <span id="det-email" class="text-[10px] text-slate-500">andres@nexo.cl</span>
+                                    </div>
+                                </div>
+                                <button onclick="clear_client()"
+                                    class="text-slate-600 hover:text-red-500 transition-colors"><i
+                                        class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- DESCUENTOS -->
+                        <div class="hidden border-b border-white/5">
+                            <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-4">
+                                Promociones y
+                                Cupones
+                            </h3>
+                            <div class="flex gap-2">
+                                <input type="text" id="couponCode" placeholder="Ingresar código..."
+                                    class="flex-1 bg-white/5 border border-white/10 rounded-xl py-2 px-4 text-xs uppercase font-bold tracking-widest focus:border-brand outline-none">
+                                <button
+                                    class="bg-[#FD420A] hover:bg-[#ff5a26] text-white px-3 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 capitalize cursor-pointer"
+                                    onclick="applyCoupon()">
+                                    Validar
+                                </button>
+                            </div>
+                            <div id="activeDiscounts" class="flex flex-wrap gap-2 mt-3">
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div
+                                class="flex justify-between text-xs text-slate-500 font-bold uppercase tracking-widest">
+                                <span>Subtotal</span>
+                                <span id="display-subtotal">$0</span>
+                            </div>
+                            <div class="hidden flex justify-between text-xs text-red-500 font-bold uppercase tracking-widest">
+                                <span>Descuento</span>
+                                <span id="display-discount">-$0</span>
+                            </div>
+                            <div
+                                class="hidden flex justify-between text-xs text-slate-500 font-bold uppercase tracking-widest">
+                                <span>IVA (19%)</span>
+                                <span id="display-tax">S/0</span>
+                            </div>
+                            <div class="pt-6 mt-4 border-t border-white/10">
+                                <span
+                                    class="text-[10px] font-black text-slate-500 tracking-[0.4em] uppercase block mb-1">Total
+                                    a Pagar</span>
+                                <span id="display-total"
+                                    class="text-6xl font-black text-white tracking-tighter leading-none">$0</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Método de
+                                Pago</h4>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="set_payment_method('cash')"
+                                    class="pay-opt p-4 border border-white/5 bg-white/2 rounded-2xl flex flex-col items-center gap-2 hover:border-brand transition-all cursor-pointer">
+                                    <i class="fa-solid fa-money-bill-1-wave"></i>
+                                    <span class="text-[8px] font-black uppercase">Efectivo</span>
+                                </button>
+                                <button onclick="set_payment_method('card')"
+                                    class="pay-opt p-4 border border-white/5 bg-white/2 rounded-2xl flex flex-col items-center gap-2 hover:border-brand transition-all cursor-pointer">
+                                    <i class="fa-solid fa-credit-card"></i>
+                                    <span class="text-[8px] font-black uppercase">Tarjeta</span>
+                                </button>
+                                <button onclick="set_payment_method('digital')"
+                                    class="pay-opt p-4 border border-white/5 bg-white/2 rounded-2xl flex flex-col items-center gap-2 hover:border-brand transition-all cursor-pointer">
+                                    <i class="fa-solid fa-wallet"></i>
+                                    <span class="text-[8px] font-black uppercase">Digital</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-white/5">
+                        <button onclick="process_sale()"
+                            class="w-full bg-[#FD420A] hover:bg-[#ff5a26] text-white px-6 py-3 rounded-xl text-xl font-bold transition-all active:scale-95 cursor-pointer">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            Completar Pago
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <button id="mobile-checkout-btn" onclick="toggle_checkout()"
+            class="glass-card md:hidden fixed bottom-6 right-6 left-6 bg-brand text-white p-5 rounded-2xl shadow-2xl flex justify-between items-center z-30 animate-bounce-subtle">
+            <div class="flex flex-col items-start">
+                <span class="text-[8px] font-black uppercase opacity-70 tracking-widest">Pagar ahora</span>
+                <span id="mobile-total" class="text-xl font-black ">S/0</span>
+            </div>
+            <div
+                class="flex items-center gap-3 bg-[#FD420A] hover:bg-[#ff5a26] text-white px-6 py-3 rounded-xl text-base font-bold transition-all active:scale-95 cursor-pointer">
+                <span class="text-[10px] font-black uppercase">Continuar</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </div>
+        </button>
+    </div>
+</main>
+
+<script>
+    let db_clients = [
+        { id: 'c1', name: 'Andrés García', email: 'andres@nexo.cl', phone: '912345678' }
+    ];
+
+    let cart = [];
+
+    let currentClient = null;
+    let selected_payment = null;
+
+    let html5QrCode = null;
+    let scanLocked = false;
+
+    window.onload = () => {
+        render_cart();
+    };
+
+    function start_auto_scanner() {
+        const reader_el = document.getElementById("reader");
+        const size = Math.min(reader_el.offsetWidth, reader_el.offsetHeight);
+
+        html5QrCode = new Html5Qrcode("reader");
+
+        const config = {
+            fps: 20,
+            qrbox: { width: 250, height: 250 },
+            formatsToSupport: [
+                Html5QrcodeSupportedFormats.QR_CODE,
+                Html5QrcodeSupportedFormats.CODE_128,
+                Html5QrcodeSupportedFormats.CODE_39,
+                Html5QrcodeSupportedFormats.EAN_13,
+                Html5QrcodeSupportedFormats.EAN_8,
+                Html5QrcodeSupportedFormats.UPC_A,
+                Html5QrcodeSupportedFormats.UPC_E
+            ],
+            aspectRatio: 1.0
+        };
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            on_scan_success
+        ).catch(err => console.warn("Esperando cámara...", err));
+    }
+
+    const company_id = {{ company_information.id | dump | safe }};
+
+    async function on_scan_success(decodedText, decodedResult) {
+        if (scanLocked) return;
+        lock_scanner();
+
+        console.log("Código:", decodedText);
+        console.log("Formato:", decodedResult.result.format.formatName);
+
+        const response = await fetch(`/companies/${company_id}/api/sales/check_product_scan`, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ identifier: decodedText })
+        })
+
+        const result = await response.json()
+
+        console.log(result)
+
+        if (result.error || !result.data?.product) {
+            alert("Producto no encontrado");
+            return;
+        }
+
+        const product = result.data.product;
+
+        add_to_cart(product);
+    }
+
+    function lock_scanner() {
+        scanLocked = true;
+        html5QrCode.pause();
+
+        setTimeout(() => {
+            scanLocked = false;
+            html5QrCode.resume();
+        }, 1200);
+    }
+
+    let search_abort = null;
+
+    async function search_products_manual() {
+        const val = document.getElementById('product_search').value.trim();
+        const results_div = document.getElementById('product_results');
+        results_div.innerHTML = '';
+
+        if (val.length < 2) {
+            results_div.classList.add('hidden');
+            return;
+        }
+
+        // Cancelar request anterior (UX PRO)
+        if (search_abort) await search_abort.abort();
+        search_abort = new AbortController();
+
+        const response = await fetch(
+            `/companies/${company_id}/api/sales/check_product_search`,
+            {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: val }),
+                signal: search_abort.signal
+            }
+        );
+
+        const result = await response.json();
+
+        console.log(result)
+
+        if (result.error || !result.data?.products?.length) {
+            results_div.classList.add('hidden');
+            return;
+        }
+
+        results_div.classList.remove('hidden');
+
+        result.data.products.forEach(p => {
+            const row = document.createElement('div');
+            row.className = "flex items-center justify-between p-3 hover:bg-white/5 cursor-pointer rounded-xl";
+
+            if (!p.is_service) {
+                row.innerHTML = `
+                    <div>
+                        <div class="text-sm font-bold text-white">${p.name}</div>
+                        <div class="text-[10px] text-slate-500 uppercase">
+                            Stock: ${p.stock}
+                        </div>
+                    </div>
+                    <div class="text-xs text-brand">S/${p.price}</div>
+                `;
+            } else {
+                row.innerHTML = `
+                    <div>
+                        <div class="text-sm font-bold text-white">${p.name}</div>
+                        <div class="text-[10px] text-slate-500 uppercase">
+                            Servcicio
+                        </div>
+                    </div>
+                    <div class="text-xs text-brand">S/${p.price}</div>
+                `;
+            }
+
+            row.onclick = () => {
+                add_to_cart(p);
+                results_div.classList.add('hidden');
+                document.getElementById('product_search').value = '';
+            };
+
+            results_div.appendChild(row);
+        });
+    }
+
+
+    function set_q_ty_manual(id, value) {
+        const item = cart.find(i => i.id === id);
+        if (!item) return;
+
+        let qty = parseInt(value);
+
+        if (isNaN(qty) || qty < 1) qty = 1;
+        if (qty > item.stock) {
+            alert("Cantidad supera el stock disponible");
+            qty = item.stock;
+        }
+
+        item.qty = qty;
+        render_cart();
+    }
+
+
+    function show_register_form() {
+        document.getElementById('client_search_container').classList.add('hidden');
+        document.getElementById('register_form').classList.remove('hidden');
+        document.getElementById('clientDetails').classList.add('hidden');
+    }
+
+    function show_search_form() {
+        document.getElementById('client_search_container').classList.remove('hidden');
+        document.getElementById('register_form').classList.add('hidden');
+    }
+
+    function search_client() {
+        const val = document.getElementById('clientLookup').value.toLowerCase();
+        const dropdown = document.getElementById('clientDropdown');
+        dropdown.innerHTML = '';
+
+        if (val.length < 3) {
+            dropdown.classList.add('hidden');
+            return;
+        }
+
+        const results = db_clients.filter(c => c.email.includes(val) || c.name.toLowerCase().includes(val));
+        dropdown.classList.remove('hidden');
+
+        if (results.length > 0) {
+            results.forEach(c => {
+                const div = document.createElement('div');
+                div.className = "p-3 glass-card cursor-pointer flex flex-col";
+                div.innerHTML = `<span class="text-xs font-bold text-white uppercase">${c.name}</span><span class="text-[10px] text-slate-500">${c.email}</span>`;
+                div.onclick = () => select_client(c);
+                dropdown.appendChild(div);
+            });
+        } else {
+            dropdown.innerHTML = `
+                    <div class="p-4 text-center">
+                        <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Cliente no encontrado</p>
+                        <button onclick="show_register_form()" class="text-[10px] font-black text-brand uppercase underline">Registrar Nuevo</button>
+                    </div>`;
+        }
+    }
+
+    function register_Client() {
+        const name = document.getElementById('newName').value;
+        const email = document.getElementById('newEmail').value;
+        const phone = document.getElementById('newPhone').value;
+
+        if (!name || !email) return alert("Nombre y Email son obligatorios");
+
+        const newClient = { id: Date.now().toString(), name, email, phone };
+        db_clients.push(newClient);
+        select_client(newClient);
+        show_search_form();
+
+        // Limpiar campos
+        document.getElementById('newName').value = '';
+        document.getElementById('newEmail').value = '';
+        document.getElementById('newPhone').value = '';
+    }
+
+    function select_client(c) {
+        currentClient = c;
+        document.getElementById('client_search_container').classList.add('hidden');
+        document.getElementById('clientDropdown').classList.add('hidden');
+        document.getElementById('clientDetails').classList.remove('hidden');
+        document.getElementById('det-name').innerText = c.name;
+        document.getElementById('det-email').innerText = c.email;
+    }
+
+    function clear_client() {
+        currentClient = null;
+        document.getElementById('client_search_container').classList.remove('hidden');
+        document.getElementById('clientDetails').classList.add('hidden');
+        document.getElementById('clientLookup').value = '';
+    }
+
+    function add_to_cart(p) {
+        const existing = cart.find(i => i.id === p.id);
+
+        if (existing) {
+            if (!p.is_service) {
+                if (existing.qty >= p.stock) {
+                    notify("Stock máximo alcanzado", "info");
+                    return;
+                }
+            }
+
+            existing.qty++;
+
+        } else {
+            if (!p.is_service) {
+                if (p.stock <= 0) {
+                    notify("Sin stock", "warning")
+                    return;
+                }
+            }
+
+            cart.unshift({ ...p, qty: 1 });
+        }
+
+        render_cart();
+    }
+
+    function render_cart() {
+        const container = document.getElementById('cart_items');
+        container.innerHTML = '';
+
+        cart.forEach(item => {
+            const total = item.price * item.qty;
+
+            container.innerHTML += `
+                <div class="glass-card p-4 rounded-2xl flex flex-col gap-4">
+
+                    <!-- Header -->
+                    <div class="flex justify-between items-start gap-4">
+                        <div>
+                            <div class="font-bold text-sm text-white">${item.name}</div>
+                            <div class="text-[10px] text-slate-500">${item.identifier}</div>
+                        </div>
+
+                        <button
+                            onclick="remove_from_cart('${item.id}')"
+                            class="text-red-500 hover:text-red-400 transition-colors cursor-pointer">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+
+                    <!-- Qty + Total -->
+                    <div class="flex justify-between items-center gap-4">
+
+                        <div class="flex items-center gap-2">
+                            <button
+                                onclick="update_q_ty('${item.id}', -1)"
+                                class="px-2 py-1 rounded bg-white/5 hover:bg-white/10 cursor-pointer">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+
+                            <input
+                                type="number"
+                                min="1"
+                                max="${item.stock}"
+                                value="${item.qty}"
+                                class="w-16 text-center bg-black/40 border border-white/10 rounded text-white text-sm"
+                                onchange="set_q_ty_manual('${item.id}', this.value)" />
+
+                            <button
+                                onclick="update_q_ty('${item.id}', 1)"
+                                class="px-2 py-1 rounded bg-white/5 hover:bg-white/10 cursor-pointer">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+
+                        <div class=" font-bold text-lg text-white">
+                            S/${total.toLocaleString()}
+                        </div>
+
+                    </div>
+                </div>
+        `;
+        });
+
+        calculate_totals();
+    }
+
+    function update_q_ty(id, delta) {
+        const item = cart.find(i => i.id === id);
+
+        if (!item) return;
+
+        const nextQty = item.qty + delta;
+
+        if (!item.is_service) {
+            if (nextQty > item.stock) {
+                notify("Stock máximo alcanzado", "warning");
+                return;
+            }
+        }
+
+        if (nextQty <= 0) {
+            remove_from_cart(id);
+        } else {
+            item.qty = nextQty;
+            render_cart();
+        }
+    }
+
+    function remove_from_cart(id) {
+        cart = cart.filter(i => i.id !== id);
+        render_cart();
+    }
+
+    function calculate_totals() {
+        const net = cart.reduce((a, i) => a + i.price * i.qty, 0);
+        const tax = 0;// TO-Do net * 0.19;
+        const total = net + tax;
+
+        document.getElementById('display-subtotal').innerText = `S/${net.toLocaleString()}`;
+        // document.getElementById('display-tax').innerText = `S/${Math.round(tax).toLocaleString()}`;
+        document.getElementById('display-total').innerText = `S/${total.toLocaleString()}`;
+        document.getElementById('mobile-total').innerText = `S/${total.toLocaleString()}`;
+    }
+
+    function set_payment_method(method) {
+        selected_payment = method;
+        document.querySelectorAll('.pay-opt').forEach(b => b.classList.remove('active-payment'));
+        event.currentTarget.classList.add('active-payment');
+    }
+
+    async function toggle_scanner() {
+        const modal = document.getElementById('scanner-modal');
+        const isHidden = modal.classList.contains('hidden');
+
+        if (isHidden) {
+            modal.classList.remove('hidden');
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
+            start_auto_scanner()
+        } else {
+            modal.classList.add('hidden');
+            if (html5QrCode) html5QrCode.stop();
+        }
+    }
+
+    function toggle_checkout() {
+        const sidebar = document.getElementById('checkout-sidebar');
+        sidebar.classList.toggle('translate-x-full');
+    }
+
+    function clear_cart() {
+        if (confirm("¿Deseas vaciar el carrito?")) {
+            cart = [];
+            render_cart();
+        }
+    }
+
+    function toggle2_scanner() {
+        const wrapper = document.getElementById('scanner-wrapper');
+        if (wrapper.classList.contains('hidden')) {
+            wrapper.classList.remove('hidden');
+            start_auto_scanner();
+        } else {
+            wrapper.classList.add('hidden');
+            if (html5QrCode) html5QrCode.stop();
+        }
+    }
+
+    async function process_sale() {
+        if (!cart.length) {
+            alert("El carrito está vacío");
+            return;
+        }
+
+        if (!selected_payment) {
+            alert("Selecciona un método de pago");
+            return;
+        }
+
+        const subtotal = cart.reduce((a, i) => a + i.price * i.qty, 0);
+        const tax = 0; // luego lo activo
+        const total = subtotal + tax;
+
+        const payload = {
+            client_id: currentClient ? currentClient.id : null,
+            payment_method: selected_payment,
+            items: cart.map(item => ({
+                id: item.id,
+                identifier: item.identifier,
+                name: item.name,
+                qty: item.qty,
+                price: item.price,
+                subtotal: item.price * item.qty
+            }))
+        };
+
+        const response = await fetch(
+            `/companies/${company_id}/api/sales/create`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            }
+        );
+
+        const result = await response.json();
+
+        if (result.error) {
+            result.errors.forEach(error => {
+                notify(`Error al procesar la venta: ${error}`, "error")
+            });
+
+            return;
+        }
+
+        const sale_id = result.sale_id;
+
+        notify("Venta registrada correctamente", "success");
+        window.open(`/companies/${company_id}/sales/create/success/${sale_id}`, "_blank");
+
+        cart = [];
+        selected_payment = null;
+        render_cart();
+
+        document.querySelectorAll('.pay-opt').forEach(b => b.classList.remove('active-payment'));
+    }
+
+</script>
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

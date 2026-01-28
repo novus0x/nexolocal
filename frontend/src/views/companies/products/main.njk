@@ -1,0 +1,232 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Productos - NexoLocal{% endblock %}
+
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+{% set current_type = query.type or 'all' %}
+
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 justify-between flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/companies/{{ company_information.id }}"
+                            class="hover:text-white transition-colors">Negocio</a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Productos</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <header class="flex items-center justify-between">
+            <div>
+                <h1 class="font-extrabold text-2xl tracking-tight">Productos</h1>
+                <p class="text-sm text-gray-500 font-bold uppercase tracking-widest">Total: {{ items_quantity }}
+                    artículos</p>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex gap-6 mr-6 border-r border-white/10 pr-6">
+                    <div class="text-right">
+                        <p class="text-xs text-gray-500 font-bold uppercase">Valor Stock</p>
+                        <p class="text-sm font-bold">S/ {{ stock_value }}</p>
+                    </div>
+                    {% if low_products_quantity %}
+                    <div class="text-right">
+                        <p class="text-xs text-red-500 font-bold uppercase tracking-tighter">Bajo Stock</p>
+                        <p class="text-sm font-bold text-red-400">{{ low_products_quantity }} productos</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <a href="/companies/{{ company_information.id }}/products/create"
+                    class="bg-[#FD420A] hover:bg-[#ff5a26] text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="hidden md:block">Nuevo Producto</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+                <a href="{{ update_query(query, { type: 'all', page: 1 }) }}"
+                    class="px-4 py-2 rounded-lg hover:bg-white/5 text-gray-400 text-sm font-bold cursor-pointer">Todo</a>
+                <a href="{{ update_query(query, { type: 'products', page: 1 }) }}"
+                    class="px-4 py-2 rounded-lg hover:bg-white/5 text-gray-400 text-sm font-bold transition-all border border-transparent whitespace-nowrap cursor-pointer">Productos</a>
+                <a href="{{ update_query(query, { type: 'services', page: 1 }) }}"
+                    class="px-4 py-2 rounded-lg hover:bg-white/5 text-gray-400 text-sm font-bold transition-all border border-transparent whitespace-nowrap cursor-pointer">Servicios</a>
+            </div>
+
+            <div class="relative group">
+                <i
+                    class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-white group-focus-within:text-[#FD420A] transition-colors"></i>
+                <input type="text" placeholder="Buscar por nombre o identificador..."
+                    class="w-full lg:w-96 input-glass pl-10 pr-4 py-3 rounded-xl" value="{{ query.q or '' }}"
+                    onkeydown="if (event.key === 'Enter') (submit_search(this.value))">
+            </div>
+        </div>
+
+        <div class="glass-card rounded-3xl overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white/3 text-xs uppercase tracking-[0.15em] text-gray-500 font-black">
+                            <th class="px-8 py-5">Información General</th>
+                            <th class="px-6 py-5">Categoría</th>
+                            <th class="px-6 py-5">Nivel de Inventario</th>
+                            <th class="px-6 py-5">Precio de Venta</th>
+                            <th class="px-6 py-5">Costo</th>
+                            <th class="px-6 py-5">Ganancia</th>
+                            <th class="px-8 py-5 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        {% for product in products %}
+                        <tr class="group hover:bg-white/2 transition-all">
+                            <td class="px-8 py-5">
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center text-gray-500">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-sm font-bold text-white group-hover:text-[#FD420A] transition-colors">
+                                            {{ product.name }}</p>
+                                        <p class="text-xs text-gray-600 tracking-tighter">{{
+                                            product.identifier }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                {% if product.is_service %}
+                                <span class="cat-badge cat-style-1">Servicio</span>
+                                {% else %}
+                                <span class="cat-badge cat-style-4">Producto</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col gap-1.5 min-w-30">
+                                    {% if product.bar_status == "full" %}
+                                    <div class="flex justify-between text-xs font-bold">
+                                        <span>{{ product.stock }}</span>
+                                        <span class="text-emerald-400">Saludable</span>
+                                    </div>
+                                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
+                                            style="width: {{ product.bar_percentage }}%"></div>
+                                    </div>
+                                    {% endif %}
+                                    {% if product.bar_status == "medium" %}
+                                    <div class="flex justify-between text-xs font-bold">
+                                        <span>{{ product.stock }}</span>
+                                        <span class="text-yellow-400">Medio</span>
+                                    </div>
+                                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-yellow-500 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
+                                            style="width: {{ product.bar_percentage }}%"></div>
+                                    </div>
+                                    {% endif %}
+                                    {% if product.bar_status == "low" %}
+                                    <div class="flex justify-between text-xs font-bold">
+                                        <span>{{ product.stock }}</span>
+                                        <span class="text-red-400 animate-pulse">Crítico</span>
+                                    </div>
+                                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
+                                            style="width: {{ product.bar_percentage }}%"></div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-5 text-sm font-black text-white">S/ {{ product.price }}</td>
+                            <td class="px-6 py-5 text-sm font-black text-white">S/ {{ product.cost }}</td>
+                            <td class="px-6 py-5 text-sm font-black text-white">S/ {{ product.revenue }}</td>
+                            <td class="px-8 py-5">
+                                <div class="flex justify-end gap-2">
+                                    {% if not product.is_service %}
+                                    <a href="/companies/{{ company_information.id }}/products/{{ product.id }}/batchs/create"
+                                        title="Nuevo"
+                                        class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all text-gray-400 hover:text-white cursor-pointer"><i
+                                            class="fas fa-plus text-xs"></i></a>
+                                    {% endif %}
+                                    <a href="/companies/{{ company_information.id }}/products/read/{{ product.id }}"
+                                        title="Editar"
+                                        class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all text-gray-400 hover:text-white cursor-pointer"><i
+                                            class="fas fa-eye text-xs"></i></a>
+                                    {# <button title="Eliminar"
+                                        class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-500/10 transition-all text-gray-600 hover:text-red-500 cursor-pointer"><i
+                                            class="fas fa-trash text-xs"></i></button> #}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between mt-6">
+            {% if pagination.back %}
+            <a href="{{ update_query(query, { page: page - 1 }) }}"
+                class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition">
+                ← Anterior
+            </a>
+            {% else %}
+            <span class="px-4 py-2 rounded-xl bg-white/5 text-gray-500 cursor-not-allowed">
+                ← Anterior
+            </span>
+            {% endif %}
+
+            <span class="text-sm text-gray-400">
+                Página {{ page }} de {{ pagination.q_pages }}
+            </span>
+
+            {% if pagination.next %}
+            <a href="{{ update_query(query, { page: page +1 }) }}"
+                class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition">
+                Siguiente →
+            </a>
+            {% else %}
+            <span class="px-4 py-2 rounded-xl bg-white/5 text-gray-500 cursor-not-allowed">
+                Siguiente →
+            </span>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<script>
+
+    function submit_search(value) {
+        const params = new URLSearchParams(window.location.search);
+
+        if (value && value.trim().length >= 2) {
+            params.set("q", value.trim());
+            params.delete("type");
+            params.set("page", 1)
+        } else {
+            params.delete("q");
+            params.delete("type");
+            params.set("page", 1);
+        }
+
+        window.location.search = params.toString();
+    }
+
+</script>
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

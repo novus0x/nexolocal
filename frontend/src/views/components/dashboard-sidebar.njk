@@ -1,0 +1,232 @@
+<aside id="sidebar"
+    class="sidebar-transition shrink-0 w-72 bg-[#0D1117] border-r border-[#30363D] fixed inset-y-0 left-0 z-50 lg:relative lg:translate-x-0 -translate-x-full flex flex-col">
+
+    <div class="h-20 flex items-center px-4 mb-2">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center">
+                <img src="/public/img/logo.png" alt="logo" />
+            </div>
+            <span class="font-bold text-xl tracking-tight sidebar-text">Nexo<span
+                    class="text-[#FD420A]">Local</span></span>
+        </div>
+    </div>
+    {% if user_companies | length > 0 %}
+    <div class="px-4 pb-4 relative">
+        <button onclick="toggle_company_dropdown(event)"
+            class="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#161B23] border border-[#30363D] hover:border-gray-500 transition-all group cursor-pointer">
+            <div class="flex items-center gap-3 overflow-hidden">
+                {% if company_information.id %}
+                <div id="current-company-icon"
+                    class="w-6 h-6 rounded flex items-center justify-center shrink-0 font-bold text-[10px] text-white">
+                    <img src="https://ui-avatars.com/api/?name={{ company_information.name }}&background=FD420A&color=fff"
+                        class="w-6 h-6 rounded" alt="Avatar">
+                </div>
+                <div class="flex flex-col text-left overflow-hidden sidebar-text">
+                    <span id="current-company-name" class="text-xs font-bold truncate">{{ company_information.name
+                        }}</span>
+                    <span class="text-[9px] text-gray-500 uppercase tracking-wider">Workspace</span>
+                </div>
+                {% else %}
+                <div id="current-company-icon"
+                    class="w-6 h-6 rounded flex items-center justify-center shrink-0 font-bold text-[10px] text-white">
+                    <img src="https://ui-avatars.com/api/?name=Please+Select&background=FD420A&color=fff"
+                        class="w-6 h-6 rounded" alt="Avatar">
+                </div>
+                <div class="flex flex-col text-left overflow-hidden sidebar-text">
+                    <span id="current-company-name" class="text-xs font-bold truncate">Selecciona tu Negocio</span>
+                    <span class="text-[9px] text-gray-500 uppercase tracking-wider">Workspace</span>
+                </div>
+                {% endif %}
+            </div>
+        </button>
+
+        <div id="company-dropdown" class="dropdown-menu top-full left-4 right-4 mt-2">
+            <div class="p-3 border-b border-[#30363D]">
+                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Mis Empresas</p>
+            </div>
+
+            {% for user_company in user_companies %}
+            <div class="max-h-60 overflow-y-auto">
+                <a href="/companies/{{ user_company.id }}" class="dropdown-link">
+                    <div class="w-6 h-6 rounded flex items-center justify-center text-[10px] text-white">
+                        <img src="https://ui-avatars.com/api/?name={{ user_company.name }}&background=FD420A&color=fff"
+                            class="w-6 h-6 rounded" alt="Avatar">
+                    </div>
+                    <span>{{ user_company.name }}</span>
+                </a>
+            </div>
+            {% endfor %}
+            <div class="p-2 border-t border-[#30363D]">
+                <button
+                    class="w-full py-2 text-[11px] text-center text-gray-400 hover:text-white transition-colors">Configurar
+                    Workspace</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <nav class="flex-1 px-4 space-y-8 overflow-y-auto pt-2 overflow-x-hidden">
+        {% if invitations_sidebar.exist %}
+        <h4 class="sidebar-text sidebar-section-title">Invitations</h4>
+        <div class="space-y-1">
+            <a href="/invitations"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-amber-600 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-envelope text-xl"></i>
+                <span class="sidebar-text">Invitaciones {{ invitations_sidebar.quantity }}</span>
+            </a>
+        </div>
+        {% elif not scopes %}
+        <p class="text-sm">Una vez que reciba una invitación, aparecerá un menú aquí</p>
+        {% endif %}
+        {% if permissions %}
+
+        {% if scopes.platform %}
+        <h4 class="sidebar-text sidebar-section-title">Platform</h4>
+        <div class="space-y-1">
+            {% if "platform.dashboard.view" in permissions %}
+            <a href="/"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-jelly fa-regular fa-grid text-xl"></i>
+                <span class="sidebar-text">Dashboard</span>
+            </a>
+            {% endif %}
+            {% if "platform.settings.read" in permissions %}
+            <a href="#"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-cog text-xl"></i>
+                <span class="sidebar-text">Ajustes</span>
+            </a>
+            {% endif %}
+            {% if "platform.companies.read" in permissions %}
+            <a href="/platform/companies"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-store text-xl"></i>
+                <span class="sidebar-text">Negocios</span>
+            </a>
+            {% endif %}
+            {% if "platform.users.read" in permissions %}
+            <a href="/platform/users"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-users text-xl"></i>
+                <span class="sidebar-text">Usuarios</span>
+            </a>
+            {% endif %}
+            {% if "platform.roles.read" in permissions %}
+            <a href="/platform/roles"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-key text-xl"></i>
+                <span class="sidebar-text">Roles</span>
+            </a>
+            {% endif %}
+            {% if "platform.analytics.read" in permissions %}
+            <a href="/platform/analytics"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-chart-line text-xl"></i>
+                <span class="sidebar-text">Analiticas</span>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if scopes.company and company_information.id %}
+        <h4 class="sidebar-text sidebar-section-title">Company</h4>
+        <div class="space-y-1">
+            {% if "company.read" in permissions %}
+            <a href="/companies/{{ company_information.id }}"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-store text-xl"></i>
+                <span class="sidebar-text">Negocio</span>
+            </a>
+            {% endif %}
+            {% if "company.users.read" in permissions %}
+            <a href="/companies/{{ company_information.id }}/team"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-people-group text-xl"></i>
+                <span class="sidebar-text">Equipo</span>
+            </a>
+            {% endif %}
+            {% if "company.products.read" in permissions %}
+            <a href="/companies/{{ company_information.id }}/products"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-box text-xl"></i>
+                <span class="sidebar-text">Productos</span>
+            </a>
+            {% endif %}
+            {% if "company.cash.read" in permissions %}
+            <a href="/companies/{{ company_information.id }}/cash"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-cash-register text-xl"></i>
+                <span class="sidebar-text">Cajas</span>
+            </a>
+            {% endif %}
+            {% if "company.sales.read" in permissions %}
+            <a href="/companies/{{ company_information.id }}/sales"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-cart-shopping text-xl"></i>
+                <span class="sidebar-text">Ventas</span>
+            </a>
+            {% endif %}
+            {% if "company.incomes.read" in permissions and "company.expenses.read" in permissions %}
+            <a href="/companies/{{ company_information.id }}/finance"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-chart-mixed-up-circle-dollar text-xl"></i>
+                <span class="sidebar-text">Finanzas</span>
+                <span
+                    class="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-linear-to-r from-orange-500 to-red-500 text-white shadow-md shadow-orange-500/30 group-hover:scale-105 transition">Nuevo</span>
+            </a>
+            {% endif %}
+            {% if "company.analytics.read" in permissions %}
+            <a href="/companies/{{ company_information.id }}/analytics"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-chart-line text-xl"></i>
+                <span class="sidebar-text">Analiticas</span>
+            </a>
+            {% endif %}
+            {% if "company.taxes.read" in permissions %}
+            <a href="/companies/{{ company_information.id }}/taxes"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-sack-dollar text-xl"></i>
+                <span class="sidebar-text">Impuestos</span>
+            </a>
+            {% endif %}
+            {% if "company.settings.read" in permissions %}
+            <a href="/companies/{{ company_information.id }}/settings"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-cog text-xl"></i>
+                <span class="sidebar-text">Configuracion</span>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endif %}
+    </nav>
+
+    <div class="p-4 border-t border-[#30363D] relative">
+        <div id="user-dropdown" class="dropdown-menu bottom-full left-4 right-4 mb-2">
+            <div class="p-4 border-b border-[#30363D]">
+                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Mi Cuenta</p>
+                <p class="text-xs font-medium truncate text-white">{{user.email}}</p>
+            </div>
+            <a href="#" class="dropdown-link"><span><i class="fa-utility-fill fa-semibold fa-user"></i></span>
+                Perfil</a>
+            <a href="#" class="dropdown-link"><span><i class="fa-utility-fill fa-semibold fa-cog"></i></span>
+                Ajustes</a>
+            <a href="/auth/logout" class="dropdown-link logout-link"><span><i
+                        class="fa-utility-fill fa-semibold fa-arrow-left-from-bracket"></i></span> Cerrar Sesión</a>
+        </div>
+
+        <button onclick="toggle_user_dropdown(event)"
+            class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
+            <div class="relative shrink-0">
+                <img src="https://ui-avatars.com/api/?name={{user.fullname}}&background=FD420A&color=fff"
+                    class="w-9 h-9 rounded-xl" alt="Avatar">
+                <span
+                    class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-[#0D1117] rounded-full"></span>
+            </div>
+            <div class="flex-1 text-left sidebar-text overflow-hidden">
+                <p class="text-sm font-semibold truncate capitalize">{{user.fullname}}</p>
+                <span class="text-[10px] text-orange-500 font-bold uppercase tracking-wider">ONLINE</span>
+            </div>
+        </button>
+    </div>
+</aside>

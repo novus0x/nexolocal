@@ -1,0 +1,182 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+        <!-- HEADER DE EMPRESA / DASHBOARD STYLE -->
+        <div class="relative group glass-card">
+            <!-- Decoración de fondo (Glow) -->
+            <div
+                class="absolute -inset-0.5 bg-gradient-to-r from-[var(--accent)] to-transparent opacity-10 rounded-3xl blur group-hover:opacity-20 transition duration-1000">
+            </div>
+
+            <div class="relative glass-effect rounded-3xl p-8 lg:p-12 overflow-hidden">
+                <!-- Círculos decorativos -->
+                <div
+                    class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-[var(--accent)] opacity-[0.03] rounded-full blur-3xl">
+                </div>
+
+                <div class="flex flex-col lg:flex-row gap-10 items-start">
+                    <!-- Logo Area -->
+                    <div class="relative flex-shrink-0">
+                        <div
+                            class="w-24 h-24 lg:w-32 lg:h-32 rounded-2xl bg-[var(--bg-second)] border border-[var(--border)] flex items-center justify-center relative z-10 custom-glow">
+                            <svg class="w-12 h-12 lg:w-16 lg:h-16 text-[var(--accent)]" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M2 17L12 22L22 17" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M2 12L12 17L22 12" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <!-- Badge de Estado -->
+                        <div
+                            class="absolute -bottom-2 -right-2 bg-[var(--bg-main)] border border-[var(--border)] px-3 py-1 rounded-full flex items-center gap-2 z-20">
+                            <span class="relative flex h-2 w-2">
+                                <span
+                                    class="pulse-animation absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                            </span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-green-500">Activo</span>
+                        </div>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="flex-1 space-y-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h1
+                                    class="text-4xl font-black tracking-tight text-[var(--text-main)] mb-2 uppercase italic">
+                                    Nexolocal <span class="text-[var(--accent)]">Business</span>
+                                </h1>
+                                <p class="text-[var(--text-muted)] flex items-center gap-2 font-medium">
+                                    <svg class="w-4 h-4 text-[var(--accent)]" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                        </path>
+                                    </svg>
+                                    Lima, Perú • RUC 20608899221
+                                </p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button
+                                    class="px-5 py-2.5 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-bold text-sm transition-all active:scale-95 shadow-lg shadow-[var(--accent-glow)]">
+                                    Editar Perfil
+                                </button>
+                                <button
+                                    class="p-2.5 rounded-xl border border-[var(--border)] hover:bg-[var(--bg-second)] text-[var(--text-main)] transition-all">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
+                                        </path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stats Grid -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+                            <div class="bg-[var(--bg-main)]/50 border border-[var(--border)] rounded-2xl p-4">
+                                <span
+                                    class="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-widest block mb-1">Puntos
+                                    de Venta</span>
+                                <span class="text-2xl font-black text-[var(--text-main)]">14</span>
+                            </div>
+                            <div class="bg-[var(--bg-main)]/50 border border-[var(--border)] rounded-2xl p-4">
+                                <span
+                                    class="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-widest block mb-1">Nivel
+                                    de Usuario</span>
+                                <span class="text-2xl font-black text-[var(--accent)]">PRO</span>
+                            </div>
+                            <div class="bg-[var(--bg-main)]/50 border border-[var(--border)] rounded-2xl p-4">
+                                <span
+                                    class="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-widest block mb-1">Documentos</span>
+                                <span class="text-2xl font-black text-[var(--text-main)]">8.2k</span>
+                            </div>
+                            <div class="bg-[var(--bg-main)]/50 border border-[var(--border)] rounded-2xl p-4">
+                                <span
+                                    class="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-widest block mb-1">Uptime</span>
+                                <span class="text-2xl font-black text-green-500">99.9%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INFO GRID SECUNDARIO -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Sobre Nosotros -->
+            <div class="lg:col-span-2 glass-card rounded-3xl p-8 space-y-6">
+                <h2 class="text-xl font-bold flex items-center gap-3 text-[var(--text-main)]">
+                    <span class="w-1.5 h-6 bg-[var(--accent)] rounded-full"></span>
+                    Descripción Corporativa
+                </h2>
+                <p class="text-[var(--text-muted)] leading-relaxed text-lg">
+                    Nexolocal es una plataforma de vanguardia diseñada para la integración de ecosistemas comerciales y
+                    financieros. Nos especializamos en la automatización de flujos de trabajo fiscales y la optimización
+                    de la
+                    experiencia de facturación electrónica para empresas de alto crecimiento en Latinoamérica.
+                </p>
+                <div class="flex flex-wrap gap-3 pt-2">
+                    {# <span
+                        class="px-4 py-1.5 rounded-lg bg-[var(--bg-second)] border border-[var(--border)] text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Cloud
+                        Computing</span>
+                    <span
+                        class="px-4 py-1.5 rounded-lg bg-[var(--bg-second)] border border-[var(--border)] text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Fintech</span>
+                    <span
+                        class="px-4 py-1.5 rounded-lg bg-[var(--bg-second)] border border-[var(--border)] text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">B2B
+                        SaaS</span> #}
+                </div>
+            </div>
+
+            <!-- Datos de Contacto Directo -->
+            <div class="glass-card rounded-3xl p-8 space-y-6">
+                <h2 class="text-xl font-bold text-[var(--text-main)]">Conexiones</h2>
+                <div class="space-y-4">
+                    <div
+                        class="flex items-center gap-4 p-4 rounded-2xl bg-[var(--bg-second)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors cursor-pointer group">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-[var(--bg-card)] flex items-center justify-center text-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-white transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9">
+                                </path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-black text-[var(--text-muted)]">Sitio Web</p>
+                            <p class="text-sm font-bold text-[var(--text-main)]">www.nexolocal.io</p>
+                        </div>
+                    </div>
+                    <div
+                        class="flex items-center gap-4 p-4 rounded-2xl bg-[var(--bg-second)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors cursor-pointer group">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-[var(--bg-card)] flex items-center justify-center text-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-white transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-black text-[var(--text-muted)]">Correo</p>
+                            <p class="text-sm font-bold text-[var(--text-main)]">corp@nexo.pe</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</main>
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

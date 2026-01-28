@@ -1,0 +1,315 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 justify-between flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/companies/{{ company_information.id }}"
+                            class="hover:text-white transition-colors">Negocio</a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Ventas</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <header class="flex items-center justify-between">
+            <div>
+                <h1 class="font-extrabold text-2xl tracking-tight">Panel de Ventas</h1>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a href="/companies/{{ company_information.id }}/sales/create"
+                    class="bg-[#FD420A] hover:bg-[#ff5a26] text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="hidden md:block">Nueva Venta</span>
+                </a>
+            </div>
+        </header>
+
+        {# <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass-card rounded-2xl p-6 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-solid fa-money-bill-trend-up text-5xl"></i>
+                </div>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Ingresos Totales</p>
+                <h3 class="text-2xl font-extrabold text-white mb-2">$128,430.00</h3>
+                <div class="flex items-center gap-2 text-green-500 text-xs font-bold">
+                    <i class="fa-solid fa-arrow-up"></i>
+                    <span>+12.5% este mes</span>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6">
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Promedio Mensual</p>
+                <h3 class="text-2xl font-extrabold text-white mb-2">$14,270.00</h3>
+                <div class="flex items-center gap-2 text-blue-500 text-xs font-bold">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Estable</span>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6">
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Facturas Pendientes</p>
+                <h3 class="text-2xl font-extrabold text-white mb-2">12</h3>
+                <div class="flex items-center gap-2 text-[#FD420A] text-xs font-bold">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>$4,120 por cobrar</span>
+                </div>
+            </div>
+
+            <div
+                class="glass-card rounded-2xl p-6 bg-linear-to-br from-[#FD420A]/10 to-transparent border-[#FD420A]/30">
+                <p class="text-xs font-bold text-[#FD420A] uppercase tracking-wider mb-1">Meta Anual (85%)</p>
+                <h3 class="text-2xl font-extrabold text-white mb-2">$150,000.00</h3>
+                <div class="w-full bg-[#30363D] h-1.5 rounded-full mt-3">
+                    <div class="bg-[#FD420A] h-full rounded-full" style="width: 85%"></div>
+                </div>
+            </div>
+        </div> #}
+
+        {# lg:grid-cols-3 #}
+        <div class="grid grid-cols-1 gap-8">
+            {# lg:col-span-2 #}
+            <div class="glass-card rounded-4xl p-8">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+                    <div>
+                        <h4 class="text-xl font-bold text-white">Flujo de Caja</h4>
+                        <p class="text-sm text-gray-500">Comparativa de ingresos vs gastos operativos</p>
+                    </div>
+                    <div class="flex bg-[#0D1117] border border-[#30363D] rounded-xl p-1">
+                        <button onclick="get_flow_data(this, '12m');"
+                            class="flow_button px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-white transition-colors cursor-pointer rounded-lg">12M</button>
+                        <button onclick="get_flow_data(this, '6m');"
+                            class="flow_button px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-white transition-colors cursor-pointer rounded-lg">6M</button>
+                        <button onclick="get_flow_data(this, '30d');"
+                            class="flow_button px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-white transition-colors cursor-pointer rounded-lg">30D</button>
+                        <button onclick="get_flow_data(this, '7d');"
+                            class="flow_button px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-white transition-colors cursor-pointer rounded-lg">7D</button>
+                        <button onclick="get_flow_data(this, 'today');"
+                            class="flow_button px-4 py-1.5 text-xs font-bold text-gray-500 hover:text-white transition-colors cursor-pointer rounded-lg">HOY</button>
+                    </div>
+                </div>
+                <div class="h-87.5 w-full">
+                    <canvas id="revenue_chart"></canvas>
+                </div>
+            </div>
+
+            {# <div class="glass-card rounded-4xl p-8">
+                <h4 class="text-xl font-bold text-white mb-1">Por Categoría</h4>
+                <p class="text-sm text-gray-500 mb-8">Fuentes de ingresos principales</p>
+                <div class="h-70 w-full mb-6">
+                    <canvas id="category_hart"></canvas>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="flex items-center gap-2 text-gray-400"><span
+                                class="w-3 h-3 rounded-full bg-[#FD420A]"></span>Suscripciones</span>
+                        <span class="font-bold text-white">65%</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="flex items-center gap-2 text-gray-400"><span
+                                class="w-3 h-3 rounded-full bg-blue-500"></span>Consultoría</span>
+                        <span class="font-bold text-white">25%</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="flex items-center gap-2 text-gray-400"><span
+                                class="w-3 h-3 rounded-full bg-purple-500"></span>Otros</span>
+                        <span class="font-bold text-white">10%</span>
+                    </div>
+                </div>
+            </div> #}
+        </div>
+
+        <div class="glass-card rounded-4xl overflow-hidden">
+            <div class="p-8 border-b border-[#30363D] flex items-center justify-between">
+                <div>
+                    <h4 class="text-xl font-bold text-white">Transacciones Recientes</h4>
+                    <p class="text-sm text-gray-500">Últimos movimientos registrados en el sistema</p>
+                </div>
+                <a href="/companies/{{ company_information.id }}/sales/reports"
+                    class="text-xs font-bold text-[#FD420A] hover:underline px-4 py-2 cursor-pointer">Ver todas las
+                    transacciones</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                        <tr>
+                            <th class="px-8 py-5 text-left">Referencia</th>
+                            {# <th class="px-8 py-5 text-left">Cliente</th> #}
+                            <th class="px-8 py-5 text-left">Estado</th>
+                            <th class="px-8 py-5 text-left">Fecha</th>
+                            <th class="px-8 py-5 text-right">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#30363D]">
+                        {% for sale in sales %}
+                        <tr class="hover:bg-white/2 transition-colors group">
+                            <td class="px-8 py-5">
+                                <span class="text-xs font-bold text-gray-500 hover:text-gray-200 cursor-pointer">
+                                    <a href="/companies/{{ company_information.id }}/sales/check/{{ sale.id }}"
+                                        target="_blank">
+                                        {{ sale.invoice }}
+                                    </a>
+                                </span>
+                            </td>
+                            {# <td class="px-8 py-5">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xs font-bold">
+                                        AL</div>
+                                    <span class="text-sm text-gray-300">Apple Inc.</span>
+                                </div>
+                            </td> #}
+                            <td class="px-8 py-5">
+                                <span
+                                    class="px-2.5 py-1 bg-green-500/10 text-green-500 text-[10px] font-black rounded-full uppercase">Completado</span>
+                            </td>
+                            <td class="px-8 py-5 text-sm text-gray-500 font-medium">{{ sale.date }}</td>
+                            <td class="px-8 py-5 text-right">
+                                <span class="text-sm font-bold text-white">S/{{ sale.amount }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    let revenue_chart = null;
+    let category_chart = null;
+
+    const company_id = {{ company_information.id | dump | safe }};
+
+    function init_revenue_chart() {
+        const ctx = document.getElementById('revenue_chart').getContext('2d');
+
+        Chart.defaults.color = '#8B949E';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        revenue_chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Ingresos',
+                        data: [],
+                        borderColor: '#FD420A',
+                        backgroundColor: 'rgba(253,66,10,0.15)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 0,
+                        borderWidth: 3
+                    },
+                    {
+                        label: 'Gastos',
+                        data: [],
+                        borderColor: '#30363D',
+                        backgroundColor: 'rgba(48,54,61,0.35)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 0,
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#151B23',
+                        padding: 12,
+                        titleFont: { size: 12, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        borderColor: '#30363D',
+                        borderWidth: 1,
+                        displayColors: true,
+                        callbacks: {
+                            label: ctx => ` S/ ${ctx.raw.toLocaleString()}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+                        ticks: { callback: v => 'S/ ' + v }
+                    },
+                    x: { grid: { display: false } }
+                },
+                animation: {
+                    duration: 900,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+    };
+
+    function update_flow_chart(labels, sales, expenses) {
+        if (!revenue_chart) return;
+
+        revenue_chart.data.labels = labels;
+        revenue_chart.data.datasets[0].data = sales;
+        revenue_chart.data.datasets[1].data = expenses;
+
+        revenue_chart.update();
+    };
+
+    async function get_flow_data(btn, type) {
+        const flow_buttons = document.querySelectorAll(".flow_button");
+
+        flow_buttons.forEach(b => {
+            b.classList.remove("font-bold", "bg-[#161B22]", "text-white");
+            b.classList.add("text-gray-500");
+        });
+
+        btn.classList.remove("text-gray-500");
+        btn.classList.add("font-bold", "bg-[#161B22]", "text-white");
+
+        const response = await fetch(`/companies/${company_id}/api/cash/flow/${type}`); // font-bold bg-[#161B22] text-white
+
+        const result = await response.json();
+        if (result.error) {
+            notify("Algo salio mal", "error");
+            return;
+        }
+
+        update_flow_chart(
+            result.data.labels,
+            result.data.sales,
+            result.data.expenses
+        );
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+        init_revenue_chart();
+
+        const defaultBtn = document.querySelector(".flow_button");
+        get_flow_data(defaultBtn, "12m");
+    });
+
+</script>
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

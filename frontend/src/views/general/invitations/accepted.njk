@@ -1,0 +1,67 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 justify-between flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/invitations" class="hover:text-white transition-colors">Invitaciones</a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Aceptada</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="relative w-full text-center z-10">
+
+            <div class="glass-card rounded-[2.5rem] p-20 relative overflow-hidden">
+                <div class="icon-container mb-8 inline-block">
+                    <div class="relative w-14 h-14 mx-auto">
+                        <div class="absolute inset-0 bg-[#FD420A] rounded-full"></div>
+                        <div
+                            class="relative w-full h-full rounded-[2.2rem] flex items-center justify-center shadow-2xl transform rotate-3">
+                            <i class="fa-solid fa-check text-white text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 mb-10">
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                        ¡Bienvenido <span class="capitalize">{{ user.username }}</span> al <span
+                            class="text-[#FD420A]">Equipo</span>!
+                    </h1>
+                    <p class="text-gray-400 text-base md:text-lg max-w-md mx-auto">
+                        Tu invitación ha sido procesada con éxito. Ya tienes acceso total a todas nuestras
+                        herramientas corporativas.
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/invitations"
+                        class="btn-shine p-4 bg-[#FD420A] hover:bg-[#ff5a27]text-white font-bold rounded-2xl shadow-[0_10px_30px_rgba(253,66,10,0.35)] transition-all flex items-center justify-center gap-3">
+                        Volver a ver las Invitaciones
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+{% include "components/dashboard-footer.njk" %}
+{% endblock %}

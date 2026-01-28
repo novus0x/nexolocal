@@ -1,0 +1,11 @@
+.env
+all.css
+tailwind.build.css
+package-lock.json
+index.html
+
+env/
+__pycache__/
+node_modules/
+migrations/
+webfonts/

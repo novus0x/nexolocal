@@ -1,0 +1,33 @@
+{% extends "layouts/auth.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen">
+    <div class="glow-effect top-1/4 left-1/4" style="animation: float 10s infinite ease-in-out;"></div>
+    <div class="glow-effect bottom-1/4 right-1/4" style="animation: float 8s infinite ease-in-out reverse;"></div>
+
+    <main class="relative z-10 text-center px-6">
+        <div class="mb-4">
+            <span class="text-sm font-bold tracking-[0.3em] uppercase text-[#FD420A] opacity-80">Error detectado</span>
+            <h1 class="error-code select-none">404</h1>
+        </div>
+
+        <div class="max-w-md mx-auto">
+            <h2 class="text-2xl md:text-3xl font-bold mb-4 text-white">Parece que te has perdido.</h2>
+            <p class="text-gray-400 mb-10 leading-relaxed">
+                La página que buscas no existe o ha sido movida a otra ubicación. Verifica la URL o intenta volver al
+                inicio.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="/" class="btn-primary w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-sm tracking-wide">
+                    Volver al Inicio
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

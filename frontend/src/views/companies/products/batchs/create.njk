@@ -1,0 +1,200 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/companies/{{ company_information.id }}"
+                            class="hover:text-white transition-colors">Negocio</a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/companies/{{ company_information.id }}/products" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Productos</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/companies/{{ company_information.id }}/products/read/{{ product.id }}"
+                                id="breadcrumb-workspace" class="hover:text-white ml-1 md:ml-2 transition-colors">{{
+                                product.name }}</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/companies/{{ company_information.id }}/products/{{ product.id }}/batchs"
+                                id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Batchs</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Nuevo</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight">Registro de Nuevo Lote</h1>
+            <p class="text-gray-500 mt-1">Ingresa los detalles de entrada para actualizar el stock global.</p>
+        </div>
+
+        <div class="grid col-span-1 md:grid-cols-2 gap-8">
+            <div class="col-span-1 md:col-span-1 space-y-8">
+                <div class="glass-card rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
+                    <form class="space-y-8" action="/companies/{{ company_information.id }}/products/{{ product.id }}/batchs/create" method="post">
+                        <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+                            {# <div class="space-y-2">
+                                <label
+                                    class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Producto</label>
+                                <div class="relative group">
+                                    <i
+                                        class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-brand transition-colors"></i>
+                                    <input type="text" placeholder="Buscar por nombre o SKU..."
+                                        class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition-all">
+                                </div>
+                            </div> #}
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Cantidad de Ingreso</label>
+                                <input type="number" id="qty" placeholder="0" onchange="update_insights()" name="quantity"
+                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white focus:outline-none focus:border-brand transition-all text-xl font-bold" value="{{ quantity }}" required>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Fecha de
+                                    Recepción</label>
+                                <input type="date" name="reception_date"
+                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-4 text-white focus:outline-none focus:border-brand transition-all" value="{{ today_inp }}">
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Vencimiento</label>
+                                <input type="date" name="expiration_date"
+                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-4 text-white focus:outline-none focus:border-brand transition-all" value="{{ expiration_date }}">
+                            </div>
+                            {# <div class="space-y-2">
+                                <label
+                                    class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Proveedor</label>
+                                <select
+                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-4 text-white focus:outline-none focus:border-brand transition-all appearance-none">
+                                    <option class="input-field">Seleccionar...</option>
+                                    <option class="input-field">Distribuidora Norte</option>
+                                    <option class="input-field">Global Logistic S.A.</option>
+                                </select>
+                            </div> #}
+                        </div>
+
+                        <div
+                            class="bg-white/5 rounded-2xl p-6 grid grid-cols-1 md:grid-cols-2 gap-8 border border-white/5">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-widest text-slate-400">Precio de venta</label>
+                                <div class="relative">
+                                    <span
+                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">S/</span>
+                                    <input type="number" id="price" step="0.01" placeholder="0.00" onchange="update_insights()" name="price"
+                                        class="w-full bg-transparent border-b border-white/20 py-3 pl-10 pr-4 text-white focus:outline-none focus:border-brand text-2xl font-medium transition-all" value="{{ price or product.price }}">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-widest text-slate-400">Costo de Compra</label>
+                                <div class="relative">
+                                    <span
+                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">S/</span>
+                                    <input type="number" id="cost" step="0.01" placeholder="0.00" onchange="update_insights()" name="cost"
+                                        class="w-full bg-transparent border-b border-white/20 py-3 pl-10 pr-4 text-white focus:outline-none focus:border-brand text-2xl font-medium transition-all" value="{{ cost or product.cost }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-4">
+                            <a href="/companies/{{ company_information.id }}/products/read/{{ product.id }}"
+                                class="text-sm font-semibold text-red-500 hover:text-red-700 transition-colors">Cancelar</a>
+                            <button type="submit"
+                                class="bg-[#FD420A] hover:bg-[#ff5a26] text-white px-7 py-3 rounded-2xl text-base font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                                <i class="fa-solid fa-plus"></i>
+                                Crear Lote
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <aside class="w-full space-y-6 col-span-1 md:col-span-1">
+                <div class="glass-card rounded-3xl p-6 space-y-6">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2 italic uppercase tracking-tighter">
+                        <span class="w-2 h-2 bg-brand rounded-full animate-pulse"></span>
+                        Insights en Tiempo Real
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-end">
+                            <span class="text-slate-400 text-xs font-medium">Inversión Total</span>
+                            <span id="total-inv" class="text-lg font-bold text-white leading-none">S/0</span>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <span class="text-slate-400 text-xs font-medium">Ganancia Est.</span>
+                            <span id="total-profit" class="text-lg font-bold text-emerald-400 leading-none">S/0</span>
+                        </div>
+                        {# <div class="pt-4 border-t border-white/5 text-center">
+                            <span class="text-slate-500 text-[10px] uppercase font-black block mb-1">Margen
+                                Comercial</span>
+                            <div id="margin-badge" class="text-3xl font-black text-slate-700">0%</div>
+                        </div> #}
+                    </div>
+                </div>
+
+                {# <div class="bg-brand/10 border border-brand/20 rounded-3xl p-6 relative group overflow-hidden">
+                    <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:rotate-12 transition-transform">
+                        <i class="fa-solid fa-lightbulb text-6xl text-brand"></i>
+                    </div>
+                    <p class="text-brand font-bold text-sm mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-robot"></i> AI Tips
+                    </p>
+                    <p class="text-slate-300 text-xs leading-relaxed">
+                        Este producto suele tener alta rotación los fines de semana. Asegúrate de que el lote sea
+                        suficiente
+                        para cubrir el viernes.
+                    </p>
+                </div> #}
+            </aside>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    const qty = document.getElementById("qty");
+    const price = document.getElementById("price");
+    const cost = document.getElementById("cost");
+    const total_inv = document.getElementById("total-inv");
+    const total_profit = document.getElementById("total-profit");
+
+    function update_insights() {
+        total_inv.textContent = `S/${qty.value * cost.value}`;
+        total_profit.textContent = `S/${qty.value * price.value - qty.value * cost.value}`;
+    };
+
+    const errors = {{ errors or false | dump | safe }};
+    if (errors) update_insights();
+</script>
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

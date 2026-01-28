@@ -1,0 +1,365 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/companies/{{ company_information.id }}"
+                            class="hover:text-white transition-colors">Negocio</a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/companies/{{ company_information.id }}/products" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Productos</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Nuevo</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+        
+        <div
+            class="my-5 p-6 bg-[#0D1117] border border-[#30363D] rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-start gap-4">
+                <div class="p-3 bg-[#FD420A]/10 rounded-xl">
+                    <i class="fas fa-boxes-stacked text-[#FD420A] text-xl"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm text-white">Subir Multiples Productos</h4>
+                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                        Si tiene varios productos en un archivo Excel, puede importarlos desde esta página.
+                    </p>
+                </div>
+            </div>
+            <a href="/companies/{{ company_information.id }}/products/import" class="btn-primary cursor-pointer">
+                <i class="fas fa-file-csv"></i>
+            </a>
+        </div>
+
+        <form action="/companies/{{ company_information.id }}/products/create" method="post"
+            class="grid grid-cols-1 lg:grid-cols-3 gap-8" id="form_new_product">
+
+            <div class="lg:col-span-2 space-y-6">
+
+                <section class="section-card p-8">
+                    <h3 class="text-sm font-bold mb-6 flex items-center gap-2">
+                        <i class="fas fa-tag text-[#FD420A]"></i> Datos del Producto
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Nombre</label>
+                            <input type="text" class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold"
+                                placeholder="Ej: Bebida" name="name" value="{{ name }}" required>
+                        </div>
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Identificador Único</label>
+                            <input type="text" class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold"
+                                placeholder="Ej: 7750236173896" name="identifier" value="{{ identifier }}" required>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">SKU</label>
+                            <input type="text"
+                                class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold"
+                                placeholder="0 - auto" name="sku" value="{{ sku }}" required>
+                            <p class="text-xs text-gray-600 italic">* Si no sabe qué agregar, escriba 0 y se generará
+                                automáticamente</p>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Categoría</label>
+                            <select class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold appearance-none"
+                                name="category" required>
+                                <option class="input-field" value="no_category">Sin categoría</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Descripción Corta</label>
+                            <textarea rows="2" class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold"
+                                placeholder="Detalles..." name="description" value="{{ description }}"></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card p-8">
+                    <h3 class="text-sm font-bold mb-6 flex items-center gap-2">
+                        <i class="fas fa-coins text-[#FD420A]"></i> Estructura de Precios
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Precio de Venta</label>
+                            <div class="relative">
+                                <span class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                                <input type="number" step="0.01"
+                                    class="w-full input-glass pl-10 pr-5 py-3.5 rounded-xl text-sm font-bold text-white"
+                                    placeholder="0.00" name="sale_price" value="{{ sale_price }}" required>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Costo de Compra</label>
+                            <div class="relative">
+                                <span class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                                <input type="number" step="0.01"
+                                    class="w-full input-glass pl-10 pr-5 py-3.5 rounded-xl text-sm" placeholder="0.00"
+                                    name="sale_cost" value="{{ sale_cost }}" required>
+                            </div>
+                        </div>
+                        {% if company_information.taxes %}
+                        <div>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" name="tax_include" class="custom-checkbox" {% if tax_include
+                                    %}checked{% endif %}>
+                                <span
+                                    class="text-base text-gray-400 group-hover:text-gray-200 transition-colors">Impuesto
+                                    incluido en el precio de venta?</span>
+                            </label>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <section class="section-card p-8 border-l-4 border-indigo-500/30">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold">Configuración de Servicio</h3>
+                                <p class="text-xs text-gray-500 uppercase font-bold tracking-tight">Habilitar si no
+                                    es un producto físico</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="serviceSwitch" class="sr-only switch-input"
+                                onchange="toggleSection('serviceOptions', this.checked)" name="is_service" {% if
+                                is_service %} checked {% endif %}>
+                            <div class="w-11 h-6 bg-white/10 rounded-full transition-all switch-bg"></div>
+                            <div
+                                class="absolute left-1 top-1 bg-gray-500 w-4 h-4 rounded-full transition-all switch-dot">
+                            </div>
+                        </label>
+                    </div>
+
+                    <div id="serviceOptions"
+                        class="{% if not is_service %} hidden {% else %} grid {% endif %} grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5 transition-all-custom">
+                        <div class="space-y-2 col-span-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Tipo de Duración</label>
+                            <select class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold appearance-none"
+                                name="duration_type" required>
+                                <option class="input-field" value="minutes" {% if duration_type == 'minutes' %} selected {% endif %} >Minutos</option>
+                                <option class="input-field" value="hours" {% if duration_type == 'hours' %} selected {% endif %} >Horas</option>
+                                <option class="input-field" value="days" {% if duration_type == 'days' %} selected {% endif %} >Dias</option>
+                                <option class="input-field" value="weeks" {% if duration_type == 'weeks' %} selected {% endif %} >Semanas</option>
+                                <option class="input-field" value="minutes" {% if duration_type == 'minutes' %} selected {% endif %} >Meses</option>
+                                <option class="input-field" value="years" {% if duration_type == 'years' %} selected {% endif %} >Años</option>
+                                <option class="input-field" value="sessions" {% if duration_type == 'sessions' %} selected {% endif %} >Sesiones</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Duración</label>
+                            <div class="relative">
+                                <input type="number" class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold"
+                                    placeholder="30" name="duration" value="{{ duration }}">
+                                <i class="fas fa-stopwatch absolute right-5 top-1/2 -translate-y-1/2 text-gray-600"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Staff Disponible</label>
+                            <select class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold" name="staff_id">
+                                <option class="input-field">Sin asignar</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="space-y-6">
+                <section
+                    class="section-card p-8 overflow-hidden no_service_section {% if is_service %} hidden {% endif %}">
+                    <h3 class="text-sm font-bold mb-6 flex items-center gap-2">
+                        <i class="fas fa-warehouse text-[#FD420A]"></i> Inventario
+                    </h3>
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Stock Actual</label>
+                            <input type="number"
+                                class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold bg-white/5 border-white/20"
+                                placeholder="0" name="stock" value="{{ stock }}">
+                        </div>
+                        <hr class="border-white/5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[11px] font-bold text-gray-300">Rastrear Inventario</p>
+                                <p class="text-xs text-gray-500">Notificarme si queda poco stock</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="trackInventory" class="sr-only switch-input"
+                                    onchange="toggle_stock('lowStockField', this.checked)" name="track_product" {% if
+                                    track_product %} checked {% endif %}>
+                                <div class="w-10 h-5 bg-white/10 rounded-full transition-all switch-bg"></div>
+                                <div
+                                    class="absolute left-1 top-0.5 bg-gray-500 w-4 h-4 rounded-full transition-all switch-dot">
+                                </div>
+                            </label>
+                        </div>
+                        <div id="lowStockField"
+                            class="{% if not track_product %}hidden {% endif %} space-y-2 transition-all-custom">
+                            <label class="text-xs font-bold text-orange-400 uppercase ml-1">Alerta de Stock Bajo</label>
+                            <input type="number"
+                                class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold border-orange-500/20"
+                                placeholder="Ej: 5" name="low_stock" value="{{ low_stock }}">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card p-8 no_service_section {% if is_service %} hidden {% endif %}">
+                    <h3 class="text-sm font-bold mb-6 flex items-center gap-2 text-red-400">
+                        <i class="fas fa-calendar-times"></i> Control de Caducidad
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-500 uppercase ml-1">Fecha de
+                                Expiración</label>
+                            <input type="date" class="w-full input-glass px-5 py-3.5 rounded-xl text-sm text-white"
+                                name="expiration_date" value="{{ date_val }}">
+                        </div>
+                        <p class="text-xs text-gray-600 italic">
+                            * Deja en blanco si el producto no tiene fecha de vencimiento.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="section-card p-8 no_service_section {% if is_service %} hidden {% endif %}">
+                    <h3 class="text-sm font-bold mb-6 flex items-center gap-2">
+                        <i class="fas fa-ruler-combined text-gray-500"></i> Logística
+                    </h3>
+                    <div class="space-y-5">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Peso (kg)</label>
+                            <input type="number" step="0.01"
+                                class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold" placeholder="0.00"
+                                name="weight" value="{{ weight }}">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Dimensiones (cm)</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="space-y-1">
+                                    <span class="text-xs text-gray-600 block text-center uppercase">Largo</span>
+                                    <input type="number"
+                                        class="w-full input-glass py-2 rounded-lg text-sm font-bold text-center"
+                                        name="length" value="{{ length }}" placeholder="0">
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="text-xs text-gray-600 block text-center uppercase">Ancho</span>
+                                    <input type="number"
+                                        class="w-full input-glass py-2 rounded-lg text-sm font-bold text-center"
+                                        name="width" value="{{ width }}" placeholder="0">
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="text-xs text-gray-600 block text-center uppercase">Alto</span>
+                                    <input type="number"
+                                        class="w-full input-glass py-2 rounded-lg text-sm font-bold text-center"
+                                        name="height" value="{{ height }}" placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="pt-6 border-t border-[#30363D] flex items-center justify-between">
+                    <a href="/companies/{{ company_information.id }}/products"
+                        class="text-sm font-bold text-red-400 hover:text-red-500 transition-all">Cancelar</a>
+                    <div class="flex gap-4">
+                        <button type="submit" class="btn-primary cursor-pointer">
+                            Crear Producto
+                        </button>
+                    </div>
+                </div>
+
+                {# <section class="section-card p-6">
+                    <div
+                        class="w-full aspect-square rounded-2xl bg-white/5 border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-center p-4 hover:border-[#FD420A]/50 transition-all cursor-pointer group">
+                        <i
+                            class="fas fa-image text-2xl text-gray-600 mb-2 group-hover:text-[#FD420A] group-hover:scale-110 transition-all"></i>
+                        <p class="text-xs font-bold text-gray-500 uppercase">Subir Imagen</p>
+                        <p class="text-[8px] text-gray-700 mt-1">PNG, JPG hasta 5MB</p>
+                    </div>
+                </section> #}
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+    function toggleSection(id, isVisible) {
+        const section = document.getElementById(id);
+        const inventary_section = document.querySelectorAll(".no_service_section");
+
+        if (isVisible) {
+            section.classList.remove('hidden');
+            section.classList.add('grid');
+
+            inventary_section.forEach((e) => e.classList.add('hidden'));
+
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(-5px)';
+            setTimeout(() => {
+                section.style.transition = 'all 0.3s ease';
+                section.style.opacity = '1';
+                section.style.transform = 'translateY(0)';
+            }, 10);
+        } else {
+            inventary_section.forEach((e) => e.classList.remove('hidden'));
+
+            section.style.opacity = '0';
+            setTimeout(() => {
+                section.classList.add('hidden');
+                section.classList.remove('grid');
+            }, 300);
+        }
+    }
+
+    function toggle_stock(id, isVisible) {
+        const section = document.getElementById(id);
+
+        if (isVisible) {
+            section.classList.remove('hidden');
+            section.classList.add('grid');
+
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(-5px)';
+            setTimeout(() => {
+                section.style.transition = 'all 0.3s ease';
+                section.style.opacity = '1';
+                section.style.transform = 'translateY(0)';
+            }, 10);
+        } else {
+
+            section.style.opacity = '0';
+            setTimeout(() => {
+                section.classList.add('hidden');
+                section.classList.remove('grid');
+            }, 300);
+        }
+    }
+
+</script>
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

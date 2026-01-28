@@ -1,0 +1,204 @@
+{% extends "layouts/main.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --color-nexo-orange: #FD420A;
+        --color-nexo-dark-primary: #0B0F14;
+        --color-nexo-dark-secondary: #0D1117;
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: var(--color-nexo-dark-primary);
+        color: #ffffff;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    .nexo-gradient-bg {
+        background: radial-gradient(circle at 50% -20%, #fd420a22 0%, #0b0f14 60%);
+    }
+
+    .nexo-card {
+        background-color: var(--color-nexo-dark-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-primary {
+        background-color: var(--color-nexo-orange);
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        filter: brightness(1.1);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px -5px rgba(253, 66, 10, 0.4);
+    }
+
+    .input-nexo {
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+    }
+
+    .input-nexo:focus {
+        border-color: var(--color-nexo-orange);
+        background-color: rgba(255, 255, 255, 0.06);
+        outline: none;
+    }
+
+    .text-nexo {
+        color: var(--color-nexo-orange);
+    }
+
+    /* Animaciones */
+    .fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .status-pill {
+        background: rgba(253, 66, 10, 0.1);
+        border: 1px solid rgba(253, 66, 10, 0.2);
+        color: var(--color-nexo-orange);
+    }
+</style>
+
+<div class="nexo-gradient-bg min-h-screen">
+
+    <!-- Header / Logo -->
+    <header class="p-8 flex justify-center">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-[#FD420A] rounded-lg flex items-center justify-center">
+                <div class="w-4 h-4 bg-white rounded-sm rotate-45"></div>
+            </div>
+            <span class="text-xl font-extrabold tracking-tighter">NEXOLOCAL</span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 py-12">
+
+        <!-- Hero Section -->
+        <div class="text-center mb-16 fade-in">
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
+                Tus facturas, <span class="text-nexo">al instante.</span>
+            </h1>
+            <p class="text-gray-400 text-lg max-w-xl mx-auto leading-relaxed">
+                Ingresa los detalles de tu ticket para descargar tu comprobante electrónico de forma segura.
+            </p>
+        </div>
+
+        <!-- Search Area -->
+        <div class="max-w-2xl mx-auto mb-16 fade-in" style="animation-delay: 0.1s;">
+            <div class="nexo-card p-2 flex flex-col md:flex-row gap-2">
+                <div class="flex-grow flex items-center px-4 py-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-3" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input type="text" placeholder="Número de Ticket o Serie (Ej: F001-000123)"
+                        class="bg-transparent w-full text-white placeholder-gray-600 focus:outline-none font-medium">
+                </div>
+                <button class="btn-primary px-8 py-4 rounded-xl font-bold text-sm uppercase tracking-wider">
+                    Consultar
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Display (Demo) -->
+        <div class="grid md:grid-cols-1 gap-8 fade-in" style="animation-delay: 0.2s;">
+            <div class="nexo-card overflow-hidden">
+                <div class="p-8 border-b border-white/5 flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <p class="text-xs font-bold text-nexo uppercase tracking-widest mb-1">Resultado de búsqueda</p>
+                        <h2 class="text-2xl font-bold">Factura Electrónica F001-4502</h2>
+                    </div>
+                    <div class="status-pill px-4 py-1 rounded-full text-xs font-bold uppercase">
+                        Emitido con éxito
+                    </div>
+                </div>
+
+                <div class="p-8 grid md:grid-cols-3 gap-8">
+                    <!-- Column 1 -->
+                    <div>
+                        <span
+                            class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Cliente</span>
+                        <p class="font-bold text-white">Empresa de Servicios S.A.C.</p>
+                        <p class="text-sm text-gray-500 mt-1">RUC: 20459873121</p>
+                    </div>
+
+                    <!-- Column 2 -->
+                    <div>
+                        <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Fecha y
+                            Moneda</span>
+                        <p class="font-bold text-white">12 de Octubre, 2023</p>
+                        <p class="text-sm text-gray-500 mt-1">Soles (PEN)</p>
+                    </div>
+
+                    <!-- Column 3 -->
+                    <div class="bg-black/20 p-4 rounded-2xl border border-white/5">
+                        <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">Total a
+                            Pagar</span>
+                        <p class="text-3xl font-extrabold text-white">S/ 1,250.00</p>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="bg-white/[0.02] p-6 flex flex-wrap gap-4 justify-center md:justify-start">
+                    <button
+                        class="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-6 py-3 rounded-xl border border-white/10 transition-colors">
+                        <svg class="w-5 h-5 text-nexo" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        <span class="text-sm font-bold">PDF</span>
+                    </button>
+                    <button
+                        class="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-6 py-3 rounded-xl border border-white/10 transition-colors">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                        <span class="text-sm font-bold">XML</span>
+                    </button>
+                    <button
+                        class="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-6 py-3 rounded-xl border border-white/10 transition-colors">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                            </path>
+                        </svg>
+                        <span class="text-sm font-bold">Imprimir</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-20 py-10 border-t border-white/5 text-center">
+        <p class="text-gray-600 text-[10px] font-bold uppercase tracking-[0.4em]">Nexolocal Tecnología Tributaria</p>
+    </footer>
+
+</div>
+
+{% endblock %}

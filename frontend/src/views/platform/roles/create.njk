@@ -1,0 +1,118 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/" class="hover:text-white transition-colors">Dashboard</a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/platform/roles" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Roles</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Nuevo</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <form action="/platform/roles/create" method="post" class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div id="permissions-container" class="lg:col-span-3 space-y-8">
+                {% for type in permissions_data %}
+                <div class="bg-[#151B23] border border-[#30363D] rounded-3xl overflow-hidden shadow-sm">
+                    <div class="px-8 py-5 bg-[#1C222B] flex items-center justify-between border-b border-[#30363D]">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-[#FD420A]/10 text-[#FD420A] flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+                                    </path>
+                                </svg>
+                            </div>
+                            <h2 class="text-lg font-bold">{{ type.label }}</h2>
+                        </div>
+                    </div>
+
+                    <div class="p-8 space-y-10">
+                        {% for perm in type.permissions %}
+                        <div>
+                            <h3
+                                class="text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] mb-5 flex items-center gap-3">
+                                <span class="w-8 h-px bg-[#30363D]"></span>
+                                {{ perm.label }}
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+
+                                {% for type in perm.permissions %}
+                                <label
+                                    class="permission-card group bg-[#0B0F14] border border-[#30363D] p-4 rounded-2xl flex items-start gap-4 cursor-pointer hover:border-gray-600">
+                                    <input type="checkbox" class="custom-checkbox perm-check" name="permissions_data" value="{{ type.key }}">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-semibold text-gray-200 group-hover:text-white">{{ type.label }}</span>
+                                        <span
+                                            class="text-[10px] text-gray-600 mt-1">{{ type.key }}</span>
+                                    </div>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-[#151B23] border border-[#30363D] rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Detalles del Rol
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-wider">Nombre</label>
+                            <input id="role-name" type="text" placeholder="Ej: Moderador" name="role_name" required
+                                class="w-full bg-[#0B0F14] border border-[#30363D] rounded-xl px-4 py-2.5 text-sm focus:border-[#FD420A] outline-none">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-wider">Descripción</label>
+                            <textarea
+                                class="w-full bg-[#0B0F14] border border-[#30363D] rounded-xl px-4 py-2.5 text-sm outline-none"
+                                rows="5" placeholder="Añadir descripción (opcional)" name="description"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 flex items-center justify-between">
+                    <div class="flex gap-4">
+                        <button type="submit" class="text-md btn-primary cursor-pointer">
+                            Crear Rol
+                        </button>
+                    </div>
+                    <a href="/platform/roles"
+                        class="text-md font-bold text-red-400 hover:text-red-500 transition-all">Cancelar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

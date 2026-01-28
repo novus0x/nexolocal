@@ -1,0 +1,102 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/" class="hover:text-white transition-colors">Dashboard</a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/platform/companies" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Negocios</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Nuevo</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <form action="/platform/companies/create" method="post" class="space-y-8" action="/platform/companies/create">
+            <section class="form-section space-y-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-1.5 h-5 bg-orange-500 rounded-full"></div>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-orange-500">Información del Negocio</h2>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="input-group">
+                        <label>Nombre del Negocio</label>
+                        <input type="text" placeholder="Ej: TechStore Solutions" class="w-full input-glass px-5 py-3.5 rounded-xl text-sm" name="name" value="{{ name }}" required>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section space-y-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-1.5 h-5 bg-blue-500 rounded-full"></div>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-blue-500">Acceso Administrativo</h2>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" placeholder="admin@empresa.com" class="w-full input-glass px-5 py-3.5 rounded-xl text-sm" name="email" value="{{ email }}" required>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section space-y-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-1.5 h-5 bg-green-500 rounded-full"></div>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-green-500">Configuración de Cuenta</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="input-group">
+                        <label>Asignar Rol</label>
+                        <select class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold appearance-none" name="role_id" required>
+                            {% for role in roles %}
+                            <option class="input-field" value="{{ role.id }}" {% if role_id == role.id %} selected {% endif %} >{{ role.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="input-group col-span-2">
+                        <label>Notas Internas (Moderador)</label>
+                        <input type="text" placeholder="Razón del registro o condiciones especiales..." name="notes"
+                            class="w-full input-glass px-5 py-3.5 rounded-xl text-sm" value="{{ notes }}">
+                    </div>
+                </div>
+            </section>
+
+            <div class="pt-6 border-t border-[#30363D] flex items-center justify-between">
+                <a href="/platform/companies"
+                    class="text-sm font-bold text-red-400 hover:text-red-500 transition-all">Cancelar</a>
+                <div class="flex gap-4">
+                    <button type="submit" class="btn-primary cursor-pointer">
+                        Registrar Negocio
+                    </button>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</main>
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

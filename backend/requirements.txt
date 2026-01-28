@@ -1,0 +1,13 @@
+uuid
+PyJWT
+bcrypt
+authlib
+alembic
+pymysql
+fastapi
+uvicorn
+sqlalchemy
+python-dotenv
+psycopg2-binary
+python-multipart
+pydantic-settings

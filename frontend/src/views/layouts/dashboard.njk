@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Title -->
+  <title>{% block title %}NexoLocal{% endblock %}</title>
+  <!-- Icon -->
+  <link rel="icon" href="/public/img/logo.png" />
+  <!-- JS -->
+  <!--<script src="https://cdn.tailwindcss.com"></script>-->
+  <link rel="stylesheet" href="/public/css/all.css" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/animations.css" />
+  <link rel="stylesheet" href="/public/css/tailwind.build.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="overflow-x-hidden overflow-y-auto">
+  <div class="flex h-screen w-full relative"> 
+    {# min-h-screen #}
+    {% include "components/notifications.njk" %}
+    {% block content %}
+    {% endblock %}
+  </div>
+
+  <div id="sidebar-overlay" onclick="toggle_sidebar()"
+    class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
+  <!-- JS -->
+  <script src="/public/js/notify.js"></script>
+  <script src="/public/js/main.js"></script>
+</body>
+
+</html>
