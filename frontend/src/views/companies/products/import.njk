@@ -168,7 +168,7 @@
 
     function handle_file(file) {
         if (!file.name.toLowerCase().endsWith('.csv')) {
-            alert("Extensión no permitida. Solo archivos .csv");
+            notify("Extensión no permitida. Solo archivos .csv", "error");
             return;
         }
 
@@ -184,7 +184,7 @@
         // Limpiar líneas vacías y separar por líneas
         const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
         if (lines.length < 2) {
-            alert("El archivo parece estar vacío o le faltan los encabezados.");
+            notify("El archivo parece estar vacío o le faltan los encabezados!", "error")
             return;
         }
 

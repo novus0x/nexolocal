@@ -303,7 +303,7 @@
         const iframeWindow = iframe.contentWindow || iframe.contentDocument?.defaultView;
 
         if (!iframeWindow) {
-            alert("No se pudo acceder al contenido del documento.");
+            notify("No se pudo acceder al contenido del documento.","error");
             return;
         }
 

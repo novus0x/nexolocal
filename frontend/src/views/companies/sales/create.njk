@@ -309,7 +309,7 @@
         console.log(result)
 
         if (result.error || !result.data?.product) {
-            alert("Producto no encontrado");
+            notify("Producto no encontrado", "error");
             return;
         }
 
@@ -410,7 +410,7 @@
 
         if (isNaN(qty) || qty < 1) qty = 1;
         if (qty > item.stock) {
-            alert("Cantidad supera el stock disponible");
+            notify("Cantidad supera el stock disponible", "error")
             qty = item.stock;
         }
 
@@ -465,7 +465,7 @@
         const email = document.getElementById('newEmail').value;
         const phone = document.getElementById('newPhone').value;
 
-        if (!name || !email) return alert("Nombre y Email son obligatorios");
+        if (!name || !email) return notify("Nombre y Email son obligatorios", "info");
 
         const newClient = { id: Date.now().toString(), name, email, phone };
         db_clients.push(newClient);
@@ -667,12 +667,12 @@
 
     async function process_sale() {
         if (!cart.length) {
-            alert("El carrito está vacío");
+            notify("El carrito está vacío", "info");
             return;
         }
 
         if (!selected_payment) {
-            alert("Selecciona un método de pago");
+            notify("Selecciona un método de pago", "info")
             return;
         }
 

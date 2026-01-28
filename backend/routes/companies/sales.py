@@ -82,8 +82,8 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
     today = date.today()
 
     labels = []
-    sales_map = {}
-    expenses_map = {}
+    income_map = {}
+    expense_map = {}
 
     ### Validation ###
     if user == None:
@@ -139,8 +139,8 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
         for h in range(0, 24):
             key = f"{h:02d}:00"
             labels.append(key)
-            sales_map[key] = 0
-            expenses_map[key] = 0
+            income_map[key] = 0
+            expense_map[key] = 0
     
     if mode == "day":
         d = start.date()
@@ -148,8 +148,8 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
         while d <= end.date():
             key = d.strftime("%d %b")
             labels.append(key)
-            sales_map[key] = 0
-            expenses_map[key] = 0
+            income_map[key] = 0
+            expense_map[key] = 0
             d += timedelta(days=1)
 
     if mode == "month":
@@ -158,118 +158,136 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
         while d <= end:
             key = d.strftime("%b %Y")
             labels.append(key)
-            sales_map[key] = 0
-            expenses_map[key] = 0
+            income_map[key] = 0
+            expense_map[key] = 0
             if d.month == 12:
                 d = d.replace(year=d.year+1, month=1)
             else:
                 d = d.replace(month=d.month+1)
 
     if mode == "hour":
-        sales_rows = db.query(
-            extract("hour", Sale.date).label("k"),
-            func.sum(Sale.total)
-        ).filter(
-            Sale.company_id == company_id,
-            Sale.status == Sale_Status.COMPLETED,
-            Sale.date >= start,
-            Sale.date <= end
-        ).group_by("k").all()
-
-        for h, total in sales_rows:
-            key = f"{int(h):02d}:00"
-            sales_map[key] = float(total or 0)
-
-    elif mode == "day":
-        sales_rows = db.query(
-            func.date(Sale.date),
-            func.sum(Sale.total)
-        ).filter(
-            Sale.company_id == company_id,
-            Sale.status == Sale_Status.COMPLETED,
-            Sale.date >= start,
-            Sale.date <= end
-        ).group_by(func.date(Sale.date)).all()
-
-        for d, total in sales_rows:
-            key = d.strftime("%d %b")
-            sales_map[key] = float(total or 0)
-
-    elif mode == "month":
-        sales_rows = db.query(
-            extract("year", Sale.date),
-            extract("month", Sale.date),
-            func.sum(Sale.total)
-        ).filter(
-            Sale.company_id == company_id,
-            Sale.status == Sale_Status.COMPLETED,
-            Sale.date >= start,
-            Sale.date <= end
-        ).group_by(
-            extract("year", Sale.date),
-            extract("month", Sale.date)
-        ).all()
-
-        for y, m, total in sales_rows:
-            key = datetime(int(y), int(m), 1).strftime("%b %Y")
-            sales_map[key] = float(total or 0)
-
-    if mode == "hour":
         rows = db.query(
-            extract("hour", Expense.date),
-            func.sum(Expense.total_amount)
+            extract("hour", Cash_Movement.date),
+            func.coalesce(func.sum(Cash_Movement.amount), 0)
         ).filter(
-            Expense.company_id == company_id,
-            Expense.status == Expense_Status.PAID,
-            Expense.date >= start,
-            Expense.date <= end
-        ).group_by(extract("hour", Expense.date)).all()
+            Cash_Movement.company_id == company_id,
+            Cash_Movement.type.in_([
+                Cash_Movement_Type.SALE,
+                Cash_Movement_Type.INCOME
+            ]),
+            Cash_Movement.date >= start,
+            Cash_Movement.date <= end
+        ).group_by(extract("hour", Cash_Movement.date)).all()
 
         for h, total in rows:
             key = f"{int(h):02d}:00"
-            expenses_map[key] = float(total or 0)
+            income_map[key] = float(total)
 
     elif mode == "day":
-        expense_rows = db.query(
-            func.date(Expense.date).label("k"),
-            func.coalesce(func.sum(Expense.total_amount), 0)
+        rows = db.query(
+            func.date(Cash_Movement.date),
+            func.coalesce(func.sum(Cash_Movement.amount), 0)
         ).filter(
-            Expense.company_id == company_id,
-            Expense.status == Expense_Status.PAID,
-            Expense.date >= start,
-            Expense.date <= end
-        ).group_by(func.date(Expense.date)).all()
+            Cash_Movement.company_id == company_id,
+            Cash_Movement.type.in_([
+                Cash_Movement_Type.SALE,
+                Cash_Movement_Type.INCOME
+            ]),
+            Cash_Movement.date >= start,
+            Cash_Movement.date <= end
+        ).group_by(func.date(Cash_Movement.date)).all()
 
-        for d, total in expense_rows:
+        for d, total in rows:
             key = d.strftime("%d %b")
-            expenses_map[key] = float(total or 0)
+            income_map[key] = float(total)
 
     elif mode == "month":
-        expense_rows = db.query(
-            extract("year", Expense.date).label("y"),
-            extract("month", Expense.date).label("m"),
-            func.coalesce(func.sum(Expense.total_amount), 0)
+        rows = db.query(
+            extract("year", Cash_Movement.date),
+            extract("month", Cash_Movement.date),
+            func.coalesce(func.sum(Cash_Movement.amount), 0)
         ).filter(
-            Expense.company_id == company_id,
-            Expense.status == Expense_Status.PAID,
-            Expense.date >= start,
-            Expense.date <= end
+            Cash_Movement.company_id == company_id,
+            Cash_Movement.type.in_([
+                Cash_Movement_Type.SALE,
+                Cash_Movement_Type.INCOME
+            ]),
+            Cash_Movement.date >= start,
+            Cash_Movement.date <= end
         ).group_by(
-            extract("year", Expense.date),
-            extract("month", Expense.date)
+            extract("year", Cash_Movement.date),
+            extract("month", Cash_Movement.date)
         ).all()
 
-        for y, m, total in expense_rows:
+        for y, m, total in rows:
             key = datetime(int(y), int(m), 1).strftime("%b %Y")
-            expenses_map[key] = float(total or 0)
+            income_map[key] = float(total)
 
-    sales_data = [round(sales_map[l], 2) for l in labels]
-    expenses_data = [round(expenses_map[l], 2) for l in labels]
+    if mode == "hour":
+        rows = db.query(
+            extract("hour", Cash_Movement.date),
+            func.coalesce(func.sum(Cash_Movement.amount), 0)
+        ).filter(
+            Cash_Movement.company_id == company_id,
+            Cash_Movement.type.in_([
+                Cash_Movement_Type.EXPENSE,
+                Cash_Movement_Type.WITHDRAW
+            ]),
+            Cash_Movement.date >= start,
+            Cash_Movement.date <= end
+        ).group_by(extract("hour", Cash_Movement.date)).all()
+
+        for h, total in rows:
+            key = f"{int(h):02d}:00"
+            expense_map[key] = float(total)
+
+    elif mode == "day":
+        rows = db.query(
+            func.date(Cash_Movement.date),
+            func.coalesce(func.sum(Cash_Movement.amount), 0)
+        ).filter(
+            Cash_Movement.company_id == company_id,
+            Cash_Movement.type.in_([
+                Cash_Movement_Type.EXPENSE,
+                Cash_Movement_Type.WITHDRAW
+            ]),
+            Cash_Movement.date >= start,
+            Cash_Movement.date <= end
+        ).group_by(func.date(Cash_Movement.date)).all()
+
+        for d, total in rows:
+            key = d.strftime("%d %b")
+            expense_map[key] = float(total)
+
+    elif mode == "month":
+        rows = db.query(
+            extract("year", Cash_Movement.date),
+            extract("month", Cash_Movement.date),
+            func.coalesce(func.sum(Cash_Movement.amount), 0)
+        ).filter(
+            Cash_Movement.company_id == company_id,
+            Cash_Movement.type.in_([
+                Cash_Movement_Type.EXPENSE,
+                Cash_Movement_Type.WITHDRAW
+            ]),
+            Cash_Movement.date >= start,
+            Cash_Movement.date <= end
+        ).group_by(
+            extract("year", Cash_Movement.date),
+            extract("month", Cash_Movement.date)
+        ).all()
+
+        for y, m, total in rows:
+            key = datetime(int(y), int(m), 1).strftime("%b %Y")
+            expense_map[key] = float(total)
+
+    income_data = [round(income_map[l], 2) for l in labels]
+    expense_data = [round(expense_map[l], 2) for l in labels]
 
     return custom_response(status_code=200, message=translate(lang, "company.sales.flow.success"), data={
         "labels": labels,
-        "sales": sales_data,
-        "expenses": expenses_data
+        "sales": income_data,
+        "expenses": expense_data
     })
 
 ########## Check Reports - Company ##########
