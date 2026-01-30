@@ -510,7 +510,10 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
     if not payment_method_value in Payment_Method._value2member_map_:
         return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.incorrect_payment_method"))
 
+    ### Create Sale ###
     amount = 0
+    sale_cost_total = 0
+
     sale_items = []
     sale_items_ids = []
 
@@ -531,10 +534,9 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
     )
 
     for product in products_data:
-        current_amount = 0
         quantity = is_int(product.get("qty"))
 
-        if not quantity:
+        if not quantity or quantity <= 0:
             return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.incorrect_product_quantity"))
 
         check_product = db.query(Product).filter(
@@ -546,15 +548,17 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         if not check_product:
             return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.product_does_not_exist"))
 
+        current_cost = 0
+        current_amount = 0
+
         if not check_product.is_service:
             batches = (
                 db.query(Product_Batch)
                 .filter(
                     Product_Batch.product_id == check_product.id,
-                    Product_Batch.stock > 0
-                )
-                .order_by(Product_Batch.date.desc())
-                .all()
+                    Product_Batch.stock > 0,
+                    Product_Batch.is_active == True
+                ).order_by(Product_Batch.date.asc()).all()
             )
 
             remaining_qty = quantity
@@ -571,11 +575,23 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
                 batch.stock -= take
                 remaining_qty -= take
 
+                current_cost += take * batch.cost
+
+                if batch.stock <= 0:
+                    batch.is_active = False
+
             if remaining_qty > 0:
                 return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.incorrect_product_quantity"))
 
+            check_product.stock -= quantity
+
+        ### Sale Price ###
         current_amount = check_product.price * quantity
 
+        sale_cost_total += current_cost
+        amount += current_amount
+
+        ### Sale Item ###
         sale_item_id = get_uuid(db, Sale_Item)
 
         while sale_item_id in sale_items_ids:
@@ -593,12 +609,9 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
             is_service = check_product.is_service
         )
 
-        amount += current_amount
         sale_items.append(new_sale_item)
 
-        if not check_product.is_service:
-            check_product.stock = check_product.stock - quantity
-
+    ### Create Income ###
     new_income = Income(
         id = get_uuid(db, Income),
         name = "Nueva Venta",

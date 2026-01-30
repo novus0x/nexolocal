@@ -17,7 +17,7 @@ class User(Base):
     fullname = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
-    birth = Column(DateTime, nullable=False)
+    birth = Column(DateTime, nullable=False, default=func.now())
     email_verified = Column(Boolean, default=False)
     date = Column(DateTime(timezone=True), default=func.now())
 
@@ -86,13 +86,14 @@ class User_OAuth(Base):
 
     id = Column(String, primary_key=True, nullable=False)  
 
-    user_id = Column(String, ForeignKey("users.id"), nullable=False)
-
     provider = Column(String, nullable=False) 
     provider_user_id = Column(String, nullable=False)
     email = Column(String, nullable=False)
+    refresh_token = Column(String, nullable=True)
 
     date = Column(DateTime(timezone=True), default=func.now())
+
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
 
     ## Relationships ##
     user = relationship("User", back_populates="oauth_accounts")

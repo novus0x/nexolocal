@@ -73,6 +73,8 @@ class Product_Batch(Base):
     price = Column(Numeric(10, 2), nullable=False)
     cost = Column(Numeric(10, 2)) # Comparar precio anterior
 
+    stock_bonus = Column(Integer, default=0)
+
     is_active = Column(Boolean, default=True)
     expiration_active = Column(Boolean, default=True)
 

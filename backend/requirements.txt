@@ -1,7 +1,7 @@
 uuid
+httpx
 PyJWT
 bcrypt
-authlib
 alembic
 pymysql
 fastapi

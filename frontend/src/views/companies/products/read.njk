@@ -60,23 +60,25 @@
                 <div class="glass-card p-6 overflow-hidden relative">
                     <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-blue-500/10 rounded-full blur-3xl"></div>
                     <p class="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-widest">QR del Producto</p>
-                    <div class="w-full aspect-square bg-white rounded-2xl flex items-center justify-center p-4">
+                    <div class="w-full aspect-square bg-white rounded-2xl flex items-center justify-center p-4"
+                        id="qrcode_container">
                         {{ qrcode | safe }}
                     </div>
-                    <button
-                        class="w-full mt-4 text-[10px] font-bold text-blue-400 hover:text-blue-300 transition-colors">DESCARGAR
-                        ETIQUETA</button>
+                    <button onclick="download_svg('qrcode_container', 'qrcode-{{ product.id }}.svg')"
+                        class="w-full mt-4 text-[10px] font-bold text-blue-400 hover:text-blue-300 transition-colors capitalize cursor-pointer">Descargar
+                        Etiqueta</button>
                 </div>
                 <div class="glass-card p-6 overflow-hidden relative">
                     <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-blue-500/10 rounded-full blur-3xl"></div>
                     <p class="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-widest">Barcode del Producto
                     </p>
-                    <div class="w-full aspect-square bg-white rounded-2xl flex items-center justify-center p-4">
+                    <div class="w-full aspect-square bg-white rounded-2xl flex items-center justify-center p-4"
+                        id="barcode_container">
                         {{ barcode | safe }}
                     </div>
-                    <button
-                        class="w-full mt-4 text-[10px] font-bold text-blue-400 hover:text-blue-300 transition-colors">DESCARGAR
-                        ETIQUETA</button>
+                    <button onclick="download_svg('barcode_container', 'barcode-{{ product.id }}.svg')"
+                        class="w-full mt-4 text-[10px] font-bold text-blue-400 hover:text-blue-300 transition-colors capitalize cursor-pointer">Descargar
+                        Etiqueta</button>
                 </div>
             </div>
 
@@ -182,11 +184,16 @@
                     {% for batch in batchs %}
                     <div class="glass-card newest p-6">
                         <div class="flex justify-between items-start mb-6">
+                            {% if batch.is_active %}
                             <span
-                                class="bg-orange-500 text-[10px] font-black px-3 py-1 rounded-full text-white uppercase tracking-tighter">B04
-                                - Activo</span>
-                            <button class="text-gray-500 hover:text-white transition-colors"><i
-                                    class="fa-solid fa-ellipsis-vertical"></i></button>
+                                class="bg-orange-500 text-[10px] font-black px-3 py-1 rounded-full text-white uppercase tracking-tighter">Activo</span>
+                            {% else %}
+                            <span
+                                class="bg-gray-600 text-[10px] font-black px-3 py-1 rounded-full text-white uppercase tracking-tighter">No
+                                Disponible - Usado</span>
+                            {% endif %}
+                            {# <button class="text-gray-500 hover:text-white transition-colors cursor-pointer"><i
+                                    class="fa-solid fa-ellipsis-vertical"></i></button> #}
                         </div>
 
                         <div class="space-y-4">
@@ -219,10 +226,10 @@
                                     </p>
                                     <p class="text-xl font-black">{{ batch.stock }}</p>
                                 </div>
-                                <div
-                                    class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                                {# <div
+                                    class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 cursor-pointer">
                                     <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-400"></i>
-                                </div>
+                                </div> #}
                             </div>
                         </div>
                     </div>
@@ -239,14 +246,43 @@
                         <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Añadir Lote</p>
                         </a>
                         {% endif %}
-
                 </div>
                 {% endif %}
-
             </div>
         </div>
     </div>
 </main>
+
+<script>
+    function download_svg(container_id, filename) {
+        const container = document.getElementById(container_id);
+        const svg = container.querySelector("svg");
+
+        if (!svg) {
+            notify("No se encontró el SVG", "error");
+            return;
+        }
+
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svg);
+
+        if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+
+        const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+</script>
 
 {% include "components/dashboard-footer.njk" %}
 

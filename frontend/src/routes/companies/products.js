@@ -68,6 +68,7 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     let stock_v = "0";
     let track_product_v = "0";
     let low_stock_v = "0";
+    let bonus_v = "0";
     let description_v = "No description";
     let date_val = new Date().toISOString().split("T")[0];
 
@@ -82,7 +83,7 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     if (!permissions.includes("company.products.create")) return res.redirect("/");
 
     // Get POST data
-    const { name, sku, identifier, category, description, sale_price, sale_cost, tax_include, is_service, duration, duration_type, staff_id, stock, track_product, low_stock, expiration_date, weight, length, width, height } = req.body;
+    const { name, sku, identifier, category, description, sale_price, sale_cost, tax_include, is_service, duration, duration_type, staff_id, stock, track_product, low_stock, bonus, expiration_date, weight, length, width, height } = req.body;
 
     if (stock) stock_v = stock;
     if (description) description_v = description;
@@ -106,6 +107,7 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     if (length) length_v = length;
     if (width) width_v = width;
     if (height) height_v = height;
+    if (bonus) bonus_v = bonus;
 
     const response = await send_data("/company/products/create", {}, {
         name, sku, identifier, category, sale_price, sale_cost, staff_id,
@@ -116,6 +118,7 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
         width: width_v,
         height: height_v,
 
+        bonus: bonus_v,
         stock: stock_v,
         description: description_v,
         tax_include: tax_include_v,
@@ -135,7 +138,7 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
             errors: response.details,
             name, sku, identifier, category, description, sale_price, sale_cost, tax_include,
             is_service, duration, duration_type, staff_id, stock, track_product, low_stock,
-            weight, length, width, height, date_val
+            bonus, weight, length, width, height, date_val
         })
     }
 
@@ -300,14 +303,14 @@ router.post("/:product_id/batchs/create", require_auth, at_least_company, async 
     // Check permissions
     if (!permissions.includes("company.products.create")) return res.redirect("/");
 
-    const { quantity, price, cost, reception_date, expiration_date } = req.body;
+    const { quantity, bonus, price, cost, reception_date, expiration_date } = req.body;
 
     if (expiration_date) expiration_date_v = expiration_date;
     if (reception_date) reception_date_v = reception_date;
 
     // Request
     const response = await send_data(`/company/products/${product_id}/batchs/create`, {}, {
-        product_id, quantity, price, cost,
+        product_id, quantity, bonus, price, cost,
 
         reception_date: reception_date_v,
         expiration_date: expiration_date_v

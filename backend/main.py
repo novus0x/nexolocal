@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
 from db.database import Base, engine
 
+from routes.auth.oauth import google
+
 from routes.general import welcome, invitations
 from routes.platform import companies, roles, users
 from routes.auth import login, register, sessions, logout
@@ -54,6 +56,8 @@ app.middleware("http")(auth_middleware)
 app.middleware("http")(db_session_middleware) 
 
 ########## Routes ##########
+app.include_router(google.router, prefix="/api/oauth", tags=["Authentication", "Oauth", "Google"])
+
 app.include_router(login.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(register.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(sessions.router, prefix="/api/auth", tags=["Authentication"])

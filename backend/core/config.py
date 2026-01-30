@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
     AUTO_MIGRATE: bool = True
 
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_SECRET_ID: str
+
     @property
     def DATABASE_URL(self):
         if self.DATABASE_MODE == "docker":

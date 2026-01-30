@@ -199,17 +199,19 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
 
     required_fields, error = validate_required_fields(product_check, [
         "name", "sku", "identifier", "category", "description", "sale_price", "sale_cost", "tax_include", "is_service",
-        "duration", "duration_type", "staff_id", "track_product", "low_stock", "weight", "length", "width", "height", 
-        "expiration_date"
+        "duration", "duration_type", "staff_id", "track_product", "low_stock", "bonus", "weight", "length", "width", 
+        "height", "expiration_date"
     ])
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 
-    price = is_float(product_check.sale_price)
+    bonus = is_int(product_check.bonus)
+    stock = is_int(product_check.stock)
     cost = is_float(product_check.sale_cost)
+    price = is_float(product_check.sale_price)
 
-    if not price or not cost:
+    if not price or not cost or not stock:
 
         if price <= 0 or cost < 0:
             return custom_response(status_code=400, message=translate(lang, "company.products.create.error.incorrect_price"), details=required_fields)
@@ -228,11 +230,13 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         description = product_check.description,
         price = product_check.sale_price,
         cost = product_check.sale_cost,
-        stock = product_check.stock,
+        stock = stock,
         weight = product_check.weight,
         dimensions = f"{product_check.length}x{product_check.width}x{product_check.height}",
         company_id = company_id,
     )
+
+    new_product.stock += bonus
 
     sku_v = product_check.sku
     
@@ -269,8 +273,11 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
     add_db(db, new_product)
 
     if new_product.cost > 0:
+        # Current stock
+        stock_batch = stock
+
         # Create Expense
-        amount_v = new_product.stock * new_product.cost
+        amount_v = stock_batch * new_product.cost
         total_amount_v = amount_v
 
         new_expense = Expense(
@@ -293,12 +300,15 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         # Create Product Batch
         new_product_batch = Product_Batch(
             id = get_uuid(db, Product_Batch),
-            stock = product_check.stock,
-            price = product_check.sale_price,
-            cost = product_check.sale_cost,
+            stock = new_product.stock,
+            price = new_product.price,
+            cost = new_product.cost,
             product_id = new_product.id,
             expense_id = new_expense.id
         )
+
+        new_product_batch.stock += bonus
+        new_product_batch.stock_bonus = bonus
 
         exp = validate_not_same_day(product_check.expiration_date)
 
@@ -659,7 +669,7 @@ async def get_product_by_id_to_create_batch(request: Request, product_id: str, d
         "product": product,
     })
 
-########## Get Product - Batch Section ##########
+########## Create Batch - Batch Section ##########
 @router.post("/{product_id}/batchs/create")
 async def add_new_batch(request: Request, product_id: str, db: Session = Depends(get_db)):
     ### Variables ###
@@ -690,17 +700,18 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
         return custom_response(status_code=400, message=error)
 
     required_fields, error = validate_required_fields(product_check, [
-        "product_id", "quantity", "price", "cost", "reception_date", "expiration_date"
+        "product_id", "quantity", "bonus", "price", "cost", "reception_date", "expiration_date"
     ])
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 
+    bonus = is_int(product_check.bonus)
     stock = is_int(product_check.quantity)
     price = is_float(product_check.price)
     cost = is_float(product_check.cost)
 
-    if not stock or not price or not cost:
+    if not stock or not price or not cost or not bonus:
         return custom_response(status_code=400, message=translate(lang, "company.products.create.batch.error"))
 
     product = db.query(Product).filter(
@@ -719,8 +730,11 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
         product_id = product.id
     )
 
+    new_batch.stock += bonus
+    new_batch.stock_bonus = bonus
+
     # Create Expense
-    amount_v = new_batch.stock * new_batch.cost
+    amount_v = stock * new_batch.cost
     total_amount_v = amount_v
 
     company = db.query(Company).filter(
@@ -764,7 +778,7 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
     if rcd:
         new_batch.date = rcd
 
-    product.stock += new_batch.stock
+    product.stock += new_batch.stock + bonus
 
     new_cash_movement = Cash_Movement(
         id = get_uuid(db, Cash_Movement),

@@ -5,7 +5,8 @@ import method_override from 'method-override';
 
 import nunjucks from 'nunjucks';
 
-import authentication from './routes/auth/authentication.js';
+import auth from './routes/auth/auth.js';
+import oauth from './routes/auth/oauth.js';
 
 import general_main from './routes/general/main.js';
 import general_invitations from './routes/general/invitations.js';
@@ -79,7 +80,8 @@ app.use("/", general_main);
 app.use("/", general_check_ticket);
 app.use("/invitations", general_invitations);
 
-app.use("/auth", authentication);
+app.use("/auth", auth);
+app.use("/oauth", oauth);
 
 app.use("/platform", platform_main);
 app.use("/platform/companies", platform_companies);

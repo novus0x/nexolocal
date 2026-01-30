@@ -9,6 +9,7 @@ from core.config import settings
 
 ########## Variables ##########
 ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+ALPHABET_PASSWORD = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#$%&*"
 ENTITY_REGEX = re.compile(r"[^A-Z0-9]")
 TOKEN_LENGTH = 12
 
@@ -62,3 +63,7 @@ def generate_nxid(entity: str):
 
     return f"NX-{entity}-{token[:4]}-{token[4:8]}-{token[8:]}"
 
+########## Generate random password ##########
+def generate_temp_password(length = TOKEN_LENGTH) -> str:
+    password = "".join(secrets.choice(ALPHABET_PASSWORD) for _ in range(length))
+    return password

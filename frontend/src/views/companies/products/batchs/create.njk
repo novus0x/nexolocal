@@ -57,7 +57,9 @@
         <div class="grid col-span-1 md:grid-cols-2 gap-8">
             <div class="col-span-1 md:col-span-1 space-y-8">
                 <div class="glass-card rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
-                    <form class="space-y-8" action="/companies/{{ company_information.id }}/products/{{ product.id }}/batchs/create" method="post">
+                    <form class="space-y-8"
+                        action="/companies/{{ company_information.id }}/products/{{ product.id }}/batchs/create"
+                        method="post">
                         <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
                             {# <div class="space-y-2">
                                 <label
@@ -70,9 +72,22 @@
                                 </div>
                             </div> #}
                             <div class="space-y-2">
-                                <label class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Cantidad de Ingreso</label>
-                                <input type="number" id="qty" placeholder="0" onchange="update_insights()" name="quantity"
-                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white focus:outline-none focus:border-brand transition-all text-xl font-bold" value="{{ quantity }}" required>
+                                <label class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Cantidad
+                                    de Ingreso</label>
+                                <input type="number" id="qty" placeholder="0" onchange="update_insights()"
+                                    name="quantity"
+                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white focus:outline-none focus:border-brand transition-all text-xl font-bold"
+                                    value="{{ quantity }}" required>
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Bonificación
+                                    de Productos</label>
+                                <input type="number" id="bonus" placeholder="0" onchange="update_insights()" name="bonus"
+                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white focus:outline-none focus:border-brand transition-all text-xl font-bold"
+                                    value="{{ bonus }}" required>
+                                <p class="text-xs text-gray-500">Productos otorgados como un extra por el provedor (no
+                                    seran contabilizados como costo)</p>
                             </div>
                         </div>
 
@@ -81,13 +96,15 @@
                                 <label class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Fecha de
                                     Recepción</label>
                                 <input type="date" name="reception_date"
-                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-4 text-white focus:outline-none focus:border-brand transition-all" value="{{ today_inp }}">
+                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-4 text-white focus:outline-none focus:border-brand transition-all"
+                                    value="{{ today_inp }}">
                             </div>
                             <div class="space-y-2">
                                 <label
                                     class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Vencimiento</label>
                                 <input type="date" name="expiration_date"
-                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-4 text-white focus:outline-none focus:border-brand transition-all" value="{{ expiration_date }}">
+                                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-4 text-white focus:outline-none focus:border-brand transition-all"
+                                    value="{{ expiration_date }}">
                             </div>
                             {# <div class="space-y-2">
                                 <label
@@ -104,21 +121,27 @@
                         <div
                             class="bg-white/5 rounded-2xl p-6 grid grid-cols-1 md:grid-cols-2 gap-8 border border-white/5">
                             <div class="space-y-2">
-                                <label class="text-xs font-bold uppercase tracking-widest text-slate-400">Precio de venta</label>
+                                <label class="text-xs font-bold uppercase tracking-widest text-slate-400">Precio de
+                                    venta</label>
                                 <div class="relative">
                                     <span
                                         class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">S/</span>
-                                    <input type="number" id="price" step="0.01" placeholder="0.00" onchange="update_insights()" name="price"
-                                        class="w-full bg-transparent border-b border-white/20 py-3 pl-10 pr-4 text-white focus:outline-none focus:border-brand text-2xl font-medium transition-all" value="{{ price or product.price }}">
+                                    <input type="number" id="price" step="0.01" placeholder="0.00"
+                                        onchange="update_insights()" name="price"
+                                        class="w-full bg-transparent border-b border-white/20 py-3 pl-10 pr-4 text-white focus:outline-none focus:border-brand text-2xl font-medium transition-all"
+                                        value="{{ price or product.price }}">
                                 </div>
                             </div>
                             <div class="space-y-2">
-                                <label class="text-xs font-bold uppercase tracking-widest text-slate-400">Costo de Compra</label>
+                                <label class="text-xs font-bold uppercase tracking-widest text-slate-400">Costo de
+                                    Compra</label>
                                 <div class="relative">
                                     <span
                                         class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">S/</span>
-                                    <input type="number" id="cost" step="0.01" placeholder="0.00" onchange="update_insights()" name="cost"
-                                        class="w-full bg-transparent border-b border-white/20 py-3 pl-10 pr-4 text-white focus:outline-none focus:border-brand text-2xl font-medium transition-all" value="{{ cost or product.cost }}">
+                                    <input type="number" id="cost" step="0.01" placeholder="0.00"
+                                        onchange="update_insights()" name="cost"
+                                        class="w-full bg-transparent border-b border-white/20 py-3 pl-10 pr-4 text-white focus:outline-none focus:border-brand text-2xl font-medium transition-all"
+                                        value="{{ cost or product.cost }}">
                                 </div>
                             </div>
                         </div>
@@ -146,10 +169,19 @@
                     <div class="space-y-4">
                         <div class="flex justify-between items-end">
                             <span class="text-slate-400 text-xs font-medium">Inversión Total</span>
-                            <span id="total-inv" class="text-lg font-bold text-white leading-none">S/0</span>
+                            <span id="total-inv" class="text-lg font-bold text-red-400 leading-none">S/0</span>
                         </div>
                         <div class="flex justify-between items-end">
-                            <span class="text-slate-400 text-xs font-medium">Ganancia Est.</span>
+                            <span class="text-slate-400 text-xs font-medium">Ganancia Est. - Stock</span>
+                            <span id="total-stock" class="text-lg font-bold text-emerald-400 leading-none">S/0</span>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <span class="text-slate-400 text-xs font-medium">Ganancia Est. - Bonificación</span>
+                            <span id="total-bonus" class="text-lg font-bold text-emerald-400 leading-none">S/0</span>
+                        </div>
+                        <hr class="border-white/5" />
+                        <div class="flex justify-between items-end">
+                            <span class="text-slate-400 text-xs font-medium">Ganancia Est. Total</span>
                             <span id="total-profit" class="text-lg font-bold text-emerald-400 leading-none">S/0</span>
                         </div>
                         {# <div class="pt-4 border-t border-white/5 text-center">
@@ -183,12 +215,23 @@
     const qty = document.getElementById("qty");
     const price = document.getElementById("price");
     const cost = document.getElementById("cost");
+    const bonus = document.getElementById("bonus");
+
     const total_inv = document.getElementById("total-inv");
+    const total_stock = document.getElementById("total-stock");
+    const total_bonus = document.getElementById("total-bonus");
     const total_profit = document.getElementById("total-profit");
 
     function update_insights() {
-        total_inv.textContent = `S/${qty.value * cost.value}`;
-        total_profit.textContent = `S/${qty.value * price.value - qty.value * cost.value}`;
+        const inv = qty.value * cost.value;
+        const to_stock = qty.value * price.value - inv;
+        const to_bonus = bonus.value * price.value;
+        const to = to_stock + to_bonus;
+
+        total_inv.textContent = `S/${inv}`;
+        total_stock.textContent = `S/${to_stock}`;
+        total_bonus.textContent = `S/${to_bonus}`;
+        total_profit.textContent = `S/${to}`;
     };
 
     const errors = {{ errors or false | dump | safe }};

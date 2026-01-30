@@ -1,15 +1,23 @@
 /*************** Modules ***************/
 import express from 'express';
 
+import settings from '../../settings.js';
+
 import { send_data } from '../../utils/api.js';
 import { require_auth, already_login } from '../../middlewares/auth.js';
 
 /*************** Variables ***************/
 const router = express.Router();
 
+const oauth_providers = {
+    google: settings.google_client_id
+}
+
 /*************** Render Authentication ***************/
 router.get("/", already_login, (req, res) => {
-    return res.render("auth/login");
+    return res.render("auth/login", {
+        oauth: oauth_providers
+    });
 });
 
 /*************** Login - POST ***************/
@@ -32,14 +40,18 @@ router.post("/login", async (req, res) => {
         if (response.details.length > 0) {
             return res.render("auth/login", {
                 errors: response.details,
-                email, expire
+                email, expire,
+
+                oauth: oauth_providers
             })
         }
 
         // Message
         return res.render("auth/login", {
             errors: [response.message],
-            email, expire
+            email, expire,
+
+            oauth: oauth_providers
         })
     }
 
@@ -64,14 +76,18 @@ router.post("/register", async (req, res) => {
         if (response.details.length > 0) {
             return res.render("auth/register", {
                 errors: response.details,
-                username, fullname, email, birth
+                username, fullname, email, birth,
+
+                oauth: oauth_providers
             })
         }
 
         // Message
         return res.render("auth/register", {
             errors: [response.message],
-            username, fullname, email, birth
+            username, fullname, email, birth,
+
+            oauth: oauth_providers
         })
     }
 
