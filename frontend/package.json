@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node src/main.js",
     "dev": "concurrently \"npm:server\" \"npm:tailwind\"",
     "server": "nodemon src/main.js",
     "tailwind": "npx @tailwindcss/cli -i ./src/public/css/tailwind.css -o ./src/public/css/tailwind.build.css --content \"./src/views/**/*.njk\" --watch"

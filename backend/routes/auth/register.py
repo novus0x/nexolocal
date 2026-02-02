@@ -16,6 +16,8 @@ from core.security import hash_password
 from core.responses import custom_response
 from core.validators import read_json_body, validate_required_fields
 
+from services.email.main import template_routes, get_html, send_mail
+
 ########## Variables ##########
 router = APIRouter()
 
@@ -73,5 +75,12 @@ async def register(request: Request, db: Session = Depends(get_db)):
     )
 
     add_db(db, new_user)
+
+    ### Send Email ###
+    html_body = await get_html(template_routes.auth.welcome, {
+        "username": new_user.username
+    })
+
+    await send_mail("no-reply", "Bienvenido a NexoLocal", new_user.email, html_body)
 
     return custom_response(status_code=201, message=translate(lang, "auth.register.success"))

@@ -1,4 +1,6 @@
 ########## Modules ##########
+import asyncio
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -20,6 +22,8 @@ from middlewares.db import db_session_middleware
 
 from scripts.auto_migrate import auto_migrate
 
+from services.email.main import send_mail_worker
+
 ########## Create tables ##########
 Base.metadata.create_all(bind=engine)
 
@@ -30,7 +34,18 @@ async def lifespan(app: FastAPI):
         print("Running Auto-Migrations")
         auto_migrate()
 
-    yield
+    task = asyncio.create_task(send_mail_worker())
+    print("Mail worker started")
+
+    try:
+        yield
+    finally:
+        task.cancel()
+
+        try:
+            await task
+        except asyncio.CancelledError:
+            print("Mail worker stopped")
     # shutdown
 
 ########## Initializations ##########

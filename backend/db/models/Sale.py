@@ -68,7 +68,7 @@ class Sale_Item(Base):
     product_id = Column(String, ForeignKey("products.id"), nullable=False)
 
     name = Column(String, nullable=False)
-    quantity = Column(Integer, nullable=False)
+    quantity = Column(Numeric(10, 3), nullable=False)
     unit_price = Column(Numeric(10, 2), nullable=False)
     discount = Column(Numeric(10, 2), default=0)
     total = Column(Numeric(10, 2), nullable=False)

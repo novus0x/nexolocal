@@ -19,6 +19,8 @@ from core.responses import custom_response
 from core.validators import read_json_body, validate_required_fields
 from core.generator import get_uuid, generate_jwt, generate_temp_password
 
+from services.email.main import template_routes, get_html, send_mail
+
 ########## Variables ##########
 router = APIRouter()
 
@@ -106,6 +108,21 @@ async def google_auth(request: Request, db: Session = Depends(get_db)):
         add_db(db, new_user)
 
         user_id_v = new_user.id
+
+        ### Send Email ###
+        html_body = await get_html(template_routes.auth.welcome, {
+            "username": new_user.username
+        })
+
+        await send_mail("no-reply", "Bienvenido a NexoLocal", new_user.email, html_body)
+
+        ### Password Access ###
+        html_body = await get_html(template_routes.oauth.google, {
+            "username": new_user.username,
+            "generated_password": generated_password
+        })
+
+        await send_mail("no-reply", "Tu contraseña de acceso", new_user.email, html_body)
 
     if create_link_account:
         new_link_oauth = User_OAuth(

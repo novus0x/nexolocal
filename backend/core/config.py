@@ -12,6 +12,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
     AUTO_MIGRATE: bool = True
 
+    SMTP_HOST: str
+    SMTP_PORT: int
+    SMTP_USER: str
+    SMTP_PASS: str
+
+    EMAIL_ENABLED: bool = True
+
     GOOGLE_CLIENT_ID: str
     GOOGLE_SECRET_ID: str
 

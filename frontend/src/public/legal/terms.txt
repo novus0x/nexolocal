@@ -1,0 +1,134 @@
+NexoLocal – Términos y Condiciones de Uso
+Versión: 1.0
+Última actualización: 2026
+
+---
+
+1. Aceptación de los términos
+
+Al acceder, registrarse o utilizar la plataforma NexoLocal (en adelante, "la Plataforma"), el usuario acepta de forma expresa y voluntaria los presentes Términos y Condiciones de Uso.
+
+Si el usuario no está de acuerdo con estos términos, deberá abstenerse de acceder o utilizar la Plataforma.
+
+---
+
+2. Descripción del servicio
+
+NexoLocal es una plataforma digital orientada a la gestión y administración de negocios. El servicio puede incluir, entre otras funcionalidades:
+
+* Registro y administración de productos y servicios
+* Control de inventario y stock
+* Registro de ventas, gastos e ingresos
+* Gestión de flujo de caja
+* Visualización de indicadores, reportes y métricas
+* Gestión de usuarios, permisos y múltiples negocios
+
+Las funcionalidades ofrecidas pueden cambiar, ampliarse, limitarse o eliminarse en cualquier momento, sin previo aviso.
+
+---
+
+3. Estado del servicio
+
+La Plataforma se ofrece bajo la modalidad "AS IS" (tal cual) y "según disponibilidad".
+
+NexoLocal puede encontrarse en una etapa inicial, beta o de desarrollo continuo, por lo que:
+
+* Puede presentar errores, fallos técnicos o interrupciones
+* No se garantiza la disponibilidad continua del servicio
+* Algunas funciones pueden no estar operativas o pueden cambiar
+
+NexoLocal no garantiza que el servicio sea ininterrumpido, seguro o libre de errores.
+
+---
+
+4. Registro de usuarios y cuentas
+
+Para utilizar ciertas funcionalidades, el usuario deberá crear una cuenta proporcionando información veraz, completa y actualizada.
+
+El usuario es responsable de:
+
+* Mantener la confidencialidad de sus credenciales de acceso
+* Toda actividad realizada desde su cuenta
+* Notificar cualquier uso no autorizado de su cuenta
+
+En algunos casos, la Plataforma puede generar contraseñas temporales o permitir el acceso mediante servicios de terceros (por ejemplo, autenticación con Google). El usuario es responsable de cambiar dichas credenciales cuando corresponda.
+
+---
+
+5. Uso permitido
+
+El usuario se compromete a utilizar la Plataforma únicamente para fines legales y legítimos, relacionados con la gestión de su negocio u operación.
+
+Queda estrictamente prohibido:
+
+* Utilizar la Plataforma para actividades ilícitas, fraudulentas o no autorizadas
+* Intentar acceder sin autorización a cuentas, sistemas o datos
+* Interferir, dañar o afectar el funcionamiento de la Plataforma
+* Copiar, modificar, reproducir o explotar el software sin autorización expresa
+
+---
+
+6. Propiedad intelectual
+
+Todos los derechos de propiedad intelectual sobre el software, código fuente, diseño, interfaces, marcas, logotipos, nombres comerciales y documentación asociada a NexoLocal son de titularidad exclusiva de su propietario.
+
+El uso de la Plataforma no concede al usuario ningún derecho de propiedad intelectual sobre la misma.
+
+Queda prohibida la copia, redistribución, ingeniería inversa, descompilación o creación de productos derivados sin autorización expresa y por escrito.
+
+---
+
+7. Datos y responsabilidad del usuario
+
+El usuario es el único responsable de la información, datos y contenidos que registre, cargue o gestione dentro de la Plataforma.
+
+NexoLocal no verifica ni valida la exactitud legal, contable, tributaria o comercial de los datos ingresados.
+
+La Plataforma no sustituye asesoría legal, contable, fiscal o financiera profesional.
+
+---
+
+8. Limitación de responsabilidad
+
+En la máxima medida permitida por la ley, NexoLocal no será responsable por:
+
+* Pérdidas económicas directas o indirectas
+* Pérdida de datos
+* Daños consecuenciales o incidentales
+* Decisiones tomadas en base a la información mostrada en la Plataforma
+* Interrupciones, fallos técnicos o indisponibilidad del servicio
+
+El uso de la Plataforma se realiza bajo exclusiva responsabilidad del usuario.
+
+---
+
+9. Suspensión y terminación
+
+NexoLocal se reserva el derecho de suspender, limitar o cancelar el acceso de un usuario a la Plataforma, de forma temporal o permanente, cuando se detecte:
+
+* Incumplimiento de estos Términos y Condiciones
+* Uso indebido o ilegal del servicio
+* Riesgo para la seguridad o integridad de la Plataforma
+
+Dicha suspensión o cancelación podrá realizarse sin necesidad de previo aviso.
+
+---
+
+10. Modificaciones de los términos
+
+NexoLocal se reserva el derecho de modificar estos Términos y Condiciones en cualquier momento.
+
+Las modificaciones entrarán en vigor a partir de su publicación. El uso continuado de la Plataforma implica la aceptación de los términos actualizados.
+
+---
+
+11. Legislación aplicable
+
+Estos Términos y Condiciones se interpretarán conforme a la legislación aplicable,
+sin perjuicio de normas internacionales cuando corresponda.
+
+---
+
+12. Contacto
+
+Para cualquier consulta relacionada con estos Términos y Condiciones, el usuario podrá comunicarse a través de los canales oficiales de NexoLocal.

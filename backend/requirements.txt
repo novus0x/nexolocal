@@ -2,10 +2,12 @@ uuid
 httpx
 PyJWT
 bcrypt
+jinja2
 alembic
 pymysql
 fastapi
 uvicorn
+aiosmtplib
 sqlalchemy
 python-dotenv
 psycopg2-binary

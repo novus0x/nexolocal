@@ -44,6 +44,8 @@ class Product(Base):
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
     date = Column(DateTime(timezone=True), default=func.now())
 
+    is_bulk = Column(Boolean, default=False)
+
     is_service = Column(Boolean, default=False)
     duration = Column(String, nullable=True)
     duration_type = Column(Enum(Product_Service_Duration), nullable=True)
