@@ -3,7 +3,6 @@ httpx
 PyJWT
 bcrypt
 jinja2
-alembic
 pymysql
 fastapi
 uvicorn

@@ -10,7 +10,6 @@ class Settings(BaseSettings):
     TOKEN_NAME: str
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
-    AUTO_MIGRATE: bool = True
 
     SMTP_HOST: str
     SMTP_PORT: int

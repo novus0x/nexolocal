@@ -6,9 +6,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from core.config import settings
-from db.database import Base, engine
-
 from routes.auth.oauth import google
 
 from routes.general import welcome, invitations
@@ -20,20 +17,11 @@ from middlewares.i18n import i18n_middleware
 from middlewares.auth import auth_middleware
 from middlewares.db import db_session_middleware
 
-from scripts.auto_migrate import auto_migrate
-
 from services.email.main import send_mail_worker
-
-########## Create tables ##########
-Base.metadata.create_all(bind=engine)
 
 ########## Events ##########
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if settings.AUTO_MIGRATE:
-        print("Running Auto-Migrations")
-        auto_migrate()
-
     task = asyncio.create_task(send_mail_worker())
     print("Mail worker started")
 
