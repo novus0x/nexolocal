@@ -7,8 +7,7 @@
 <div class="w-full max-w-lg px-6 flex flex-col items-center">
 
     <div class="flex flex-col items-center mb-10">
-        <div
-            class="w-24 h-24 rounded-2xl flex items-center justify-center mb-4">
+        <div class="w-24 h-24 rounded-2xl flex items-center justify-center mb-4">
             <img src="/public/img/logo.png">
         </div>
         <h1 class="text-2xl font-bold tracking-tight">Nexo<span class="text-[#FD420A]">Local</span></h1>
@@ -26,7 +25,8 @@
                         <div class="space-y-2">
                             <label
                                 class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Username</label>
-                            <input type="text" name="username" required placeholder="username" value="{{ username | default('') }}"
+                            <input type="text" name="username" required placeholder="username"
+                                value="{{ username | default('') }}"
                                 class="input-field w-full px-4 py-3 rounded-xl text-sm text-white" autofocus>
                         </div>
                         <div class="space-y-2">
@@ -41,14 +41,16 @@
                     <div class="space-y-2">
                         <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Nombre
                             Completo</label>
-                        <input type="text" name="fullname" required placeholder="Ej. Alex Martinez" value="{{ fullname | default('') }}"
+                        <input type="text" name="fullname" required placeholder="Ej. Alex Martinez"
+                            value="{{ fullname | default('') }}"
                             class="input-field w-full px-4 py-3 rounded-xl text-sm text-white">
                     </div>
 
                     <div class="space-y-2">
                         <label
                             class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Email</label>
-                        <input type="email" name="email" required placeholder="youremail@gmail.com" value="{{ email | default('') }}"
+                        <input type="email" name="email" required placeholder="youremail@gmail.com"
+                            value="{{ email | default('') }}"
                             class="input-field w-full px-4 py-3 rounded-xl text-sm text-white">
                     </div>
 
@@ -104,8 +106,11 @@
     </div>
 
     <p id="toggle-text" class="text-center mt-10 text-sm text-gray-500">
-        ¿Ya eres miembro? <button onclick="renderLogin()" class="text-[#FD420A] font-bold hover:underline">Inicia
+        ¿Ya eres miembro? <button onclick="render_login()" class="text-[#FD420A] font-bold hover:underline">Inicia
             sesión</button>
     </p>
+
+    <p class="text-center text-xs mt-2 text-gray-400">Al usar la applicacion estas aceptando los <a href="/legal/terms"
+            target="_blank" class="text-(--accent)">Términos Y Condiciones</a></p>
 </div>
 {% endblock %}

@@ -8,9 +8,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routes.auth.oauth import google
 
+from routes.users import u_settings
 from routes.general import welcome, invitations
 from routes.platform import companies, roles, users
-from routes.auth import login, register, sessions, logout
+from routes.auth import login, register, sessions, logout, forgot_password
 from routes.companies import company, products, finance, sales, c_dashboard, cash
 
 from middlewares.i18n import i18n_middleware
@@ -65,6 +66,9 @@ app.include_router(login.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(register.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(sessions.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(logout.router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(forgot_password.router, prefix="/api/auth", tags=["Authentication"])
+
+app.include_router(u_settings.router, prefix="/api/users", tags=["Users", "Settings"])
 
 app.include_router(companies.router, prefix="/api/platform/companies", tags=["Platform", "Companies"])
 app.include_router(users.router, prefix="/api/platform/users", tags=["Platform", "Users"])

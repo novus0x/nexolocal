@@ -8,6 +8,8 @@ import nunjucks from 'nunjucks';
 import auth from './routes/auth/auth.js';
 import oauth from './routes/auth/oauth.js';
 
+import users_settings from './routes/users/settings.js';
+
 import general_main from './routes/general/main.js';
 import general_invitations from './routes/general/invitations.js';
 import general_check_ticket from './routes/general/check_ticket.js';
@@ -25,6 +27,7 @@ import companies_products from './routes/companies/products.js';
 import companies_sales from './routes/companies/sales.js'
 import companies_settings from './routes/companies/settings.js';
 
+import users_api from './routes/users/api.js';
 import companies_api from './routes/companies/api.js';
 
 import settings from './settings.js';
@@ -83,6 +86,8 @@ app.use("/invitations", general_invitations);
 app.use("/auth", auth);
 app.use("/oauth", oauth);
 
+app.use("/users", users_settings);
+
 app.use("/platform", platform_main);
 app.use("/platform/companies", platform_companies);
 app.use("/platform/users", platform_users);
@@ -96,6 +101,7 @@ app.use("/companies/:company_id/finance", companies_finance);
 app.use("/companies/:company_id/sales", companies_sales);
 app.use("/companies/:company_id/settings", companies_settings);
 
+app.use("/users/api", users_api);
 app.use("/companies/:company_id/api", companies_api);
 
 app.use((req, res) => {

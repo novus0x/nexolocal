@@ -14,7 +14,7 @@ const oauth_providers = {
 }
 
 /*************** Render Authentication ***************/
-router.get("/", already_login, (req, res) => {
+router.get("/", already_login, async (req, res) => {
     return res.render("auth/login", {
         oauth: oauth_providers
     });
@@ -64,7 +64,7 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
     // Get POST data
     const { username, fullname, email, password, confirm_password, birth } = req.body;
-    
+
     // Send request
     const response = await send_data("/auth/register", {}, {
         username, fullname, email, password, confirm_password, birth
@@ -95,10 +95,73 @@ router.post("/register", async (req, res) => {
 });
 
 /*************** Forgot Password - POST ***************/
-router.post("/forgot-password", (req, res) => {
+router.post("/forgot-password", async (req, res) => {
+    // Body
     const { email } = req.body;
-    console.log(email)
-    res.json("ok")
+
+    // Send Data
+    const response = await send_data("/auth/forgot-password", {}, {
+        email
+    }, req)
+
+    // Response
+    return res.render("auth/reset_password_sent")
+});
+
+/*************** Recover - Get ***************/
+router.get("/recover", async (req, res) => {
+    // Variables
+    const recover_id = req.query.id;
+
+    if (!recover_id) return res.redirect("/");
+
+    // Send Data
+    const response = await send_data("/auth/recover-account-verify", {}, {
+        recover_id
+    }, req)
+
+    if (response.error) return res.redirect("/");
+
+    // Response
+    return res.render("auth/recover", {
+        recover_id
+    })
+});
+
+/*************** Recover - Post ***************/
+router.post("/recover", async (req, res) => {
+    // Variables
+    const recover_id = req.query.id;
+
+    if (!recover_id) return res.redirect("/");
+
+    // Body
+    const { new_password, confirm_new_password } = req.body;
+
+    // Send Data
+    const response = await send_data("/auth/recover-account", {}, {
+        recover_id, new_password, confirm_new_password
+    }, req)
+
+    // Error
+    if (response.error) {
+        // Details
+        if (response.details.length > 0) {
+            return res.render("auth/recover", {
+                errors: response.details,
+                recover_id
+            })
+        }
+
+        // Message
+        return res.render("auth/recover", {
+            errors: [response.message],
+            recover_id
+        })
+    }
+
+    // Response
+    return res.render("auth/recover_success");
 });
 
 /*************** Logout - GET ***************/
@@ -110,7 +173,7 @@ router.get("/logout", require_auth, async (req, res) => {
     if (cookie_value) res.setHeader("Set-Cookie", cookie_value);
     res.clearCookie("company_id");
 
-    res.redirect("/");
+    return res.redirect("/");
 });
 
 /*************** Export ***************/

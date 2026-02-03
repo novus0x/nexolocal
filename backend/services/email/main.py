@@ -53,13 +53,13 @@ async def send_mail_worker():
                 await smtp.login(settings.SMTP_USER, settings.SMTP_PASS)
                 await smtp.send_message(msg)
             else:
-                print("Email Mandado")
+                print("Dev - Email Mandado")
 
         except Exception as e:
             print("Email error:", e)
 
         finally:
-            if smtp:
+            if smtp and settings.EMAIL_ENABLED:
                 await smtp.quit()
 
             email_queue.task_done()

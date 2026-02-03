@@ -1,0 +1,50 @@
+{% extends "layouts/auth.njk" %}
+
+{% block content %}
+<div class="glow-bg" style="top: -15%; right: -10%;"></div>
+<div class="glow-bg" style="bottom: -15%; left: -10%;"></div>
+
+<div class="w-full max-w-lg px-6 flex flex-col items-center">
+
+    <div class="flex flex-col items-center mb-10">
+        <div class="w-24 h-24 rounded-2xl flex items-center justify-center mb-4">
+            <img src="/public/img/logo.png">
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight">Nexo<span class="text-[#FD420A]">Local</span></h1>
+    </div>
+
+    <div class="auth-card bg-[#151B23]/90 p-8 sm:p-10 rounded-[2.5rem] shadow-2xl w-full">
+
+        <div id="auth-content" class="fade-in">
+            <div id="register-form">
+                <h2 class="text-2xl font-bold mb-1">Cambiar Contraseña</h2>
+
+                <form action="/auth/recover?id={{ recover_id }}" method="POST" class="space-y-4" autocomplete="off">
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="space-y-2">
+                            <label
+                                class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Nueva
+                                Contraseña</label>
+                            <input type="password" name="new_password" required placeholder="************"
+                                class="input-field w-full px-4 py-3 rounded-xl text-sm text-white">
+                        </div>
+                        <div class="space-y-2">
+                            <label
+                                class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Confirmar
+                                Nueva Contraseña</label>
+                            <input type="password" name="confirm_new_password" required placeholder="************"
+                                class="input-field w-full px-4 py-3 rounded-xl text-sm text-white">
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-[#FD420A] hover:bg-[#E33A08] text-white py-4 rounded-2xl font-bold text-sm transition-all shadow-lg shadow-orange-900/20 active:scale-[0.98] mt-4 cursor-pointer">
+                        Cambiar Contraseña
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

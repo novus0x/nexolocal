@@ -1,4 +1,3 @@
-
 .auth-page {
     display: flex;
     align-items: center;
@@ -9,7 +8,6 @@
     padding: 2rem 0;
 }
 
-/* Efecto de Luces de Fondo */
 .glow-bg {
     position: fixed;
     width: 40vw;
@@ -53,6 +51,3 @@
     border-color: #484F58;
     transform: translateY(-1px);
 }
-
-/* Animación de cambio */
-

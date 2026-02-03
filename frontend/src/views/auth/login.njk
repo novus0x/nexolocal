@@ -7,8 +7,7 @@
 <div class="w-full max-w-lg px-6 flex flex-col items-center">
 
     <div class="flex flex-col items-center mb-10">
-        <div
-            class="w-24 h-24 rounded-2xl flex items-center justify-center mb-4">
+        <div class="w-24 h-24 rounded-2xl flex items-center justify-center mb-4">
             <img src="/public/img/logo.png">
         </div>
         <h1 class="text-2xl font-bold tracking-tight">Nexo<span class="text-[#FD420A]">Local</span></h1>
@@ -25,8 +24,10 @@
                     <div class="space-y-2">
                         <label class="block text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 ml-1">Correo
                             Electrónico</label>
-                        <input type="email" name="email" required placeholder="youremail@gmail.com" value="{{ email | default('') }}"
-                            class="input-field w-full px-4 py-3.5 rounded-xl text-sm text-white placeholder-gray-600" autofocus>
+                        <input type="email" name="email" required placeholder="youremail@gmail.com"
+                            value="{{ email | default('') }}"
+                            class="input-field w-full px-4 py-3.5 rounded-xl text-sm text-white placeholder-gray-600"
+                            autofocus>
                     </div>
 
                     <div class="space-y-2">
@@ -40,12 +41,13 @@
 
                     <div class="flex items-center justify-between py-2">
                         <label class="flex items-center gap-3 cursor-pointer group">
-                            <input type="checkbox" name="expire" value="true" class="custom-checkbox" {% if expire %}checked{% endif %}>
+                            <input type="checkbox" name="expire" value="true" class="custom-checkbox" {% if expire
+                                %}checked{% endif %}>
                             <span class="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">Mantener
                                 sesión iniciada</span>
                         </label>
-                        <button type="button" onclick="renderForgotPassword()"
-                            class="text-[10px] font-bold text-[#FD420A] hover:underline uppercase tracking-wider">¿Olvidaste
+                        <button type="button" onclick="render_forgot_password()"
+                            class="text-[10px] font-bold text-[#FD420A] hover:underline uppercase tracking-wider cursor-pointer">¿Olvidaste
                             la clave?</button>
                     </div>
 
@@ -86,8 +88,11 @@
     </div>
 
     <p id="toggle-text" class="text-center mt-10 text-sm text-gray-500">
-        ¿No tienes una cuenta? <button onclick="renderRegister()"
+        ¿No tienes una cuenta? <button onclick="render_register()"
             class="text-[#FD420A] font-bold hover:underline">Regístrate ahora</button>
     </p>
+
+    <p class="text-center text-xs mt-2 text-gray-400">Al usar la applicacion estas aceptando los <a href="/legal/terms"
+            target="_blank" class="text-(--accent)">Términos Y Condiciones</a></p>
 </div>
 {% endblock %}

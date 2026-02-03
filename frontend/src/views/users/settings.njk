@@ -1,0 +1,388 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+
+<style>
+    .nav-link {
+        position: relative;
+        color: var(--text-muted);
+        transition: all 0.3s ease;
+    }
+
+    .nav-link.active {
+        color: var(--accent);
+    }
+
+    .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: var(--accent);
+        box-shadow: 0 0 10px var(--accent);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.4s ease-out;
+    }
+</style>
+
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        {# <div
+            class="flex items-center justify-between gap-4 animate-in fade-in duration-700 bg-(--accent) py-2 px-3 rounded-xl">
+            <div class="flex items-center gap-3">
+                <div>
+                    <h4 class="text-base font-bold text-[#F0F6FC]">Verifica tu cuenta!</h4>
+                    <p class="text-sm text-white">Hay ciertas funciones que estaran bloqueadas hasta que verifique su
+                        cuenta de correo electrónico</p>
+                </div>
+            </div>
+            <button
+                class="text-xs font-bold uppercase text-white hover:text-gray-300 transition-colors whitespace-nowrap bg-(--bg-second) px-3 py-2 rounded-2xl cursor-pointer">
+                Verificar Cuenta!
+            </button>
+        </div> #}
+
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-black tracking-tight text-white">Ajustes</h1>
+                <p class="text-gray-400 mt-1">Gestiona tu identidad, seguridad y preferencias en Nexo.</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-8 border-b border-[#30363D] pb-1">
+            <button onclick="switch_tab('profile')" id="btn-profile"
+                class="nav-link active pb-3 font-bold text-sm uppercase tracking-wider cursor-pointer">Perfil</button>
+            <button onclick="switch_tab('security')" id="btn-security"
+                class="nav-link pb-3 font-bold text-sm uppercase tracking-wider cursor-pointer">Seguridad</button>
+            <button onclick="switch_tab('notifications')" id="btn-notifications"
+                class="nav-link pb-3 font-bold text-sm uppercase tracking-wider cursor-pointer">Notificaciones</button>
+            <button onclick="switch_tab('billing')" id="btn-billing"
+                class="nav-link pb-3 font-bold text-sm uppercase tracking-wider cursor-pointer">Suscripción</button>
+        </div>
+
+        <div id="profile" class="tab-content active space-y-8">
+            <div class="glass-card p-6 md:p-8">
+                <div class="flex flex-col lg:flex-row gap-10">
+                    <div class="flex flex-col items-center space-y-4">
+                        <div class="relative group">
+                            <div
+                                class="w-40 h-40 rounded-3xl bg-[#0D1117] flex items-center justify-center text-[#FD420A] overflow-hidden shadow-2xl transition-all">
+                                <img src="https://ui-avatars.com/api/?name={{ user.fullname }}&background=FD420A&color=fff"
+                                    class="w-40 h-40 rounded" alt="Avatar">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <p class="text-xs font-bold text-[#8B949E] uppercase tracking-wider">Nombre de
+                                Usuario</p>
+                            <span class="w-full rounded-xl font-medium capitalize">{{ user.username }}</span>
+                        </div>
+                        <div class="space-y-2">
+                            <p class="text-xs font-bold text-[#8B949E] uppercase tracking-wider">Nombre Completo</p>
+                            <span class="w-full rounded-xl font-medium capitalize">{{ user.fullname }}</span>
+                        </div>
+                        <div class="space-y-2">
+                            <p class="text-xs font-bold text-[#8B949E] uppercase tracking-wider">Correo Electrónico</p>
+                            <span class="w-full rounded-xl font-medium lowercase">{{ user.email }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="security" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 gap-4"> {# md:grid-cols-2 #}
+                <div class="glass-card p-6" id="update-password-container">
+                    <h3 class="font-bold text-xl flex items-center gap-2">
+                        <i class="fa-regular fa-lock text-[#FD420A]"></i>
+                        Cambiar Contraseña
+                    </h3>
+                    <div class="space-y-3 mt-4">
+                        <div class="input-group">
+                            <label>Contraseña actual</label>
+                            <input type="password" placeholder="************"
+                                class="w-full input-glass px-5 py-3.5 rounded-xl text-sm" id="current_password">
+                        </div>
+                        <div class="input-group">
+                            <label>Nueva contraseña</label>
+                            <input type="password" placeholder="************"
+                                class="w-full input-glass px-5 py-3.5 rounded-xl text-sm" id="new_password">
+                        </div>
+                        <div class="input-group">
+                            <label>Confirmar Nueva contraseña</label>
+                            <input type="password" placeholder="************"
+                                class="w-full input-glass px-5 py-3.5 rounded-xl text-sm" id="confirm_new_password">
+                        </div>
+                        <button type="button" onclick="update_password()"
+                            class="mt-4 bg-[#FD420A] hover:bg-[#ff5a26] text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                            <i class="fa-solid fa-plus"></i>
+                            Actualizar contraseña
+                        </button>
+                    </div>
+                </div>
+
+                {# <div class="glass-card p-6">
+                    <h3 class="font-bold text-xl flex items-center gap-2">
+                        <i class="fa-regular fa-key text-[#FD420A]"></i>
+                        Cuentas Vinculadas
+                    </h3>
+                    <div class="space-y-3 mt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                            <div class="glass-card p-4 rounded-xl flex flex-col justify-between gap-4 bg-(--bg-second)">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-white rounded-lg">
+                                            <svg width="18" height="18" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                                    fill="#4285F4"></path>
+                                                <path
+                                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                                    fill="#34A853"></path>
+                                                <path
+                                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                                                    fill="#FBBC05"></path>
+                                                <path
+                                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                                    fill="#EA4335"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="font-bold text-sm">Google</span>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-green-500 uppercase">Vinculado</span>
+                                </div>
+                                <button
+                                    class="w-full py-2 bg-[#1C2128] border border-[#30363D] hover:border-red-500/50 hover:text-red-500 rounded-lg text-[10px] font-bold transition-all uppercase tracking-wider cursor-pointer">Desvincular</button>
+                            </div>
+
+                             <!-- Discord -->
+                            <div class="oauth-card p-4 rounded-xl flex flex-col justify-between gap-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 flex items-center justify-center bg-[#5865F2] rounded-lg">
+                                            <svg width="18" height="18" fill="white" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037 19.736 19.736 0 0 0-4.885 1.515.069.069 0 0 0-.032.027C.533 9.048-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <span class="font-bold text-sm">Discord</span>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-[#8B949E] uppercase">No Conectado</span>
+                                </div>
+                                <button
+                                    class="w-full py-2 bg-[#FD420A] rounded-lg text-[10px] font-bold text-white transition-all uppercase tracking-wider hover:bg-[#E33A08] shadow-[0_0_10px_rgba(253,66,10,0.2)]">Vincular
+                                    Cuenta</button>
+                            </div>
+
+                            <!-- GitHub -->
+                            <div class="oauth-card p-4 rounded-xl flex flex-col justify-between gap-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-8 h-8 flex items-center justify-center bg-[#24292e] rounded-lg border border-[#30363D]">
+                                            <svg width="18" height="18" fill="white" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.627-5.373-12-12-12">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <span class="font-bold text-sm">GitHub</span>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-[#8B949E] uppercase">No Conectado</span>
+                                </div>
+                                <button
+                                    class="w-full py-2 bg-[#1C2128] border border-[#30363D] hover:border-[#FD420A] rounded-lg text-[10px] font-bold transition-all uppercase tracking-wider hover:text-[#FD420A]">Conectar</button>
+                            </div> 
+
+                        </div>
+                    </div>
+                </div> #}
+
+                {# <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-lg flex items-center gap-2 mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="text-[#FD420A]">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg>
+                            Doble Factor (2FA)
+                        </h3>
+                        <p class="text-sm text-[#8B949E]">Añade una capa extra de seguridad a tu cuenta Nexo.</p>
+                    </div>
+                    <div class="mt-4 p-3 bg-[#1C2128] border border-dashed border-[#30363D] rounded-xl text-center">
+                        <span class="text-[10px] font-bold text-[#F59E0B] uppercase">Estado: Desactivado</span>
+                    </div>
+                    <button class="mt-4 glow-button p-3 rounded-xl font-bold text-xs text-white">Configurar 2FA</button>
+                </div> #}
+            </div>
+        </div>
+
+        <div id="notifications" class="tab-content space-y-4">
+            <div class="glass-card p-6">
+                <p class="text-center text-[#8B949E] italic py-10">Preferencias de notificación próximamente...</p>
+            </div>
+        </div>
+
+        <div id="billing" class="tab-content space-y-4">
+            <div class="glass-card p-6">
+                <p class="text-center text-[#8B949E] italic py-10">Gestión de suscripción próximamente...</p>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    function switch_tab(tab_id) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        document.querySelectorAll('.nav-link').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        document.getElementById(tab_id).classList.add('active');
+        document.getElementById('btn-' + tab_id).classList.add('active');
+    }
+
+    async function update_password() {
+        // Elements
+        const current_password = document.getElementById("current_password");
+        const new_password = document.getElementById("new_password");
+        const confirm_new_password = document.getElementById("confirm_new_password");
+
+        // Operations
+        if (!current_password.value || !new_password.value || !confirm_new_password.value) {
+            if (!current_password.value) {
+                if (!current_password.classList.contains("border-2")) {
+                    current_password.classList.add("border-2");
+                    current_password.classList.add("border-red-500");
+                }
+            } else {
+                if (current_password.classList.contains("border-2")) {
+                    current_password.classList.remove("border-2");
+                    current_password.classList.remove("border-red-500");
+                }
+            }
+
+            if (!new_password.value) {
+                if (!new_password.classList.contains("border-2")) {
+                    new_password.classList.add("border-2");
+                    new_password.classList.add("border-red-500");
+                }
+            } else {
+                if (new_password.classList.contains("border-2")) {
+                    new_password.classList.remove("border-2");
+                    new_password.classList.remove("border-red-500");
+                }
+            }
+
+
+            if (!confirm_new_password.value) {
+                if (!confirm_new_password.classList.contains("border-2")) {
+                    confirm_new_password.classList.add("border-2");
+                    confirm_new_password.classList.add("border-red-500");
+                }
+            } else {
+                if (confirm_new_password.classList.contains("border-2")) {
+                    confirm_new_password.classList.remove("border-2");
+                    confirm_new_password.classList.remove("border-red-500");
+                }
+            }
+
+            notify("Complete todos los campos", "error");
+            return;
+        } else {
+            if (current_password.classList.contains("border-2")) {
+                current_password.classList.remove("border-2");
+                current_password.classList.remove("border-red-500");
+            }
+            if (new_password.classList.contains("border-2")) {
+                new_password.classList.remove("border-2");
+                new_password.classList.remove("border-red-500");
+            }
+            if (confirm_new_password.classList.contains("border-2")) {
+                confirm_new_password.classList.remove("border-2");
+                confirm_new_password.classList.remove("border-red-500");
+            }
+        }
+
+        const current_password_value = current_password.value;
+        const new_password_value = new_password.value;
+        const confirm_new_password_value = confirm_new_password.value;
+
+        if (new_password_value.length < 12 || confirm_new_password_value.length < 12) {
+            notify("Las contraseña debe de tener un mínimo de 12 caracteres por cuestiones de seguridad", "error");
+            return;
+        } else if (new_password_value != confirm_new_password_value) {
+            notify("Las contraseñas no coinciden", "error");
+            return;
+        }
+
+        const payload = {
+            current_password: current_password_value,
+            new_password: new_password_value,
+            confirm_new_password: confirm_new_password_value
+        }
+
+        const response = await fetch(
+            `/users/api/settings/update_password`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            }
+        )
+
+        const result = await response.json()
+
+        if (result.error) {
+            result.errors.forEach(error => {
+                notify(`${error}`, "error")
+            });
+
+            return;
+        }
+
+        notify(`${result.message}`, "success");
+
+        current_password.value = "";
+        new_password.value = "";
+        confirm_new_password.value = "";
+    }
+
+    const update_password_container = document.getElementById("update-password-container");
+
+    update_password_container.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            update_password();
+        }
+    });
+    
+</script>
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

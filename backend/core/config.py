@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     SMTP_USER: str
     SMTP_PASS: str
 
-    EMAIL_ENABLED: bool = True
+    EMAIL_ENABLED: bool = False
 
     GOOGLE_CLIENT_ID: str
     GOOGLE_SECRET_ID: str

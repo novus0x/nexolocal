@@ -10,9 +10,13 @@ TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "templates")
 template_routes = SimpleNamespace(
     auth = SimpleNamespace(
         welcome = "auth/welcome.html",
+        reset_password = "auth/reset-password.html"
     ),
     oauth = SimpleNamespace(
         google = "oauth/password-google.html"
+    ),
+    account = SimpleNamespace(
+        password_updated = "account/password-updated.html"
     )
 )
 

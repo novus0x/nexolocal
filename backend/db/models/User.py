@@ -47,6 +47,22 @@ class User_Verification(Base):
     ## Relationships ##
     user = relationship("User", back_populates="verification")
 
+##### User Recover #####
+class User_Recover(Base):
+    __tablename__ = "user_recover"
+
+    id = Column(String, primary_key=True, nullable=False)
+
+    used = Column(Boolean, default=False)
+    
+    expires = Column(DateTime(timezone=True), nullable=False)
+    date = Column(DateTime(timezone=True), default=func.now())
+
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+
+    ## Relationships ##
+    user = relationship("User")
+
 ##### User Session #####
 class User_Session(Base):
     __tablename__ = "user_sessions"
