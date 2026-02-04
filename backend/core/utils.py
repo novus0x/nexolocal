@@ -1,4 +1,5 @@
 ########## Modules ##########
+from decimal import Decimal, InvalidOperation
 from datetime import datetime, timezone, timedelta, date, time
 
 ########## Time Ago ##########
@@ -22,18 +23,19 @@ def time_ago(dt):
 ########## Is Int ##########
 def is_int(value):
     try:
-        val = int(value)
-        return val
-    except (TypeError, ValueError):
-        return False
+        dec = Decimal(str(value))
+        if dec % 1 == 0:
+            return int(dec)
+        return None
+    except (InvalidOperation, TypeError):
+        return None
 
 ########## Is Float ##########
 def is_float(value):
     try:
-        val = float(value)
-        return val
-    except (TypeError, ValueError):
-        return False
+        return Decimal(str(value))
+    except (InvalidOperation, TypeError):
+        return None
 
 ########## Is date yyyy_mm_dd ##########
 def is_date_yyyy_mm_dd(value: str):

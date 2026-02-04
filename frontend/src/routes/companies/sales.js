@@ -138,6 +138,5 @@ router.get("/reports", require_auth, at_least_company, async (req, res) => {
     });
 });
 
-
 /*************** Export ***************/
 export default router

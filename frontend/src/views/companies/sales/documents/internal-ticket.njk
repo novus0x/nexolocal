@@ -40,7 +40,7 @@
 <div class="text-center">
     <div class="bold" style="font-size: 14px;">{{ company.name }}</div>
     {% if company.is_formal %}
-    <div>RUC: 20600000000</div> 
+    <div>RUC: 20600000000</div>
     {% endif %}
     <div>{{ company.address }}</div>
     {% if company.phone %}
@@ -94,9 +94,27 @@
             <td colspan="3" style="padding-top: 5px;">{{ item.name }}</td>
         </tr>
         <tr>
-            <td align="left">UNID: S/ {{ item.price }}</td>
-            <td align="center">{{ item.quantity }}</td>
-            <td align="right">S/{{ item.total }}</td>
+            <td align="left" style="font-size: 10px;">
+                {% if item.is_service %}
+                SERVICIO
+                {% elif item.is_bulk %}
+                PRECIO: S/ {{ item.price }} x kg
+                {% else %}
+                UNID: S/ {{ item.price }}
+                {% endif %}
+            </td>
+
+            <td align="center">
+                {% if item.is_bulk %}
+                {{ item.quantity | round(3) }}
+                {% else %}
+                {{ item.quantity }}
+                {% endif %}
+            </td>
+
+            <td align="right">
+                S/ {{ item.total | round(2) }}
+            </td>
         </tr>
         {% endfor %}
     </tbody>

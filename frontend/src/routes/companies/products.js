@@ -63,6 +63,7 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     const company_id = req.company_id;
 
     let tax_include_v = "0";
+    let is_bulk_v = "0";
     let is_service_v = "0";
     let duration_v = "0";
     let stock_v = "0";
@@ -83,10 +84,12 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     if (!permissions.includes("company.products.create")) return res.redirect("/");
 
     // Get POST data
-    const { name, sku, identifier, category, description, sale_price, sale_cost, tax_include, is_service, duration, duration_type, staff_id, stock, track_product, low_stock, bonus, expiration_date, weight, length, width, height } = req.body;
+    const { name, sku, identifier, category, description, sale_price, sale_cost, tax_include, is_bulk, is_service, duration, duration_type, staff_id, stock, track_product, low_stock, bonus, expiration_date, weight, length, width, height } = req.body;
 
     if (stock) stock_v = stock;
     if (description) description_v = description;
+
+    if (is_bulk == "on") is_bulk_v = "1";
 
     if (is_service == "on") {
         is_service_v = "1"
@@ -122,6 +125,7 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
         stock: stock_v,
         description: description_v,
         tax_include: tax_include_v,
+        is_bulk: is_bulk_v,
         is_service: is_service_v,
         duration: duration_v,
         track_product: track_product_v,
@@ -238,6 +242,8 @@ router.get("/read/:product_id", require_auth, at_least_company, async (req, res)
     if (dimensions_v.length < 3) {
         dimensions_v = [0, 0, 0]
     }
+
+    console.log(response.data)
 
     // Render content
     return res.render("companies/products/read", {

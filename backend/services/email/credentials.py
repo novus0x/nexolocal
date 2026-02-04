@@ -1,4 +1,4 @@
 ########## Credentials ##########
 EMAIL_FROM = {
-    "no-reply": "no-reply - Nexolocal <no-reply@nexolocal.floua.app>"
+    "no-reply": "no-reply <no-reply@nexolocal.floua.app>"
 }

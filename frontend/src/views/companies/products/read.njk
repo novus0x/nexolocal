@@ -42,7 +42,15 @@
                     <div class="space-y-6">
                         <div class="relative pl-4 border-l-2 border-orange-500">
                             <p class="text-2xl font-black">S/ {{ product.price }}</p>
-                            <p class="text-[10px] text-gray-500 font-bold">PRECIO ACTUAL</p>
+                            <p class="text-[10px] text-gray-500 font-bold">
+                                {% if product.is_service %}
+                                PRECIO DEL SERVICIO
+                                {% elif product.is_bulk %}
+                                PRECIO POR KG / L
+                                {% else %}
+                                PRECIO POR UNIDAD
+                                {% endif %}
+                            </p>
                         </div>
                         <div class="relative pl-4 border-l-2 border-emerald-500">
                             <p class="text-2xl font-black">---%</p>
@@ -50,8 +58,17 @@
                         </div>
                         {% if not product.is_service %}
                         <div class="relative pl-4 border-l-2 border-blue-500">
-                            <p class="text-2xl font-black">{{ product.stock }}</p>
-                            <p class="text-[10px] text-gray-500 font-bold">STOCK FÍSICO</p>
+                            <p class="text-2xl font-black">
+                                {{ product.stock }}
+                                {% if product.is_bulk %} kg / L{% endif %}
+                            </p>
+                            <p class="text-[10px] text-gray-500 font-bold">
+                                {% if product.is_bulk %}
+                                STOCK DISPONIBLE
+                                {% else %}
+                                STOCK FÍSICO
+                                {% endif %}
+                            </p>
                         </div>
                         {% endif %}
                     </div>
@@ -113,8 +130,8 @@
                     </div>
                 </div>
 
-                {% if not product.is_service %}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="grid grid-cols-1 gap-8">
+                {% if not product.is_service and not product.is_bulk %}
                     <div class="glass-card p-8 col-span-2">
                         <div class="flex items-center gap-3 mb-6">
                             <div
@@ -139,7 +156,7 @@
                         </div>
                     </div>
 
-                    {% else %}
+                    {% elif product.is_service %}
                     <div class="glass-card p-8 bg-linear-to-br from-orange-500/3 to-transparent">
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center gap-3">
@@ -161,7 +178,9 @@
                                 <i class="fa-solid fa-clock text-gray-500"></i>
                                 <span class="text-sm font-medium">Tiempo estimado</span>
                             </div>
-                            <span class="text-sm font-black">{{ product.duration }} MIN</span>
+                            <span class="text-sm font-black">
+                                {{ product.duration }} <span class="uppercase">{{ product.duration_type }}</span>
+                            </span>
                         </div>
                     </div>
                     {% endif %}
@@ -222,9 +241,17 @@
 
                             <div class="flex justify-between items-end pt-2">
                                 <div>
-                                    <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest">Cant. Lote
+                                    <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest">
+                                        {% if product.is_bulk %}
+                                        Cant. Lote (kg / L)
+                                        {% else %}
+                                        Cant. Lote
+                                        {% endif %}
                                     </p>
-                                    <p class="text-xl font-black">{{ batch.stock }}</p>
+                                    <p class="text-xl font-black">
+                                        {{ batch.stock }}
+                                        {% if product.is_bulk %} kg / L{% endif %}
+                                    </p>
                                 </div>
                                 {# <div
                                     class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 cursor-pointer">

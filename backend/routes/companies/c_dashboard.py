@@ -1,4 +1,5 @@
 ########## Modules ##########
+from zoneinfo import ZoneInfo
 from datetime import date, timedelta, time, datetime
 
 from fastapi import APIRouter, Request, Depends
@@ -9,17 +10,20 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from db.model import Company, Product, Cash_Session_Status, Cash_Session, Cash_Movement, Cash_Movement_Type, Sale, Sale_Item, Sale_Status, Expense, Expense_Status, Payment_Method
 
+from core.config import settings
+
 from core.i18n import translate
-from core.generator import get_uuid
-from core.db_management import add_db
 from core.responses import custom_response
-from core.validators import read_json_body, validate_required_fields
 from core.permissions import check_permissions
 
 ########## Variables ##########
 router = APIRouter()
+TIMEZONE = settings.TIMEZONE
 
-########## Validate Company id - Company ##########
+LOCAL_TZ = ZoneInfo(TIMEZONE)
+UTZ_TZ = ZoneInfo("UTC")
+
+########## Company Dashboard - Company ##########
 @router.get("/")
 async def c_dashboard(request: Request, db: Session = Depends(get_db)):
     ### Variables ###
@@ -30,25 +34,25 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
     low_threshold = 1.43
     cash_session_status = False
 
-    today = date.today()
+    now_local = datetime.now(LOCAL_TZ)
+    today = now_local.today()
 
-    today_start = datetime.combine(today, time.min)
+    today_start = datetime.combine(today, time.min, tzinfo=LOCAL_TZ)
     today_end = today_start + timedelta(days=1)
 
     yesterday_start = today_start - timedelta(days=1)
     yesterday_end = today_start
 
     start_week = today - timedelta(days=6)
-    start_dt = datetime.combine(start_week, time.min)
-    end_dt = datetime.combine(today + timedelta(days=1), time.min)
+    start_dt = datetime.combine(start_week, time.min, tzinfo=LOCAL_TZ)
+    end_dt = today_end
 
     month_start = today.replace(day=1)
-    month_start_dt = datetime.combine(month_start, time.min)
+    month_start_dt = datetime.combine(month_start, time.min, tzinfo=LOCAL_TZ)
     next_month = (month_start + timedelta(days=32)).replace(day=1)
-    month_end_dt = datetime.combine(next_month, time.min)
+    month_end_dt = datetime.combine(next_month, time.min, tzinfo=LOCAL_TZ)
 
     start = datetime.combine(today, time.min)
-    end = start + timedelta(days=1)
 
     sales_today = 0
     expenses_month = 0
@@ -125,6 +129,9 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
     ).first()
     
     if cash_session:
+        cash_session_status = True
+        today_start = cash_session.opened_at.astimezone(LOCAL_TZ)
+
         previous_cash_session = db.query(Cash_Session).filter(
             Cash_Session.company_id == company_id,
             Cash_Session.status == Cash_Session_Status.CLOSED,
@@ -132,16 +139,11 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
         ).order_by(desc(Cash_Session.closed_at)).first()
 
         if previous_cash_session:
-            yesterday_start = previous_cash_session.opened_at
-            yesterday_end = previous_cash_session.closed_at
+            yesterday_start = previous_cash_session.opened_at.astimezone(LOCAL_TZ)
+            yesterday_end = previous_cash_session.closed_at.astimezone(LOCAL_TZ)
         else:
-            yesterday_end = cash_session.opened_at
-            yesterday_start = cash_session.opened_at - timedelta(days=1)
-
-        ### Today Cash Session ###
-        today_start = cash_session.opened_at
-
-        cash_session_status = True
+            yesterday_end = cash_session.opened_at.astimezone(LOCAL_TZ)
+            yesterday_start = yesterday_end - timedelta(days=1)
 
         sales_yesterday = db.query(func.coalesce(func.sum(Sale.total), 0)).filter(
             Sale.company_id == company_id,

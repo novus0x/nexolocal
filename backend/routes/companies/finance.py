@@ -1,5 +1,6 @@
 ########## Modules ##########
-from datetime import timezone, timedelta, datetime
+from zoneinfo import ZoneInfo
+from datetime import timedelta, datetime
 
 from fastapi import APIRouter, Request, Depends
 
@@ -8,6 +9,8 @@ from sqlalchemy.orm import Session
 
 from db.database import get_db
 from db.model import Income, Income_Status, Expense, Expense_Category, Expense_Status
+
+from core.config import settings
 
 from core.i18n import translate
 from core.generator import get_uuid
@@ -20,6 +23,10 @@ from core.permissions import check_permissions
 
 ########## Variables ##########
 router = APIRouter()
+TIMEZONE = settings.TIMEZONE
+
+LOCAL_TZ = ZoneInfo(TIMEZONE)
+UTZ_TZ = ZoneInfo("UTC")
 
 ########## Get Finances - Company ##########
 @router.get("/")
@@ -37,9 +44,6 @@ async def main(request: Request, db: Session = Depends(get_db)):
 
     utility = 0
 
-    today = datetime.now(timezone.utc).date()
-    start_date = today - timedelta(days=6)
-
     days = []
 
     ### Validation ###
@@ -50,6 +54,11 @@ async def main(request: Request, db: Session = Depends(get_db)):
     if not check_permissions(db, request, "company.income.read", company_id) and not check_permissions(db, request, "company.expenses.read", company_id):
         return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
     
+    ### Local Time ###
+    now_local = datetime.now(LOCAL_TZ)
+    today_local = now_local.date()
+    start_date = today_local - timedelta(days=6)
+
     income_by_day = (
         db.query(
             func.date(Income.date).label("day"),
@@ -124,7 +133,8 @@ async def main(request: Request, db: Session = Depends(get_db)):
     )
 
     for row in finance_rows:
-        label = date_label(row.date)
+        local_date = row.date.astimezone(LOCAL_TZ)
+        label = date_label(local_date)
 
         if label not in finance_grouped:
             finance_grouped[label] = []
@@ -134,7 +144,7 @@ async def main(request: Request, db: Session = Depends(get_db)):
             "type": row.type,
             "name": row.name,
             "amount": row.amount,
-            "time": row.date.astimezone().strftime("%H:%M - %d %b %Y")
+            "time": local_date.strftime("%H:%M - %d %b %Y")
         })
 
     for label, items in finance_grouped.items():

@@ -1,4 +1,5 @@
 ########## Modules ##########
+from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta, date, time
 
 from fastapi import APIRouter, Request, Depends
@@ -9,20 +10,26 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from db.model import Product, Product_Batch, Company, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Expense, Expense_Status
 
+from core.config import settings
+
 from core.i18n import translate
-from core.generator import get_uuid, generate_nxid
-from core.utils import is_int, pagination, normalize_search
 from core.responses import custom_response
 from core.permissions import check_permissions
+from core.generator import get_uuid, generate_nxid
 from core.db_management import add_db, update_db, add_multiple_db
 from core.validators import read_json_body, validate_required_fields
+from core.utils import is_int, is_float, pagination, normalize_search
 
 ########## Variables ##########
 router = APIRouter()
+TIMEZONE = settings.TIMEZONE
+
+LOCAL_TZ = ZoneInfo(TIMEZONE)
+UTZ_TZ = ZoneInfo("UTC")
 
 ########## Check Sale - Company ##########
 @router.get("/")
-async def check_product_scan(request: Request, page = 1, db: Session = Depends(get_db)):
+async def check_sale(request: Request, page = 1, db: Session = Depends(get_db)):
     ### Variables ###
     lang = request.state.lang
     user = request.state.user
@@ -50,18 +57,18 @@ async def check_product_scan(request: Request, page = 1, db: Session = Depends(g
     
     sales = db.query(Sale).filter(
         Sale.company_id == company_id
-    ).order_by(
-        desc(Sale.date)
-    ).limit(limit).offset(offset).all()
+    ).order_by(desc(Sale.date)).limit(limit).offset(offset).all()
 
     for sale in sales:
+        local_date = sale.date.astimezone(LOCAL_TZ)
+
         sales_data.append({
             "id": sale.id,
             "invoice": sale.invoice_number,
             "amount": sale.total,
 
             "client": {},
-            "date": sale.date.astimezone().strftime("%H:%M - %d %b %Y"),
+            "date": local_date.strftime("%H:%M - %d %b %Y"),
         })
 
     return custom_response(status_code=200, message=translate(lang, "company.sales.get.success"), data={
@@ -70,7 +77,7 @@ async def check_product_scan(request: Request, page = 1, db: Session = Depends(g
 
 ########## Cash Flow - Company - API ##########
 @router.post("/flow")
-async def check_product_scan(request: Request, db: Session = Depends(get_db)):
+async def cash_flow_api(request: Request, db: Session = Depends(get_db)):
     ### Variables ###
     lang = request.state.lang
     user = request.state.user
@@ -78,7 +85,7 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
 
     available_options = ["today", "7d", "30d", "6m", "12m"]
 
-    now = datetime.now()
+    now = datetime.now(LOCAL_TZ)
     today = date.today()
 
     labels = []
@@ -106,35 +113,41 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
     
     if not check_flow.type in available_options:
-        return custom_response(status_code=200, message=translate(lang, "company.sales.flow.error.incorrect_option"))
+        return custom_response(status_code=400, message=translate(lang, "company.sales.flow.error.incorrect_option"))
 
+    ## Time range and mode ##
     if check_flow.type == "today":
-        start = datetime.combine(today, time.min)
-        end = datetime.combine(today, time.max)
+        start_local = datetime.combine(today, time.min, tzinfo=LOCAL_TZ)
+        end_local = datetime.combine(today, time.max, tzinfo=LOCAL_TZ)
         mode = "hour"
 
     elif check_flow.type == "7d":
-        start = datetime.combine(today - timedelta(days=6), time.min)
-        end = now
+        start_local = datetime.combine(today - timedelta(days=6), time.min, tzinfo=LOCAL_TZ)
+        end_local = now
         mode = "day"
 
     elif check_flow.type == "30d":
-        start = datetime.combine(today - timedelta(days=29), time.min)
-        end = now
+        start_local = datetime.combine(today - timedelta(days=29), time.min, tzinfo=LOCAL_TZ)
+        end_local = now
         mode = "day"
 
     elif check_flow.type == "6m":
         base = today.replace(day=1) - timedelta(days=180)
-        start = datetime.combine(base.replace(day=1), time.min)
-        end = now
+        start_local = datetime.combine(base.replace(day=1), time.min, tzinfo=LOCAL_TZ)
+        end_local = now
         mode = "month"
 
     elif check_flow.type == "12m":
         base = today.replace(day=1) - timedelta(days=365)
-        start = datetime.combine(base.replace(day=1), time.min)
-        end = now
+        start_local = datetime.combine(base.replace(day=1), time.min, tzinfo=LOCAL_TZ)
+        end_local = now
         mode = "month"
 
+    ## DB Filtering
+    start = start_local.astimezone(UTZ_TZ)
+    end = end_local.astimezone(UTZ_TZ)
+
+    ## Initialize labels and maps ##
     if mode == "hour":
         for h in range(0, 24):
             key = f"{h:02d}:00"
@@ -165,9 +178,10 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
             else:
                 d = d.replace(month=d.month+1)
 
+    ## Incomes ##
     if mode == "hour":
         rows = db.query(
-            extract("hour", Cash_Movement.date),
+            extract("hour", func.timezone(TIMEZONE, Cash_Movement.date)),
             func.coalesce(func.sum(Cash_Movement.amount), 0)
         ).filter(
             Cash_Movement.company_id == company_id,
@@ -177,7 +191,7 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
             ]),
             Cash_Movement.date >= start,
             Cash_Movement.date <= end
-        ).group_by(extract("hour", Cash_Movement.date)).all()
+        ).group_by(extract("hour", func.timezone(TIMEZONE, Cash_Movement.date))).all()
 
         for h, total in rows:
             key = f"{int(h):02d}:00"
@@ -185,7 +199,7 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
 
     elif mode == "day":
         rows = db.query(
-            func.date(Cash_Movement.date),
+            func.date(func.timezone(TIMEZONE, Cash_Movement.date)),
             func.coalesce(func.sum(Cash_Movement.amount), 0)
         ).filter(
             Cash_Movement.company_id == company_id,
@@ -195,7 +209,7 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
             ]),
             Cash_Movement.date >= start,
             Cash_Movement.date <= end
-        ).group_by(func.date(Cash_Movement.date)).all()
+        ).group_by(func.date(func.timezone(TIMEZONE, Cash_Movement.date))).all()
 
         for d, total in rows:
             key = d.strftime("%d %b")
@@ -203,8 +217,8 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
 
     elif mode == "month":
         rows = db.query(
-            extract("year", Cash_Movement.date),
-            extract("month", Cash_Movement.date),
+            extract("year", func.timezone(TIMEZONE, Cash_Movement.date)),
+            extract("month", func.timezone(TIMEZONE, Cash_Movement.date)),
             func.coalesce(func.sum(Cash_Movement.amount), 0)
         ).filter(
             Cash_Movement.company_id == company_id,
@@ -215,17 +229,18 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
             Cash_Movement.date >= start,
             Cash_Movement.date <= end
         ).group_by(
-            extract("year", Cash_Movement.date),
-            extract("month", Cash_Movement.date)
+            extract("year", func.timezone(TIMEZONE, Cash_Movement.date)),
+            extract("month", func.timezone(TIMEZONE, Cash_Movement.date))
         ).all()
 
         for y, m, total in rows:
             key = datetime(int(y), int(m), 1).strftime("%b %Y")
             income_map[key] = float(total)
 
+    ## Expenses ##
     if mode == "hour":
         rows = db.query(
-            extract("hour", Cash_Movement.date),
+            extract("hour", func.timezone(TIMEZONE, Cash_Movement.date)),
             func.coalesce(func.sum(Cash_Movement.amount), 0)
         ).filter(
             Cash_Movement.company_id == company_id,
@@ -235,7 +250,7 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
             ]),
             Cash_Movement.date >= start,
             Cash_Movement.date <= end
-        ).group_by(extract("hour", Cash_Movement.date)).all()
+        ).group_by(extract("hour", func.timezone(TIMEZONE, Cash_Movement.date))).all()
 
         for h, total in rows:
             key = f"{int(h):02d}:00"
@@ -243,7 +258,7 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
 
     elif mode == "day":
         rows = db.query(
-            func.date(Cash_Movement.date),
+            func.date(func.timezone(TIMEZONE, Cash_Movement.date)),
             func.coalesce(func.sum(Cash_Movement.amount), 0)
         ).filter(
             Cash_Movement.company_id == company_id,
@@ -253,7 +268,7 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
             ]),
             Cash_Movement.date >= start,
             Cash_Movement.date <= end
-        ).group_by(func.date(Cash_Movement.date)).all()
+        ).group_by(func.date(func.timezone(TIMEZONE, Cash_Movement.date))).all()
 
         for d, total in rows:
             key = d.strftime("%d %b")
@@ -261,8 +276,8 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
 
     elif mode == "month":
         rows = db.query(
-            extract("year", Cash_Movement.date),
-            extract("month", Cash_Movement.date),
+            extract("year", func.timezone(TIMEZONE, Cash_Movement.date)),
+            extract("month", func.timezone(TIMEZONE, Cash_Movement.date)),
             func.coalesce(func.sum(Cash_Movement.amount), 0)
         ).filter(
             Cash_Movement.company_id == company_id,
@@ -273,8 +288,8 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
             Cash_Movement.date >= start,
             Cash_Movement.date <= end
         ).group_by(
-            extract("year", Cash_Movement.date),
-            extract("month", Cash_Movement.date)
+            extract("year", func.timezone(TIMEZONE, Cash_Movement.date)),
+            extract("month", func.timezone(TIMEZONE, Cash_Movement.date))
         ).all()
 
         for y, m, total in rows:
@@ -292,7 +307,7 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
 
 ########## Check Reports - Company ##########
 @router.get("/reports")
-async def check_product_scan(request: Request, page = 1, q = None, db: Session = Depends(get_db)):
+async def check_reports(request: Request, page = 1, q = None, db: Session = Depends(get_db)):
     ### Variables ###
     lang = request.state.lang
     user = request.state.user
@@ -345,13 +360,15 @@ async def check_product_scan(request: Request, page = 1, q = None, db: Session =
     total_items = db.query(Sale).filter(*filters).count()
 
     for sale in sales:
+        local_date = sale.date.astimezone(LOCAL_TZ)
+
         sales_data.append({
             "id": sale.id,
             "invoice": sale.invoice_number,
             "amount": sale.total,
 
             "client": {},
-            "date": sale.date.astimezone().strftime("%H:%M - %d %b %Y"),
+            "date": local_date.strftime("%H:%M - %d %b %Y"),
         })
 
     return custom_response(status_code=200, message=translate(lang, "company.sales.get.success"), data={
@@ -394,6 +411,9 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
 
     if not product:
         return custom_response(status_code=400, message=translate(lang, "company.sales.check.error"))
+    
+    if not product.is_active:
+        return custom_response(status_code=400, message=translate(lang, "company.sales.check.error"))
 
     product_data = {
         "id": product.id,
@@ -402,6 +422,7 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
         "name": product.name,
         "stock": product.stock,
         "price": product.price,
+        "is_bulk": product.is_bulk,
         "is_service": product.is_service
     }
     
@@ -441,12 +462,19 @@ async def check_product_search(request: Request, db: Session = Depends(get_db)):
 
     query = check_product.query
 
+    if len(query) < 2:
+        return custom_response(status_code=200, message=translate(lang, "company.sales.check.success"), data={
+            "products": []
+        })
+
     products = db.query(Product).filter(
         or_(
             Product.name.ilike(f"%{query}%"),
-            Product.identifier.ilike(f"%{query}%")
+            Product.identifier.ilike(f"%{query}%"),
+            Product.sku.ilike(f"%{query}%")
         ),
-        Product.company_id == company_id
+        Product.company_id == company_id,
+        Product.is_active == True
     ).limit(10).all()
 
     for product in products:
@@ -457,6 +485,7 @@ async def check_product_search(request: Request, db: Session = Depends(get_db)):
             "name": product.name,
             "stock": product.stock,
             "price": product.price,
+            "is_bulk": product.is_bulk,
             "is_service": product.is_service
         })
     
@@ -512,16 +541,13 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
 
     ### Create Sale ###
     amount = 0
-    sale_cost_total = 0
-
+    
     sale_items = []
     sale_items_ids = []
 
     invoice_number = generate_nxid("sale")
 
-    while db.query(Sale).filter(
-        Sale.invoice_number == invoice_number
-    ).first():
+    while db.query(Sale).filter(Sale.invoice_number == invoice_number).first():
         invoice_number = generate_nxid("sale")
 
     new_sale = Sale(
@@ -534,9 +560,17 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
     )
 
     for product in products_data:
-        quantity = is_int(product.get("qty"))
+        raw_qty = product.get("qty")
 
-        if not quantity or quantity <= 0:
+        qty_int = is_int(raw_qty)
+        qty_float = is_float(raw_qty)
+
+        if qty_int is False and qty_float is False:
+            return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.incorrect_product_quantity"))
+
+        quantity = qty_float
+
+        if quantity <= 0:
             return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.incorrect_product_quantity"))
 
         check_product = db.query(Product).filter(
@@ -548,9 +582,18 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         if not check_product:
             return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.product_does_not_exist"))
 
+        ## Bulk Validation ##
+        if not check_product.is_service:
+            if not check_product.is_bulk:
+                if quantity != is_int(quantity):
+                    return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.bulk_not_allowed"))
+                
+                quantity = is_int(quantity)
+
         current_cost = 0
         current_amount = 0
 
+        ## Stock ##
         if not check_product.is_service:
             batches = (
                 db.query(Product_Batch)
@@ -585,10 +628,9 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
 
             check_product.stock -= quantity
 
-        ### Sale Price ###
+        ### Amount ###
         current_amount = check_product.price * quantity
 
-        sale_cost_total += current_cost
         amount += current_amount
 
         ### Sale Item ###
@@ -614,7 +656,7 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
     ### Create Income ###
     new_income = Income(
         id = get_uuid(db, Income),
-        name = "Nueva Venta",
+        name = f"Nueva Venta: {new_sale.invoice_number}",
         amount = amount,
         status = Income_Status.RECEIVED,
         approved_by_id = user.get("id"),
@@ -649,7 +691,7 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
 
 ########## Check Sale Item - Company ##########
 @router.get("/check_sale/{sale_id}")
-async def check_product_scan(request: Request, sale_id: str, db: Session = Depends(get_db)):
+async def check_sale_item(request: Request, sale_id: str, db: Session = Depends(get_db)):
     ### Variables ###
     lang = request.state.lang
     user = request.state.user
@@ -666,7 +708,7 @@ async def check_product_scan(request: Request, sale_id: str, db: Session = Depen
         return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
 
     sale = db.query(Sale).filter(
-        Sale.id == sale_id
+        Sale.id == sale_id,
     ).first()
 
     if not sale:
@@ -692,7 +734,8 @@ async def check_product_scan(request: Request, sale_id: str, db: Session = Depen
             "name": item.name,
             "quantity": item.quantity,
             "price": item.unit_price,
-            "total": item.total
+            "total": item.total,
+            "is_service": item.is_service
         }
 
         items.append(product_value)
@@ -705,13 +748,15 @@ async def check_product_scan(request: Request, sale_id: str, db: Session = Depen
         "is_formal": company.is_formal,
     }
 
+    local_date = sale.date.astimezone(LOCAL_TZ)
+
     sale_information = {
         "id": sale.id,
         "invoice": sale.invoice_number,
         "items": items,
         "tax": sale.tax_amount,
         "total": sale.total,
-        "date": sale.date.astimezone().strftime("%H:%M - %d %b %Y"),
+        "date": local_date.strftime("%H:%M - %d %b %Y"),
 
         "seller": {
             "name": seller.fullname

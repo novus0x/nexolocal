@@ -3,6 +3,8 @@ from pydantic_settings import BaseSettings
 
 ########## Settings ##########
 class Settings(BaseSettings):
+    TIMEZONE: str
+
     DATABASE_MODE: str
     DATABASE_URL_LOCAL: str
     DATABASE_URL_DOCKER: str

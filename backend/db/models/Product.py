@@ -32,8 +32,8 @@ class Product(Base):
     
     tax_included = Column(Boolean, default=False)
 
-    stock = Column(Integer, default=0)
-    low_stock_alert = Column(Integer, default=5)
+    stock = Column(Numeric(10, 3), default=0)
+    low_stock_alert = Column(Numeric(10, 3), default=5)
     track_inventory = Column(Boolean, default=False)
 
     is_active = Column(Boolean, default=True)
@@ -71,11 +71,11 @@ class Product_Batch(Base):
 
     id = Column(String, primary_key=True, nullable=False)
 
-    stock = Column(Integer, default=0)
+    stock = Column(Numeric(10, 3), default=0)
     price = Column(Numeric(10, 2), nullable=False)
     cost = Column(Numeric(10, 2)) # Comparar precio anterior
 
-    stock_bonus = Column(Integer, default=0)
+    stock_bonus = Column(Numeric(10, 3), default=0)
 
     is_active = Column(Boolean, default=True)
     expiration_active = Column(Boolean, default=True)
@@ -85,7 +85,7 @@ class Product_Batch(Base):
     date = Column(DateTime(timezone=True), default=func.now())
 
     product_id = Column(String, ForeignKey("products.id"), nullable=False)
-    expense_id = Column(String, ForeignKey("expenses.id"), nullable=False)
+    expense_id = Column(String, ForeignKey("expenses.id"), nullable=True)
 
     ## Relationships ##
     product = relationship("Product")

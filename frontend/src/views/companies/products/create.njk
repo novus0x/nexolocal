@@ -202,10 +202,18 @@
                     </h3>
                     <div class="space-y-6">
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Stock Actual</label>
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Stock inicial
+                                (unidades)</label>
                             <input type="number"
                                 class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold bg-white/5 border-white/20"
                                 placeholder="0" name="stock" value="{{ stock }}">
+                            <label class="flex items-center mt-3 gap-3 cursor-pointer">
+                                <input type="checkbox" name="is_bulk" id="bulkSwitch" class="custom-checkbox"
+                                    onchange="toggleBulk(this.checked)">
+                                <span class="text-sm text-gray-300">
+                                    Producto a granel (kg / L)
+                                </span>
+                            </label>
                         </div>
                         <hr class="border-white/5" />
                         <div class="flex items-center justify-between">
@@ -265,7 +273,7 @@
                         <i class="fas fa-ruler-combined text-gray-500"></i> Logística
                     </h3>
                     <div class="space-y-5">
-                        <div class="space-y-2">
+                        <div class="space-y-2" id="weight_section">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Peso (kg)</label>
                             <input type="number" step="0.01"
                                 class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold" placeholder="0.00"
@@ -322,6 +330,18 @@
 </main>
 
 <script>
+    function toggleBulk(isBulk) {
+        const weightSection = document.getElementById("weight_section");
+
+        if (isBulk) {
+            weightSection.classList.add("hidden");
+        } else {
+            weightSection.classList.remove("hidden");
+        }
+
+        document.querySelector("input[name='stock']").previousElementSibling.innerText = isBulk ? "Stock inicial (kg / L)" : "Stock inicial (unidades)";
+    }
+
     function toggleSection(id, isVisible) {
         const section = document.getElementById(id);
         const inventary_section = document.querySelectorAll(".no_service_section");

@@ -198,29 +198,49 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=error)
 
     required_fields, error = validate_required_fields(product_check, [
-        "name", "sku", "identifier", "category", "description", "sale_price", "sale_cost", "tax_include", "is_service",
-        "duration", "duration_type", "staff_id", "track_product", "low_stock", "bonus", "weight", "length", "width", 
-        "height", "expiration_date"
+        "name", "sku", "identifier", "category", "description", "sale_price", "sale_cost", "tax_include", "is_bulk",
+        "is_service", "duration", "duration_type", "staff_id", "track_product", "low_stock", "bonus", "weight", "length", 
+        "width", "height", "expiration_date"
     ])
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 
-    bonus = is_int(product_check.bonus)
-    stock = is_int(product_check.stock)
+    bonus = is_float(product_check.bonus)
+    stock = is_float(product_check.stock)
     cost = is_float(product_check.sale_cost)
     price = is_float(product_check.sale_price)
 
-    if not price or not cost or not stock:
-
-        if price <= 0 or cost < 0:
-            return custom_response(status_code=400, message=translate(lang, "company.products.create.error.incorrect_price"), details=required_fields)
+    if price is None or cost is None or stock is None:
+        return custom_response(status_code=400, message=translate(lang, "company.products.create.error.incorrect_price"))
     
+    if price <= 0 or cost < 0 or stock < 0:
+        return custom_response(status_code=400, message=translate(lang, "company.products.create.error.incorrect_price"))
+
     if price < cost:
         return custom_response(status_code=400, message=translate(lang, "company.products.create.inconsistent_price_comparation"), details=required_fields)
 
-    if not product_check.duration_type in Product_Service_Duration._value2member_map_:
-        return custom_response(status_code=400, message=translate(lang, "company.products.create.incorrect_servide_duration"))
+    is_bulk = product_check.is_bulk
+    is_service = product_check.is_service
+
+    if is_bulk == "1" and is_service == "1":
+        return custom_response(status_code=400, message=translate(lang, "company.products.create.error.bulk_service_not_allowed"))
+
+    if is_service == "1":
+        if not product_check.duration_type in Product_Service_Duration._value2member_map_:
+            return custom_response(status_code=400, message=translate(lang, "company.products.create.incorrect_servide_duration"))
+    else:
+        if not is_bulk == "1":
+            if stock != is_int(stock):
+                return custom_response(status_code=400, message=translate(lang, "company.products.create.error.bulk_service_not_allowed"))
+            
+            stock = is_int(stock)
+
+    if bonus is None:
+        bonus = 0
+    
+    if bonus < 0:
+        return custom_response(status_code=400, message=translate(lang, "company.products.create.error.incorrect_quantity"))
 
     # Create Product
     new_product = Product(
@@ -228,40 +248,49 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         identifier = product_check.identifier,
         name = product_check.name,
         description = product_check.description,
-        price = product_check.sale_price,
-        cost = product_check.sale_cost,
-        stock = stock,
+        price = price,
+        cost = cost,
+        stock = stock + bonus,
         weight = product_check.weight,
         dimensions = f"{product_check.length}x{product_check.width}x{product_check.height}",
         company_id = company_id,
     )
 
-    new_product.stock += bonus
-
     sku_v = product_check.sku
     
     ## Check sku ##
-    if product_check.sku == "0":
+    if not sku_v or sku_v == "0":
         sku_v = get_uuid_value()
 
-    sku_v = check_sku(db, sku_v, company_id)
+    new_product.sku = check_sku(db, sku_v, company_id)
 
-    new_product.sku = sku_v
-
+    ## Track Inventory ##
     if product_check.track_product == "1":
-        new_product.track_inventory = True
-        new_product.low_stock_alert = product_check.low_stock
+        low_stock = is_float(product_check.low_stock)
 
-    if product_check.is_service == "1":
+        if low_stock is None or low_stock < 0:
+            return custom_response(status_code=400, message=translate(lang, "company.products.create.error.incorrect_quantity"))
+
+        new_product.track_inventory = True
+        new_product.low_stock_alert = low_stock
+
+    ## Bulk ##
+    if is_bulk == "1":
+        new_product.weight = 0
+        new_product.is_bulk = True
+        new_product.dimensions = "0x0x0"
+
+    ## Service ##
+    if is_service == "1":
         new_product.is_service = True
         new_product.duration_type = Product_Service_Duration(product_check.duration_type)
         new_product.duration = product_check.duration
-
         new_product.track_inventory = False
 
         if product_check.staff_id != "0":
             print("check staff id")
 
+    ## Check Company Status - Taxes
     check_company = db.query(Company).filter(Company.id == company_id).first()
 
     if check_company.is_formal:
@@ -272,19 +301,36 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
 
     add_db(db, new_product)
 
-    if new_product.cost > 0:
-        # Current stock
-        stock_batch = stock
+    ## Create Product Batch
+    new_product_batch = None
 
+    if new_product.stock > 0:
+        new_product_batch = Product_Batch(
+            id = get_uuid(db, Product_Batch),
+            stock = new_product.stock,
+            stock_bonus = bonus,
+            price = new_product.price,
+            cost = new_product.cost,
+            product_id = new_product.id
+        )
+
+        exp = validate_not_same_day(product_check.expiration_date)
+
+        if exp:
+            new_product_batch.expiration_date = exp,
+        else:
+            new_product_batch.expiration_active = False
+
+    ## Create Expense ##
+    if new_product_batch and new_product.cost > 0:
         # Create Expense
-        amount_v = stock_batch * new_product.cost
-        total_amount_v = amount_v
+        amount_v = stock * new_product.cost
 
         new_expense = Expense(
             id = get_uuid(db, Expense),
             name = f"Nueva Compra: {new_product.name}",
             amount = amount_v,
-            total_amount = total_amount_v,
+            total_amount = amount_v,
 
             category = Expense_Category.SUPPLIES,
             status = Expense_Status.PAID,
@@ -296,26 +342,6 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
             print("To-do: implement taxes part II")
             if product_check.tax_include == "1":
                 new_expense.tax_amount = 0
-
-        # Create Product Batch
-        new_product_batch = Product_Batch(
-            id = get_uuid(db, Product_Batch),
-            stock = new_product.stock,
-            price = new_product.price,
-            cost = new_product.cost,
-            product_id = new_product.id,
-            expense_id = new_expense.id
-        )
-
-        new_product_batch.stock += bonus
-        new_product_batch.stock_bonus = bonus
-
-        exp = validate_not_same_day(product_check.expiration_date)
-
-        if exp:
-            new_product_batch.expiration_date = exp,
-        else:
-            new_product_batch.expiration_active = False
 
         new_cash_movement = Cash_Movement(
             id = get_uuid(db, Cash_Movement),
@@ -331,6 +357,10 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
 
         add_db(db, new_expense)
         add_db(db, new_cash_movement)
+
+        new_product_batch.expense_id = new_expense.id
+    
+    if new_product_batch:
         add_db(db, new_product_batch)
 
     return custom_response(status_code=200, message=translate(lang, "company.products.create.success"), data={
@@ -339,7 +369,7 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
 
 ########## Import Products ##########
 @router.post("/import")
-async def create_product(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def import_products(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)):
     ### Variables ###
     lang = request.state.lang
     user = request.state.user
@@ -370,10 +400,7 @@ async def create_product(request: Request, file: UploadFile = File(...), db: Ses
 
     text = contents.decode("utf-8")
     reader = csv.DictReader(StringIO(text))
-    headers = reader.fieldnames
-
-    if not headers:
-        return custom_response(status_code=400, message=translate(lang, "company.products.import.invalid_headers"))
+    headers = reader.fieldnames or []
 
     REQUIRED_HEADERS = {"identifier", "name", "price", "cost", "stock"}
 
@@ -396,53 +423,46 @@ async def create_product(request: Request, file: UploadFile = File(...), db: Ses
         if not row.get("identifier"):
             products_no_created += 1
             continue
-        else:
-            check_product = db.query(Product).filter(
-                Product.identifier == row.get("identifier"),
-                Product.company_id == company_id
-            ).first()
 
-            if check_product:
-                products_no_created += 1
-                continue
+        check_product = db.query(Product).filter(
+            Product.identifier == row.get("identifier"),
+            Product.company_id == company_id
+        ).first()
+
+        if check_product:
+            products_no_created += 1
+            continue
 
         if not row.get("name"):
             products_no_created += 1
             continue
-
-        if not row.get("price"):
-            products_no_created += 1
-            continue
-        else:
-            if not is_float(row.get("price")):
-                products_no_created += 1
-                continue
-
-        if not row.get("cost"):
-            products_no_created += 1
-            continue
-        else:
-            if not is_float(row.get("cost")):
-                products_no_created += 1
-                continue
-
-        if not row.get("stock"):
-            products_no_created += 1
-            continue
-        else:
-            if not is_int(row.get("stock")):
-                products_no_created += 1
-                continue
-
+        
+        ## Parse Numbers ##
         price = is_float(row.get("price"))
-        cost = is_float(row.get("price"))
+        cost = is_float(row.get("cost"))
+        stock = is_float(row.get("stock"))
+
+        if price is None or cost is None or stock is None:
+            products_no_created += 1
+            continue
+        
+        if price <= 0 or cost < 0 or stock < 0:
+            products_no_created += 1
+            continue
 
         if cost > price:
             products_no_created += 1
             continue
 
-        stock = is_int(row.get("stock"))
+        ## Check if is a bulk product ##
+        is_bulk = row.get("is_bulk")
 
+        if is_bulk != 1:
+            if stock % 1 != 0:
+                products_no_created += 1
+                continue
+        
+        ## Create Product ##
         product = Product(
             id = product_id,
             identifier = row.get("identifier"),
@@ -453,6 +473,10 @@ async def create_product(request: Request, file: UploadFile = File(...), db: Ses
             company_id = company_id,
         )
         
+        if is_bulk == "1":
+            product.is_bulk = True
+        
+        ## SKU ###
         sku_v = row.get("sku")
 
         if sku_v:
@@ -462,30 +486,33 @@ async def create_product(request: Request, file: UploadFile = File(...), db: Ses
         else:
             sku_v = get_uuid_value()
         
-        sku_v = check_sku(db, sku_v, company_id)
-        product.sku = sku_v
+        product.sku = check_sku(db, sku_v, company_id)
 
+        ## Optional Fields ##
         if row.get("description"):
             product.description = row.get("description")
 
-        if row.get("track_inventory"):
-            if row.get("low_stock_alert"):
-                if is_int(row.get("low_stock_alert")):
-                    product.track_inventory = True
-                    product.low_stock_alert = row.get("low_stock_alert")
+        if row.get("track_inventory") == "1":
+            low_stock = is_float(row.get("low_stock_alert"))
+
+            if low_stock is not None and low_stock >= 0:
+                product.track_inventory = True
+                product.low_stock_alert = low_stock
 
         if row.get("weight"):
-            if is_float(row.get("weight")):
-                product.weight = row.get("weight")
+            w = is_float(row.get("weight"))
+            if w is not None and w >= 0:
+                product.weight = w
 
         if row.get("dimensions"):
             product.dimensions = row.get("dimensions")
 
-        if row.get("is_service"):
-            if row.get("duration"):
-                if is_int(row.get("duration")):
-                    product.is_service = True
-                    product.duration = row.get("duration")
+        if row.get("is_service") == "1":
+            if row.get("duration") and row.get("duration_type") in Product_Service_Duration._value2member_map_:
+                product.is_service = True
+                product.duration = row.get("duration")
+                product.duration_type = Product_Service_Duration(row.get("duration_type"))
+                product.track_inventory = False
         
         products.append(product)
 
@@ -504,63 +531,68 @@ async def create_product(request: Request, file: UploadFile = File(...), db: Ses
             continue
 
         product_batch_id = get_uuid(db, Product_Batch)
-        expense_id = get_uuid(db, Expense)
-        new_cash_movement_id = get_uuid(db, Cash_Movement)
 
         while product_batch_id in uids_in_use:
             product_batch_id = get_uuid(db, Product_Batch)
 
-        while expense_id in uids_expenses_in_use:
-            expense_id = get_uuid(db, Expense)
-
-        while new_cash_movement_id in uids_new_cash_movement_in_use:
-            new_cash_movement_id = get_uuid(db, Cash_Movement)
-
-        uids_expenses_in_use.append(expense_id)
         uids_bath_in_use.append(product_batch_id)
-        uids_new_cash_movement_in_use.append(new_cash_movement_id)
 
-        ## ##
-        amount_v = product.stock * product.cost
-        total_amount_v = amount_v
-
-        new_expense = Expense(
-            id = expense_id,
-            name = f"Nueva Compra: {product.name}",
-            amount = amount_v,
-            total_amount = total_amount_v,
-
-            category = Expense_Category.SUPPLIES,
-            status = Expense_Status.PAID,
-            approved_by_id = user.get("id"),
-            company_id = company_id
-        )
-
+        ## Create Batch ##
         product_batch = Product_Batch(
             id = product_batch_id,
             stock = product.stock,
             price = product.price,
             cost = product.cost,
             product_id = product.id,
-            expense_id = new_expense.id,
+            # expense_id = new_expense.id,
             expiration_active = False
         )
+
+        if product.cost > 0:
+            expense_id = get_uuid(db, Expense)
+            new_cash_movement_id = get_uuid(db, Cash_Movement)
+
+            while expense_id in uids_expenses_in_use:
+                expense_id = get_uuid(db, Expense)
+
+            while new_cash_movement_id in uids_new_cash_movement_in_use:
+                new_cash_movement_id = get_uuid(db, Cash_Movement)
+
+            uids_expenses_in_use.append(expense_id)
+            uids_new_cash_movement_in_use.append(new_cash_movement_id)
+            
+            amount_v = product.stock * product.cost
+
+            new_expense = Expense(
+                id = expense_id,
+                name = f"Nueva Compra: {product.name}",
+                amount = amount_v,
+                total_amount = amount_v,
+
+                category = Expense_Category.SUPPLIES,
+                status = Expense_Status.PAID,
+                approved_by_id = user.get("id"),
+                company_id = company_id
+            )
+
+            new_cash_movement = Cash_Movement(
+                id = new_cash_movement_id,
+                type = Cash_Movement_Type.EXPENSE,
+                amount = new_expense.total_amount,
+                payment_method = Payment_Method.CASH,
+
+                related_expense_id = new_expense.id,
+
+                cash_session_id = cash_session.id,
+                company_id = company_id
+            )
+
+            product_batch.expense_id = new_expense.id
+
+            expenses.append(new_expense)
+            new_cash_movements.append(new_cash_movement)
         
-        new_cash_movement = Cash_Movement(
-            id = new_cash_movement_id,
-            type = Cash_Movement_Type.EXPENSE,
-            amount = new_expense.total_amount,
-            payment_method = Payment_Method.CASH,
-
-            related_expense_id = new_expense.id,
-
-            cash_session_id = cash_session.id,
-            company_id = company_id
-        )
-
-        expenses.append(new_expense)
         product_batchs.append(product_batch)
-        new_cash_movements.append(new_cash_movement)
 
     add_multiple_db(db, products)
     add_multiple_db(db, expenses)
@@ -578,6 +610,10 @@ async def get_product_by_id(request: Request, product_id: str, db: Session = Dep
     lang = request.state.lang
     user = request.state.user
     company_id = request.state.company_id
+
+    ### Validation ###
+    if user == None:
+        return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     if not check_permissions(db, request, "company.products.read", company_id):
         return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
@@ -605,7 +641,7 @@ async def get_product_by_id(request: Request, product_id: str, db: Session = Dep
             Product_Batch.date.label("date")
         ).filter(
             Product_Batch.product_id == check_product.id,
-        ).order_by(desc("date")).limit(8).all()
+        ).order_by(desc(Product_Batch.date)).limit(8).all()
     )
 
     for batch in product_batchs:
@@ -631,6 +667,10 @@ async def get_product_by_id_to_create_batch(request: Request, product_id: str, d
     lang = request.state.lang
     user = request.state.user
     company_id = request.state.company_id
+
+    ### Validation ###
+    if user == None:
+        return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     if not check_permissions(db, request, "company.products.read", company_id):
         return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
@@ -661,8 +701,13 @@ async def get_product_by_id_to_create_batch(request: Request, product_id: str, d
         "low_stock_alert": check_product.low_stock_alert,
         "track_inventory": check_product.track_inventory,
 
+        "is_bulk": check_product.is_bulk,
+
         "is_service": check_product.is_service,
-        "duration": check_product.duration
+        "duration": check_product.duration,
+
+        "is_active": check_product.is_active,
+        "is_visible": check_product.is_visible
     }
     
     return custom_response(status_code=200, message=translate(lang, "company.products.get.single.success"), data={
@@ -706,14 +751,19 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 
-    bonus = is_int(product_check.bonus)
-    stock = is_int(product_check.quantity)
+    ## Parse Numbers ##
     price = is_float(product_check.price)
     cost = is_float(product_check.cost)
+    stock = is_float(product_check.quantity)
+    bonus = is_float(product_check.bonus) or 0
 
-    if not stock or not price or not cost or not bonus:
+    if stock is None or bonus is None or price is None or cost is None:
         return custom_response(status_code=400, message=translate(lang, "company.products.create.batch.error"))
 
+    if stock < 0 or bonus < 0 or price <= 0 or cost < 0:
+        return custom_response(status_code=400, message=translate(lang, "company.products.create.batch.error"))
+
+    ## Get Product ##
     product = db.query(Product).filter(
         Product.id == product_check.product_id,
         Product.company_id == company_id
@@ -722,49 +772,19 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
     if not product:
         return custom_response(status_code=400, message=translate(lang, "company.products.create.batch.error"))
 
+    if not product.is_bulk:
+        if stock % 1 != 0 or bonus % 1 != 0:
+            return custom_response(status_code=400, message=translate(lang, "company.products.create.batch.error"))
+
+    ## Create Batch ##
     new_batch = Product_Batch(
         id = get_uuid(db, Product_Batch),
-        stock = stock,
+        stock = stock + bonus,
+        stock_bonus = bonus,
         price = price,
         cost = cost,
         product_id = product.id
     )
-
-    new_batch.stock += bonus
-    new_batch.stock_bonus = bonus
-
-    # Create Expense
-    amount_v = stock * new_batch.cost
-    total_amount_v = amount_v
-
-    company = db.query(Company).filter(
-        Company.id == company_id
-    ).first()
-
-    new_expense = Expense(
-        id = get_uuid(db, Expense),
-        name = f"Nueva Compra de Lote: {product.name}",
-        amount = amount_v,
-        total_amount = total_amount_v,
-
-        category = Expense_Category.SUPPLIES,
-        status = Expense_Status.PAID,
-        approved_by_id = user.get("id"),
-        company_id = company_id
-    )
-
-    if company.is_formal:
-        print("To-do: implement taxes part II")
-        if product_check.tax_include == "1":
-            new_expense.tax_amount = 0
-
-    new_batch.expense_id = new_expense.id
-
-    if price != product.price:
-        product.price = price
-    
-    if cost != product.cost:
-        product.cost = cost
 
     exp = validate_not_same_day(product_check.expiration_date)
 
@@ -778,22 +798,57 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
     if rcd:
         new_batch.date = rcd
 
-    product.stock += new_batch.stock + bonus
+    ## Update Product Values ##
+    product.stock += new_batch.stock
 
-    new_cash_movement = Cash_Movement(
-        id = get_uuid(db, Cash_Movement),
-        type = Cash_Movement_Type.EXPENSE,
-        amount = new_expense.total_amount,
-        payment_method = Payment_Method.CASH,
+    if price != product.price:
+        product.price = price
+    
+    if cost != product.cost:
+        product.cost = cost
+    
+    ## Create Expense ##
+    if cost > 0:
+        amount_v = stock * new_batch.cost
 
-        related_expense_id = new_expense.id,
-        
-        company_id = company_id,
-        cash_session_id = cash_session.id
-    )
+        company = db.query(Company).filter(
+            Company.id == company_id
+        ).first()
 
-    add_db(db, new_expense)
-    add_db(db, new_cash_movement)
+        new_expense = Expense(
+            id = get_uuid(db, Expense),
+            name = f"Nueva Compra de Lote: {product.name}",
+            amount = amount_v,
+            total_amount = amount_v,
+
+            category = Expense_Category.SUPPLIES,
+            status = Expense_Status.PAID,
+            approved_by_id = user.get("id"),
+            company_id = company_id
+        )
+
+        if company.is_formal:
+            print("To-do: implement taxes part II")
+            if product_check.tax_include == "1":
+                new_expense.tax_amount = 0
+
+        new_batch.expense_id = new_expense.id
+
+        new_cash_movement = Cash_Movement(
+            id = get_uuid(db, Cash_Movement),
+            type = Cash_Movement_Type.EXPENSE,
+            amount = new_expense.total_amount,
+            payment_method = Payment_Method.CASH,
+
+            related_expense_id = new_expense.id,
+            
+            company_id = company_id,
+            cash_session_id = cash_session.id
+        )
+
+        add_db(db, new_expense)
+        add_db(db, new_cash_movement)
+
     update_db(db)
     add_db(db, new_batch)
 
