@@ -74,7 +74,7 @@
                             <div class="space-y-2">
                                 <label class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Cantidad
                                     de Ingreso</label>
-                                <input type="number" id="qty" placeholder="0" onchange="update_insights()"
+                                <input type="number" id="qty" placeholder="0" onchange="update_insights()" step="0.001" min="0"
                                     name="quantity"
                                     class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white focus:outline-none focus:border-brand transition-all text-xl font-bold"
                                     value="{{ quantity }}" required>
@@ -83,7 +83,7 @@
                                 <label
                                     class="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Bonificación
                                     de Productos</label>
-                                <input type="number" id="bonus" placeholder="0" onchange="update_insights()" name="bonus"
+                                <input type="number" id="bonus" placeholder="0" onchange="update_insights()" name="bonus" step="0.001" min="0"
                                     class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white focus:outline-none focus:border-brand transition-all text-xl font-bold"
                                     value="{{ bonus }}" required>
                                 <p class="text-xs text-gray-500">Productos otorgados como un extra por el provedor (no

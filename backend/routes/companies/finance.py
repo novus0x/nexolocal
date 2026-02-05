@@ -1,6 +1,6 @@
 ########## Modules ##########
 from zoneinfo import ZoneInfo
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, time
 
 from fastapi import APIRouter, Request, Depends
 
@@ -57,7 +57,18 @@ async def main(request: Request, db: Session = Depends(get_db)):
     ### Local Time ###
     now_local = datetime.now(LOCAL_TZ)
     today_local = now_local.date()
-    start_date = today_local - timedelta(days=6)
+
+    start_dt = datetime.combine(
+        today_local - timedelta(days=6),
+        time.min,
+        tzinfo=LOCAL_TZ
+    )
+
+    end_dt = datetime.combine(
+        today_local,
+        time.max,
+        tzinfo=LOCAL_TZ
+    )
 
     income_by_day = (
         db.query(
@@ -65,7 +76,8 @@ async def main(request: Request, db: Session = Depends(get_db)):
             func.coalesce(func.sum(Income.amount), 0).label("total")
         ).filter(
             Income.company_id == company_id,
-            Income.date >= start_date
+            Income.date >= start_dt,
+            Income.date <= end_dt
         ).group_by(func.date(Income.date)).all()
     )
 
@@ -75,12 +87,13 @@ async def main(request: Request, db: Session = Depends(get_db)):
             func.coalesce(func.sum(Expense.total_amount), 0).label("total"),
         ).filter(
             Expense.company_id == company_id,
-            Expense.date >= start_date
+            Expense.date >= start_dt,
+            Expense.date <= end_dt
         ).group_by(func.date(Expense.date)).all()
     )
 
     days = [
-        start_date + timedelta(days=i)
+        (start_dt + timedelta(days=i)).date()
         for i in range(7)
     ]
 

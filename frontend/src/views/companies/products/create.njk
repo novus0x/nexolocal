@@ -206,7 +206,7 @@
                                 (unidades)</label>
                             <input type="number"
                                 class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold bg-white/5 border-white/20"
-                                placeholder="0" name="stock" value="{{ stock }}">
+                                placeholder="0" name="stock" value="{{ stock }}" step="0.001" min="0">
                             <label class="flex items-center mt-3 gap-3 cursor-pointer">
                                 <input type="checkbox" name="is_bulk" id="bulkSwitch" class="custom-checkbox"
                                     onchange="toggleBulk(this.checked)">
@@ -244,7 +244,7 @@
                                 Productos</label>
                             <input type="number"
                                 class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold bg-white/5 border-white/20"
-                                placeholder="0" name="bonus" value="{{ bonus }}">
+                                placeholder="0" name="bonus" value="{{ bonus }}" step="0.001" min="0">
                             <p class="text-xs text-gray-500">Productos otorgados como un extra por el provedor (no seran
                                 contabilizados como costo)</p>
                         </div>

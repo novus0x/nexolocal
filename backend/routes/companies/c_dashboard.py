@@ -43,7 +43,7 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
     yesterday_start = today_start - timedelta(days=1)
     yesterday_end = today_start
 
-    start_week = today - timedelta(days=6)
+    start_week = today.date() - timedelta(days=6)
     start_dt = datetime.combine(start_week, time.min, tzinfo=LOCAL_TZ)
     end_dt = today_end
 
@@ -291,8 +291,6 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
         final_amount = float(session.counted_cash or session.expected_cash or 0)
         total_cash_month += final_amount
         total_days_closed += 1
-
-        print(session.difference_exists)
 
         cash_mont_element = {
             "id": session.id,
