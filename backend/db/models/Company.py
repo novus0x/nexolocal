@@ -22,8 +22,9 @@ class Company(Base):
     plan_type = Column(String(20), default="basic")
     subscription_status = Column(String(20), default="active")
 
-    max_users = Column(Integer, default=3)
+    max_users = Column(Integer, default=1)
 
+    # trial = Column(Boolean, default=False)
     is_business = Column(Boolean, default=False)
     business_id = Column(String, ForeignKey("business.id"), nullable=True)
 

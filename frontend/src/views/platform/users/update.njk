@@ -149,7 +149,7 @@
                     </div>
                 </div>
                 {% else %}
-                <input type="hidden" name="role" value="{% if user_data.is_blocked %} suspended {% else %} active {% endif %}" />
+                <input type="hidden" name="status" value="{% if user_data.is_blocked %}suspended{% else %}active{% endif %}" />
                 {% endif %}
             </div>
 

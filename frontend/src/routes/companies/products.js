@@ -23,7 +23,7 @@ router.get("/", require_auth, at_least_company, async (req, res) => {
     const q = req.query.q;
 
     // Check permissions
-    if (!permissions.includes("company.products.read")) return res.redirect("/");
+    if (!permissions.includes("company.products.read")) return res.redirect("/system-alert/403");
 
     // Request
     const params = create_params({ page: current_page, type_of: type_of, q: q });
@@ -50,7 +50,7 @@ router.get("/create", require_auth, at_least_company, async (req, res) => {
     const permissions = req.permissions;
 
     // Check permissions
-    if (!permissions.includes("company.products.create")) return res.redirect("/");
+    if (!permissions.includes("company.products.create")) return res.redirect("/system-alert/403");
 
     // Render content
     return res.render("companies/products/create", {});
@@ -81,7 +81,7 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     let errors = []
 
     // Check permissions
-    if (!permissions.includes("company.products.create")) return res.redirect("/");
+    if (!permissions.includes("company.products.create")) return res.redirect("/system-alert/403");
 
     // Get POST data
     const { name, sku, identifier, category, description, sale_price, sale_cost, tax_include, is_bulk, is_service, duration, duration_type, staff_id, stock, track_product, low_stock, bonus, expiration_date, weight, length, width, height } = req.body;
@@ -157,7 +157,7 @@ router.get("/import", require_auth, at_least_company, async (req, res) => {
     const permissions = req.permissions;
 
     // Check permissions
-    if (!permissions.includes("company.products.import.csv")) return res.redirect("/");
+    if (!permissions.includes("company.products.import.csv")) return res.redirect("/system-alert/403");
 
     // Render content
     return res.render("companies/products/import", {});
@@ -171,7 +171,7 @@ router.post("/import", require_auth, at_least_company, upload.single("file"), as
     const permissions = req.permissions;
 
     // Check permissions
-    if (!permissions.includes("company.products.import.csv")) return res.redirect("/");
+    if (!permissions.includes("company.products.import.csv")) return res.redirect("/system-alert/403");
 
     // Validations
     if (!file) {
@@ -221,7 +221,7 @@ router.get("/read/:product_id", require_auth, at_least_company, async (req, res)
     let batchs_len_v = 0;
 
     // Check permissions
-    if (!permissions.includes("company.products.read")) return res.redirect("/");
+    if (!permissions.includes("company.products.read")) return res.redirect("/system-alert/403");
 
     // Request
     const response = await get_data(`/company/products/get/${product_id}`, {}, req);
@@ -243,8 +243,6 @@ router.get("/read/:product_id", require_auth, at_least_company, async (req, res)
         dimensions_v = [0, 0, 0]
     }
 
-    console.log(response.data)
-
     // Render content
     return res.render("companies/products/read", {
         qrcode: qrcode_v,
@@ -264,7 +262,7 @@ router.get("/:product_id/batchs", require_auth, at_least_company, async (req, re
     const product_id = req.params.product_id;
 
     // Check permissions
-    if (!permissions.includes("company.products.read")) return res.redirect("/");
+    if (!permissions.includes("company.products.read")) return res.redirect("/system-alert/403");
 
     return res.json("batchs");
 });
@@ -277,7 +275,7 @@ router.get("/:product_id/batchs/create", require_auth, at_least_company, async (
     const product_id = req.params.product_id;
 
     // Check permissions
-    if (!permissions.includes("company.products.create")) return res.redirect("/");
+    if (!permissions.includes("company.products.create")) return res.redirect("/system-alert/403");
 
     // Request
     const response = await get_data(`/company/products/${product_id}/batchs/create`, {}, req);
@@ -307,7 +305,7 @@ router.post("/:product_id/batchs/create", require_auth, at_least_company, async 
     let reception_date_v = new Date().toISOString().split("T")[0];
 
     // Check permissions
-    if (!permissions.includes("company.products.create")) return res.redirect("/");
+    if (!permissions.includes("company.products.create")) return res.redirect("/system-alert/403");
 
     const { quantity, bonus, price, cost, reception_date, expiration_date } = req.body;
 

@@ -16,7 +16,7 @@ router.get("/", require_auth, at_least_company, async (req, res) => {
     let finance = {};
 
     // Check permissions
-    if (!permissions.includes("company.incomes.read") || !permissions.includes("company.expenses.read")) return res.redirect("/");
+    if (!permissions.includes("company.incomes.read") || !permissions.includes("company.expenses.read")) return res.redirect("/system-alert/403");
 
     // Request
     const response = await get_data("/company/finance", {}, req);
@@ -42,7 +42,7 @@ router.get("/create", require_auth, at_least_company, async (req, res) => {
     const permissions = req.permissions;
 
     // Check permissions
-    if (!permissions.includes("company.incomes.create") || !permissions.includes("company.expenses.create")) return res.redirect("/");
+    if (!permissions.includes("company.incomes.create") || !permissions.includes("company.expenses.create")) return res.redirect("/system-alert/403");
 
     // Render content
     return res.render("companies/finance/create", {});
@@ -60,7 +60,7 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     let receipt_url_v = "No URL";
 
     // Check permissions
-    if (!permissions.includes("company.incomes.create") || !permissions.includes("company.expenses.create")) return res.redirect("/");
+    if (!permissions.includes("company.incomes.create") || !permissions.includes("company.expenses.create")) return res.redirect("/system-alert/403");
 
     const { amount, title, description, expense_category, subcategory, date, receipt_url } = req.body;
 

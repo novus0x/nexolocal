@@ -36,7 +36,6 @@ router.get("/:company_id", require_auth, at_least_company, async (req, res) => {
     if (response.error) return res.redirect("/");
 
     const data = response.data;
-    console.log(data)
 
     // Render content
     res.render("companies/dashboard", {

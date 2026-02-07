@@ -1,20 +1,21 @@
 <aside id="sidebar"
-    class="sidebar-transition shrink-0 w-72 bg-[#0D1117] border-r border-[#30363D] fixed inset-y-0 left-0 z-50 lg:relative lg:translate-x-0 -translate-x-full flex flex-col">
+    class="shrink-0 w-72 bg-[#0D1117] border-r border-[#30363D] fixed inset-y-0 left-0 z-50 lg:relative lg:translate-x-0 -translate-x-full flex flex-col">
 
-    <div class="h-20 flex items-center px-4 mb-2">
+    <div class="h-20 flex items-center px-4 mb-2 shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center bg-(--accent)/10">
                 <img src="/public/img/logo.png" alt="logo" />
             </div>
-            <span class="font-bold text-xl tracking-tight sidebar-text">Nexo<span
+            <span class="font-bold text-xl tracking-tight sidebar-text text-white">Nexo<span
                     class="text-(--accent)">Local</span></span>
         </div>
     </div>
+
     {% if user_companies | length > 0 %}
     <div class="px-4 pb-4 relative">
         <button onclick="toggle_company_dropdown(event)"
-            class="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#161B23] border border-[#30363D] hover:border-gray-500 transition-all group cursor-pointer">
-            <div class="flex items-center gap-3 overflow-hidden">
+            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#161B23] hover:bg-[#28303c] transition-all group cursor-pointer">
+            <div class="flex items-center gap-3">
                 {% if company_information.id %}
                 <div id="current-company-icon"
                     class="w-6 h-6 rounded flex items-center justify-center shrink-0 font-bold text-[10px] text-white">
@@ -56,11 +57,11 @@
                 </a>
             </div>
             {% endfor %}
-            <div class="p-2 border-t border-[#30363D]">
+            {# <div class="p-2 border-t border-[#30363D]">
                 <button
                     class="w-full py-2 text-[11px] text-center text-gray-400 hover:text-white transition-colors">Configurar
                     Workspace</button>
-            </div>
+            </div> #}
         </div>
     </div>
     {% endif %}
@@ -209,14 +210,15 @@
             </div>
             {# <a href="#" class="dropdown-link"><span><i class="fa-utility-fill fa-semibold fa-user"></i></span>
                 Perfil</a> #}
-            <a href="/users/settings" class="dropdown-link"><span><i class="fa-utility-fill fa-semibold fa-cog"></i></span>
+            <a href="/users/settings" class="dropdown-link"><span><i
+                        class="fa-utility-fill fa-semibold fa-cog"></i></span>
                 Ajustes</a>
             <a href="/auth/logout" class="dropdown-link logout-link"><span><i
                         class="fa-utility-fill fa-semibold fa-arrow-left-from-bracket"></i></span> Cerrar Sesión</a>
         </div>
 
         <button onclick="toggle_user_dropdown(event)"
-            class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
+            class="w-full flex items-center gap-3 p-1.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
             <div class="relative shrink-0">
                 <img src="https://ui-avatars.com/api/?name={{user.fullname}}&background=FD420A&color=fff"
                     class="w-9 h-9 rounded-xl" alt="Avatar">
@@ -226,6 +228,9 @@
             <div class="flex-1 text-left sidebar-text overflow-hidden">
                 <p class="text-sm font-semibold truncate capitalize">{{user.fullname}}</p>
                 <span class="text-[10px] text-orange-500 font-bold uppercase tracking-wider">ONLINE</span>
+            </div>
+            <div class="sidebar-text">
+                <i class="fa-regular fa-arrow-down-arrow-up text-gray-500 text-xl"></i>
             </div>
         </button>
     </div>

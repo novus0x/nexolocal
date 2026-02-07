@@ -14,7 +14,7 @@ router.get("/", require_auth, platform_mod, async (req, res) => {
     let users = [];
 
     // Check permissions
-    if (!permissions.includes("platform.users.read")) return res.redirect("/");
+    if (!permissions.includes("platform.users.read")) return res.redirect("/system-alert/403");
 
     // Get Structure
     const response = await get_data("/platform/users", {}, req);
@@ -34,7 +34,7 @@ router.get("/read/:user_id", require_auth, platform_mod, async (req, res) => {
     const permissions = req.permissions;
 
     // Check permissions
-    if (!permissions.includes("platform.users.read")) return res.redirect("/");
+    if (!permissions.includes("platform.users.read")) return res.redirect("/system-alert/403");
 
     const response = await get_data(`/platform/users/get/${user_id}`, {}, req);
 
@@ -56,7 +56,7 @@ router.get("/update/:user_id", require_auth, platform_mod, async (req, res) => {
     const permissions = req.permissions;
 
     // Check permissions
-    if (!permissions.includes("platform.users.update")) return res.redirect("/");
+    if (!permissions.includes("platform.users.update")) return res.redirect("/system-alert/403");
 
     const response = await get_data(`/platform/users/update/${user_id}`, {}, req);
 
@@ -87,7 +87,7 @@ router.put("/update/:user_id", require_auth, platform_mod, async (req, res) => {
     let description_v = "no_description";
 
     // Check permissions
-    if (!permissions.includes("platform.users.update")) return res.redirect("/");
+    if (!permissions.includes("platform.users.update")) return res.redirect("/system-alert/403");
 
     // Content
     const { status, role, username, fullname, email, phone, description } = req.body;

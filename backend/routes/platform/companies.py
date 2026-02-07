@@ -1,7 +1,7 @@
 ########## Modules ##########
 from fastapi import APIRouter, Request, Depends
 
-from sqlalchemy import or_
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from db.database import get_db
@@ -96,7 +96,7 @@ async def roles_generate_company(request: Request, db: Session = Depends(get_db)
 
     if role_access:
         filters = [
-            or_(
+            and_(
                 User_Role.platform_level.is_(True),
                 User_Role.hidden.is_(True)
             )

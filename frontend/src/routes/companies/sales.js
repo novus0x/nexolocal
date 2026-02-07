@@ -20,7 +20,7 @@ router.get("/", require_auth, at_least_company, async (req, res) => {
     if (!permissions.includes("company.sales.read")) {
         if (permissions.includes("company.sales.create")) return res.redirect(`/companies/${company_id}/sales/create`)
         
-        return res.redirect("/");
+        return res.redirect("/system-alert/403");
     }
 
     const response = await get_data("/company/sales", {}, req);
@@ -46,7 +46,7 @@ router.get("/check/:sale_id", require_auth, at_least_company, async (req, res) =
     const sale_id = req.params.sale_id;
  
     // Check permissions
-    if (!permissions.includes("company.sales.read")) return res.redirect("/");
+    if (!permissions.includes("company.sales.read")) return res.redirect("/system-alert/403");
 
     const response = await get_data(`/company/sales/check_sale/${sale_id}`, {}, req)
 
@@ -72,7 +72,7 @@ router.get("/create", require_auth, at_least_company, async (req, res) => {
     const permissions = req.permissions;
 
     // Check permissions
-    if (!permissions.includes("company.sales.create")) return res.redirect("/");
+    if (!permissions.includes("company.sales.create")) return res.redirect("/system-alert/403");
 
     // Render content
     return res.render("companies/sales/create", {});
@@ -86,7 +86,7 @@ router.get("/create/success/:sale_id", require_auth, at_least_company, async (re
     const company_id = req.company_id;
  
     // Check permissions
-    if (!permissions.includes("company.sales.create")) return res.redirect("/");
+    if (!permissions.includes("company.sales.create")) return res.redirect("/system-alert/403");
 
     const response = await get_data(`/company/sales/check_sale/${sale_id}`, {}, req)
 
@@ -117,7 +117,7 @@ router.get("/reports", require_auth, at_least_company, async (req, res) => {
     const q = req.query.q;
  
     // Check permissions
-    if (!permissions.includes("company.sales.read")) return res.redirect("/");
+    if (!permissions.includes("company.sales.read")) return res.redirect("/system-alert/403");
 
     const params = create_params({page: current_page, q: q});
     const response = await get_data(`/company/sales/reports${params}`, {}, req)

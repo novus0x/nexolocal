@@ -14,7 +14,7 @@ router.get("/", require_auth, platform_mod, async (req, res) => {
     let companies = [];
 
     // Check permissions
-    if (!permissions.includes("platform.companies.read")) return res.redirect("/");
+    if (!permissions.includes("platform.companies.read")) return res.redirect("/system-alert/403");
 
     const response = await get_data("/platform/companies", {}, req);
 
@@ -39,7 +39,7 @@ router.get("/create", require_auth, platform_mod, async (req, res) => {
     let roles = [];
 
     // Check permissions
-    if (!permissions.includes("platform.companies.create")) return res.redirect("/");
+    if (!permissions.includes("platform.companies.create")) return res.redirect("/system-alert/403");
     
     const response = await get_data("/platform/companies/get_roles", {}, req);
 
@@ -62,7 +62,7 @@ router.post("/create", require_auth, platform_mod, async (req, res) => {
     let notes_s = "Empty";
 
     // Check permissions
-    if (!permissions.includes("platform.companies.create")) return res.redirect("/");
+    if (!permissions.includes("platform.companies.create")) return res.redirect("/system-alert/403");
 
     const { name, email, notes, role_id } = req.body;
 

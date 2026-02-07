@@ -14,7 +14,7 @@ router.get("/", require_auth, at_least_company, async (req, res) => {
     const company_id = req.company_id;
 
     // Check permissions
-    if (!permissions.includes("company.settings.read")) return res.redirect("/");
+    if (!permissions.includes("company.settings.read")) return res.redirect("/system-alert/403");
 
 
     // Render content

@@ -2,7 +2,7 @@
 from zoneinfo import ZoneInfo
 from fastapi import APIRouter, Request, Depends
 
-from sqlalchemy import desc, or_
+from sqlalchemy import desc, and_
 from sqlalchemy.orm import Session
 
 from db.database import get_db
@@ -177,7 +177,7 @@ async def update_user(request: Request, user_id: str, db: Session = Depends(get_
 
     ### Get Available Roles ###
     filters = [
-        or_(
+        and_(
             User_Role.platform_level.is_(True),
             User_Role.hidden.is_(True)
         )
@@ -220,7 +220,7 @@ async def update_user(request: Request, user_id: str, db: Session = Depends(get_
     update_user, error = await read_json_body(request)
     if error: 
         return custom_response(status_code=400, message=error)
-        
+    
     required_fields, error = validate_required_fields(update_user, ["username", "fullname", "email", "status", "role", "phone", "description"])
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)

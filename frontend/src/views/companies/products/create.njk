@@ -34,7 +34,7 @@
         </div>
 
         <div
-            class="my-5 p-6 bg-[#0D1117] border border-[#30363D] rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6">
+            class="my-5 p-6 glass-card rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="flex items-start gap-4">
                 <div class="p-3 bg-(--accent)/10 rounded-xl">
                     <i class="fas fa-boxes-stacked text-(--accent) text-xl"></i>
@@ -56,7 +56,7 @@
 
             <div class="lg:col-span-2 space-y-6">
 
-                <section class="section-card p-8">
+                <section class="glass-card p-8">
                     <h3 class="text-sm font-bold mb-6 flex items-center gap-2">
                         <i class="fas fa-tag text-(--accent)"></i> Datos del Producto
                     </h3>
@@ -74,13 +74,14 @@
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">SKU</label>
                             <input type="text" class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
-                                placeholder="0 - auto" name="sku" value="{{ sku }}" required>
-                            <p class="text-xs text-gray-600 italic">* Si no sabe qué agregar, escriba 0 y se generará
+                                placeholder="0 - auto" name="sku" value="{{ sku or 0 }}" required>
+                            <p class="text-xs text-gray-600 italic">* Si no sabe qué agregar, deje 0 y se generará
                                 automáticamente</p>
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Categoría</label>
-                            <select class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold appearance-none"
+                            <select
+                                class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold appearance-none"
                                 name="category" required>
                                 <option class="input-field" value="no_category">Sin categoría</option>
                             </select>
@@ -93,10 +94,11 @@
                     </div>
                 </section>
 
-                <section class="section-card p-8">
+                <section class="glass-card p-8">
                     <h3 class="text-sm font-bold mb-6 flex items-center gap-2">
                         <i class="fas fa-coins text-(--accent)"></i> Estructura de Precios
                     </h3>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Precio de Venta</label>
@@ -112,9 +114,20 @@
                             <div class="relative">
                                 <span class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
                                 <input type="number" step="0.01"
-                                    class="w-full input-glass mt-2 pl-10 pr-5 py-3.5 rounded-xl text-sm" placeholder="0.00"
-                                    name="sale_cost" value="{{ sale_cost }}" required>
+                                    class="w-full input-glass mt-2 pl-10 pr-5 py-3.5 rounded-xl text-sm"
+                                    placeholder="0.00" name="sale_cost" value="{{ sale_cost }}" required>
                             </div>
+                        </div>
+                        <div class="col-span-1 md:col-span-2" id="product_type_container">
+                            <label class="flex items-center mb-3 gap-3 cursor-pointer">
+                                <input type="checkbox" name="is_bulk" id="bulkSwitch" class="custom-checkbox"
+                                    onchange="toggle_bulk(this.checked)">
+                                <span class="text-sm text-gray-300">
+                                    Producto a granel (kg / L)
+                                </span>
+                            </label>
+                            <p class="text-xs text-gray-600 italic">* Si selecciona producto a granel considere evaluar
+                                el precio de venta y costo por: kg / L</p>
                         </div>
                         {% if company_information.taxes %}
                         <div>
@@ -130,7 +143,7 @@
                     </div>
                 </section>
 
-                <section class="section-card p-8 border-l-4 border-indigo-500/30">
+                <section class="glass-card p-8 border-l-4 border-indigo-500/30">
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center gap-3">
                             <div
@@ -145,7 +158,7 @@
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="serviceSwitch" class="sr-only switch-input"
-                                onchange="toggleSection('serviceOptions', this.checked)" name="is_service" {% if
+                                onchange="toggle_section('serviceOptions', this.checked)" name="is_service" {% if
                                 is_service %} checked {% endif %}>
                             <div class="w-11 h-6 bg-white/10 rounded-full transition-all switch-bg"></div>
                             <div
@@ -155,10 +168,11 @@
                     </div>
 
                     <div id="serviceOptions"
-                        class="{% if not is_service %} hidden {% else %} grid {% endif %} grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5 transition-all-custom">
+                        class="{% if not is_service %} hidden {% else %} grid {% endif %} grid-cols-1 gap-6 pt-4 border-t border-white/5 transition-all-custom"> {# md:grid-cols-2 #}
                         <div class="space-y-2 col-span-2">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Tipo de Duración</label>
-                            <select class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold appearance-none"
+                            <select
+                                class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold appearance-none"
                                 name="duration_type" required>
                                 <option class="input-field" value="minutes" {% if duration_type=='minutes' %} selected
                                     {% endif %}>Minutos</option>
@@ -179,14 +193,16 @@
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Duración</label>
                             <div class="relative">
-                                <input type="number" class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
+                                <input type="number"
+                                    class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
                                     placeholder="30" name="duration" value="{{ duration }}">
                                 <i class="fas fa-stopwatch absolute right-5 top-1/2 -translate-y-1/2 text-gray-600"></i>
                             </div>
                         </div>
-                        <div class="space-y-2">
+                        <div class="space-y-2 hidden">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Staff Disponible</label>
-                            <select class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold" name="staff_id">
+                            <select class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
+                                name="staff_id">
                                 <option class="input-field">Sin asignar</option>
                             </select>
                         </div>
@@ -196,7 +212,7 @@
 
             <div class="space-y-6">
                 <section
-                    class="section-card p-8 overflow-hidden no_service_section {% if is_service %} hidden {% endif %}">
+                    class="glass-card p-8 overflow-hidden no_service_section {% if is_service %} hidden {% endif %}">
                     <h3 class="text-sm font-bold mb-6 flex items-center gap-2">
                         <i class="fas fa-warehouse text-(--accent)"></i> Inventario
                     </h3>
@@ -205,15 +221,8 @@
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Stock inicial
                                 (unidades)</label>
                             <input type="number"
-                                class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
-                                placeholder="0" name="stock" value="{{ stock }}" step="0.001" min="0">
-                            <label class="flex items-center mt-3 gap-3 cursor-pointer">
-                                <input type="checkbox" name="is_bulk" id="bulkSwitch" class="custom-checkbox"
-                                    onchange="toggleBulk(this.checked)">
-                                <span class="text-sm text-gray-300">
-                                    Producto a granel (kg / L)
-                                </span>
-                            </label>
+                                class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold" placeholder="0"
+                                name="stock" value="{{ stock }}" step="0.001" min="0">
                         </div>
                         <hr class="border-white/5" />
                         <div class="flex items-center justify-between">
@@ -243,15 +252,15 @@
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Bonificación de
                                 Productos</label>
                             <input type="number"
-                                class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
-                                placeholder="0" name="bonus" value="{{ bonus }}" step="0.001" min="0">
+                                class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold" placeholder="0"
+                                name="bonus" value="{{ bonus }}" step="0.001" min="0">
                             <p class="text-xs text-gray-500">Productos otorgados como un extra por el provedor (no seran
                                 contabilizados como costo)</p>
                         </div>
                     </div>
                 </section>
 
-                <section class="section-card p-8 no_service_section {% if is_service %} hidden {% endif %}">
+                <section class="glass-card p-8 no_service_section {% if is_service %} hidden {% endif %}">
                     <h3 class="text-sm font-bold mb-6 flex items-center gap-2 text-red-400">
                         <i class="fas fa-calendar-times"></i> Control de Caducidad
                     </h3>
@@ -268,7 +277,7 @@
                     </div>
                 </section>
 
-                <section class="section-card p-8 no_service_section {% if is_service %} hidden {% endif %}">
+                <section class="glass-card p-8 no_service_section {% if is_service %} hidden {% endif %}">
                     <h3 class="text-sm font-bold mb-6 flex items-center gap-2">
                         <i class="fas fa-ruler-combined text-gray-500"></i> Logística
                     </h3>
@@ -276,8 +285,8 @@
                         <div class="space-y-2" id="weight_section">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Peso (kg)</label>
                             <input type="number" step="0.01"
-                                class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold" placeholder="0.00"
-                                name="weight" value="{{ weight }}">
+                                class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
+                                placeholder="0.00" name="weight" value="{{ weight }}">
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Dimensiones (cm)</label>
@@ -315,7 +324,7 @@
                     </div>
                 </div>
 
-                {# <section class="section-card p-6">
+                {# <section class="glass-card p-6">
                     <div
                         class="w-full aspect-square rounded-2xl bg-white/5 border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-center p-4 hover:border-(--accent)/50 transition-all cursor-pointer group">
                         <i
@@ -330,25 +339,27 @@
 </main>
 
 <script>
-    function toggleBulk(isBulk) {
-        const weightSection = document.getElementById("weight_section");
+    function toggle_bulk(is_bulk) {
+        const weight_section = document.getElementById("weight_section");
 
-        if (isBulk) {
-            weightSection.classList.add("hidden");
+        if (is_bulk) {
+            weight_section.classList.add("hidden");
         } else {
-            weightSection.classList.remove("hidden");
+            weight_section.classList.remove("hidden");
         }
 
-        document.querySelector("input[name='stock']").previousElementSibling.innerText = isBulk ? "Stock inicial (kg / L)" : "Stock inicial (unidades)";
+        document.querySelector("input[name='stock']").previousElementSibling.innerText = is_bulk ? "Stock inicial (kg / L)" : "Stock inicial (unidades)";
     }
 
-    function toggleSection(id, isVisible) {
+    function toggle_section(id, is_visible) {
         const section = document.getElementById(id);
         const inventary_section = document.querySelectorAll(".no_service_section");
+        const product_type_container = document.getElementById("product_type_container");
 
-        if (isVisible) {
-            section.classList.remove('hidden');
+        if (is_visible) {
             section.classList.add('grid');
+            section.classList.remove('hidden');
+            product_type_container.classList.add("hidden");
 
             inventary_section.forEach((e) => e.classList.add('hidden'));
 
@@ -361,6 +372,7 @@
             }, 10);
         } else {
             inventary_section.forEach((e) => e.classList.remove('hidden'));
+            product_type_container.classList.remove("hidden");
 
             section.style.opacity = '0';
             setTimeout(() => {
@@ -370,10 +382,10 @@
         }
     }
 
-    function toggle_stock(id, isVisible) {
+    function toggle_stock(id, is_visible) {
         const section = document.getElementById(id);
 
-        if (isVisible) {
+        if (is_visible) {
             section.classList.remove('hidden');
             section.classList.add('grid');
 

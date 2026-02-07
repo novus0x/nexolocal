@@ -35,8 +35,8 @@
         <form action="/platform/roles/create" method="post" class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div id="permissions-container" class="lg:col-span-3 space-y-8">
                 {% for type in permissions_data %}
-                <div class="bg-[#151B23] border border-[#30363D] rounded-3xl overflow-hidden shadow-sm">
-                    <div class="px-8 py-5 bg-[#1C222B] flex items-center justify-between border-b border-[#30363D]">
+                <div class="glass-card rounded-3xl overflow-hidden shadow-sm">
+                    <div class="px-8 py-5 flex items-center justify-between border-b border-[#30363D]">
                         <div class="flex items-center gap-4">
                             <div
                                 class="w-10 h-10 rounded-xl bg-(--accent)/10 text-(--accent) flex items-center justify-center">
@@ -62,7 +62,7 @@
 
                                 {% for type in perm.permissions %}
                                 <label
-                                    class="permission-card group bg-[#0B0F14] border border-[#30363D] p-4 rounded-2xl flex items-start gap-4 cursor-pointer hover:border-gray-600">
+                                    class="permission-card group input-glass p-4 flex items-start gap-4 cursor-pointer">
                                     <input type="checkbox" class="custom-checkbox perm-check" name="permissions_data" value="{{ type.key }}">
                                     <div class="flex flex-col">
                                         <span class="text-sm font-semibold text-gray-200 group-hover:text-white">{{ type.label }}</span>
@@ -80,7 +80,7 @@
             </div>
 
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-[#151B23] border border-[#30363D] rounded-2xl p-6 shadow-xl">
+                <div class="glass-card rounded-2xl p-6 shadow-xl">
                     <h3 class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Detalles del Rol
                     </h3>
                     <div class="space-y-4">
@@ -88,19 +88,19 @@
                             <label
                                 class="block text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-wider">Nombre</label>
                             <input id="role-name" type="text" placeholder="Ej: Moderador" name="role_name" required
-                                class="w-full bg-[#0B0F14] border border-[#30363D] rounded-xl px-4 py-2.5 text-sm focus:border-(--accent) outline-none">
+                                class="input-glass">
                         </div>
                         <div>
                             <label
                                 class="block text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-wider">Descripción</label>
                             <textarea
-                                class="w-full bg-[#0B0F14] border border-[#30363D] rounded-xl px-4 py-2.5 text-sm outline-none"
+                                class="input-glass"
                                 rows="5" placeholder="Añadir descripción (opcional)" name="description"></textarea>
                         </div>
                     </div>
                 </div>
 
-                <div class="pt-6 flex items-center justify-between">
+                <div class="mt-4 flex items-center justify-between">
                     <div class="flex gap-4">
                         <button type="submit" class="text-md btn-primary cursor-pointer">
                             Crear Rol

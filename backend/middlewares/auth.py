@@ -69,6 +69,11 @@ async def auth_middleware(request: Request, call_next):
 
     user_data = db.query(User).filter(User.id == user_session.user_id).first()
 
+    user_is_blocked = False
+
+    if user_data.is_blocked and not user_data.is_platform_super_admin:
+        user_is_blocked = True
+
     if not user_data:
         request.state.user_error = "auth.token.invalid"
         return await call_next(request)
@@ -79,7 +84,7 @@ async def auth_middleware(request: Request, call_next):
         "username": user_data.username,
         "email": user_data.email,
         "email_verified": user_data.email_verified,
-        "is_blocked": user_data.is_blocked,
+        "is_blocked": user_is_blocked,
 
         "date": user_data.date,
         "lang": getattr(user_data, "preferred_language", "en")

@@ -14,8 +14,7 @@ router.get("/", require_auth, platform_mod, async (req, res) => {
     let companies = [];
 
     // Check permissions
-    if (!permissions.includes("platform.analytics.read")) return res.redirect("/");
-
+    if (!permissions.includes("platform.analytics.read")) return res.redirect("/system-alert/403");
     // Render content
     return res.render("platform/analytics/main", {});
 });

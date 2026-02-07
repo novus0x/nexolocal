@@ -16,21 +16,20 @@ router.post("/open", require_auth, at_least_company, async (req, res) => {
     const company_id = req.params.company_id;
 
     // Check permissions
-    if (!permissions.includes("company.cash.open")) return res.redirect("/");
+    if (!permissions.includes("company.cash.open")) return res.redirect("/system-alert/403");
 
     const { initial_cash } = req.body;
-    console.log(initial_cash)
 
     const response = await send_data("/company/cash/open", {}, {
         initial_cash
     }, req)
 
     if (response.error) {
-        if (!permissions.includes("company.read")) return res.redirect("/");
+        if (!permissions.includes("company.read")) return res.redirect("/system-alert/403");
 
         const response2 = await get_data("/company/dashboard", {}, req);
 
-        if (response2.error) return res.redirect("/");
+        if (response2.error) return res.redirect("/system-alert/403");
 
         const data = response2.data;
 

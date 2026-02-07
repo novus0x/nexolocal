@@ -25,73 +25,70 @@
             </nav>
         </div>
 
-        <!-- Advanced Filters -->
-        <div class="flex flex-col md:flex-row gap-4 py-4 rounded-2xl">
-            <div class="relative flex-1">
-                <i
-                    class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
-                <input type="text" placeholder="Buscar por nombre, ID o encargado..."
-                    class="w-full bg-[#0B0F14] border border-[#30363D] rounded-xl pl-12 pr-4 py-2.5 text-sm focus:border-orange-500 outline-none transition-all">
-            </div>
-        </div>
-
-        <div class="bg-[#151B23] border border-[#30363D] rounded-3xl overflow-hidden shadow-2xl">
+        <div class="rounded-3xl overflow-hidden glass-card">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse custom-table">
+                <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr
-                            class="bg-[#0D1117] text-[10px] uppercase font-black tracking-widest text-gray-500 border-b border-[#30363D]">
-                            <th class="px-8 py-5">Nombre / Correo</th>
-                            <th class="px-6 py-5">Verificacion</th>
-                            <th class="px-6 py-5">Estado</th>
-                            <th class="px-6 py-5">Fecha de Registro</th>
-                            <th class="px-8 py-5 text-right">Acciones</th>
+                        <tr class="bg-white/5 border-bottom border-(--border)">
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">
+                                Nombre / Correo</th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">
+                                Verificacion</th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">
+                                Estado</th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">
+                                Fecha de Registro</th>
+                            <th
+                                class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted) text-right">
+                                Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-[#30363D]">
+                    <tbody class="text-sm font-medium">
                         {% for usr in users %}
-                        <tr class="group">
-                            <td class="px-8 py-6">
+                        <tr class="table-row">
+                            <td class="px-6 py-5">
                                 <div class="flex items-center gap-4">
-                                    <div class="flex items-center justify-center font-bold">
+                                    <div class="hidden lg:block w-12 h-12 overflow-hidden rounded-xl">
                                         <img src="https://ui-avatars.com/api/?name={{ usr.fullname }}&background=FD420A&color=fff"
-                                            class="w-10 h-10 rounded-xl" alt="Avatar">
+                                            class="bg-cover" alt="User Initials">
                                     </div>
                                     <div>
-                                        <p class="text-sm font-bold text-white capitalize">{{ usr.username }}</p>
-                                        <p class="text-xs text-gray-500">{{ usr.email }}</p>
+                                        <p class="font-bold capitalize">{{ usr.username }}</p>
+                                        <p class="text-[10px] text-(--text-muted) font-bold lowercase">{{ usr.email }}</p>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-6">
+                            <td class="px-6 py-5">
                                 {% if usr.verified %}
                                 <span class="status-badge badge-verified">Verificado</span>
                                 {% else %}
                                 <span class="status-badge badge-pending">Pendiente</span>
                                 {% endif %}
                             </td>
-                            <td class="px-6 py-6">
+                            <td class="px-6 py-5">
                                 {% if not usr.block %}
                                 <span class="status-badge badge-active">Activo</span>
                                 {% else %}
                                 <span class="status-badge badge-blocked">Bloqueado</span>
                                 {% endif %}
                             </td>
-                            <td class="px-6 py-6 text-gray-400">
-                                <p class="text-sm text-gray-500">{{ usr.date }}</p>
+                            <td class="px-6 py-5">
+                                <p class="text-(--text-muted) text-xs font-bold capitalize">{{ usr.date }}</p>
                             </td>
-                            <td class="px-8 py-6 text-right">
-                                <div class="flex justify-end gap-1">
+                            <td class="px-6 py-5">
+                                <div class="flex items-center justify-end gap-2 text-(--text-muted)">
                                     <a href="/platform/users/read/{{ usr.id }}"
-                                        class="p-2.5 text-green-400 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
+                                        class="p-2.5 text-green-400 hover:bg-green-400/5 rounded-xl transition-all cursor-pointer"
                                         title="Editar">
                                         <i class="fa-solid fa-eye"></i>
                                     </a>
-                                    <button
+                                    {% if "platform.users.update" in permissions %}
+                                    <a href="/platform/users/update/{{ usr.id }}"
                                         class="p-2.5 text-yellow-500 hover:bg-yellow-500/10 rounded-xl transition-all cursor-pointer"
                                         title="Suspender">
-                                        <i class="fa-solid fa-triangle-exclamation"></i>
-                                    </button>
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    {% endif %}
                                     <button
                                         class="p-2.5 text-red-500 hover:bg-red-500/10 rounded-xl transition-all cursor-pointer">
                                         <i class="fa-solid fa-trash"></i>
@@ -104,16 +101,20 @@
                 </table>
             </div>
         </div>
-        <div class="mt-6 flex items-center justify-between">
-            <p class="text-xs text-gray-500 font-medium">Mostrando 1-10 de 1,240 usuarios</p>
-            <div class="flex gap-2">
-                <button
-                    class="px-4 py-2 bg-[#151B23] border border-[#30363D] rounded-lg text-xs font-bold hover:bg-[#1C222B] transition-colors cursor-pointer">Anterior</button>
-                <button
-                    class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">Siguiente</button>
-            </div>
-        </div>
 
+        <div class="flex items-center justify-between mt-6">
+            <span class="px-4 py-2 rounded-xl bg-white/5 text-gray-500 cursor-not-allowed">
+                <i class="fa-duotone fa-regular fa-angle-left"></i> Anterior
+            </span>
+
+            <span class="text-sm text-gray-400">
+                Página 1 de 1
+            </span>
+
+            <span class="px-4 py-2 rounded-xl bg-white/5 text-gray-500 cursor-not-allowed">
+                Siguiente <i class="fa-duotone fa-regular fa-angle-right"></i>
+            </span>
+        </div>
     </div>
 </main>
 {% include "components/dashboard-footer.njk" %}

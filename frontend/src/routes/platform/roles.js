@@ -15,7 +15,7 @@ router.get("/", require_auth, platform_mod, async (req, res) => {
     let roles = [];
 
     // Check permissions
-    if (!permissions.includes("platform.roles.read")) return res.redirect("/");
+    if (!permissions.includes("platform.roles.read")) return res.redirect("/system-alert/403");
 
     // Get Structure
     const response = await get_data("/platform/roles", {}, req);
@@ -36,7 +36,7 @@ router.get("/create", require_auth, platform_mod, async (req, res) => {
     let permissions_data = [];
 
     // Check permissions
-    if (!permissions.includes("platform.roles.create")) return res.redirect("/");
+    if (!permissions.includes("platform.roles.create")) return res.redirect("/system-alert/403");
 
     // Get Structure
     const response = await get_data("/platform/roles/get-permissions", {}, req);
@@ -58,7 +58,7 @@ router.post("/create", require_auth, platform_mod, async (req, res) => {
     let description_s = "No hay descripción";
 
     // Check permissions
-    if (!permissions.includes("platform.roles.create")) return res.redirect("/");
+    if (!permissions.includes("platform.roles.create")) return res.redirect("/system-alert/403");
 
     // Get POST data
     const { permissions_data, role_name, description } = req.body;
@@ -92,7 +92,7 @@ router.get("/update/:role_id", require_auth, platform_mod, async (req, res) => {
     let permissions_selected_data = {};
 
     // Check permissions
-    if (!permissions.includes("platform.roles.update")) return res.redirect("/");
+    if (!permissions.includes("platform.roles.update")) return res.redirect("/system-alert/403");
 
     // Get Structure
     const response = await get_data(`/platform/roles/get/${role_id}`, {}, req);
@@ -119,7 +119,7 @@ router.put("/update/:role_id", require_auth, platform_mod, async (req, res) => {
     let description_s = "No hay descripción";
 
     // Check permissions
-    if (!permissions.includes("platform.roles.update")) return res.redirect("/");
+    if (!permissions.includes("platform.roles.update")) return res.redirect("/system-alert/403");
 
     // Get POST data
     const { permissions_data, role_name, description } = req.body;
@@ -148,7 +148,7 @@ router.put("/update/:role_id", require_auth, platform_mod, async (req, res) => {
     }
 
     // Render content
-    return res.redirect(`/platform/roles/read/${role_id}`);
+    return res.redirect(`/platform/roles/update/${role_id}`);
 });
 
 /*************** Export ***************/
