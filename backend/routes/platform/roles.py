@@ -1,6 +1,7 @@
 ########## Modules ##########
 from fastapi import APIRouter, Request, Depends
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from db.database import get_db
@@ -17,7 +18,7 @@ from core.permissions import get_permissions, filter_existing_permissions, check
 router = APIRouter()
 
 ########## Get Roles - Dashboard ##########
-@router.get("/get_platform")
+@router.get("/")
 async def roles_platform(request: Request, db: Session = Depends(get_db)):
     ### Variables ###
     lang = request.state.lang
@@ -29,13 +30,27 @@ async def roles_platform(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
     
     ### Check permissions ###
-    if not check_permissions(db, request, "platform.roles.read"):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+    access, message = check_permissions(db, request, "platform.roles.read")
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
     
     ### Operations ###
-    roles_data = db.query(User_Role).filter(
-        User_Role.platform_level == True
-    ).all()
+    filters = [
+        User_Role.platform_level == True,
+    ]
+
+    role_access, _ = check_permissions(db, request, "platform.users.role")
+
+    if role_access:
+        filters = [
+            or_(
+                User_Role.platform_level.is_(True),
+                User_Role.hidden.is_(True)
+            )
+        ]
+
+    roles_data = db.query(User_Role).filter(*filters).all()
 
     for role in roles_data:
         roles.append({
@@ -49,8 +64,8 @@ async def roles_platform(request: Request, db: Session = Depends(get_db)):
         "roles": roles
     })
 
-########## Get Roles - To Create Role ##########
-@router.get("/get")
+########## Get Permissions - Create Role ##########
+@router.get("/get-permissions")
 async def get_roles(request: Request, db: Session = Depends(get_db)):
     ### Variables ###
     lang = request.state.lang
@@ -62,9 +77,11 @@ async def get_roles(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
     
     ### Check permissions ###
-    if not check_permissions(db, request, "platform.roles.create"):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+    access, message = check_permissions(db, request, "platform.roles.create")
     
+    if not access:
+        return custom_response(status_code=400, message=message)
+
     ### Operations ###
     permissions = get_permissions()
         
@@ -72,7 +89,7 @@ async def get_roles(request: Request, db: Session = Depends(get_db)):
         "permissions": permissions
     })
 
-########## Create Role ##########
+########## Create Role - POST ##########
 @router.post("/create")
 async def create_role(request: Request, db: Session = Depends(get_db)):
     ### Variables ###
@@ -84,9 +101,11 @@ async def create_role(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
     
     ### Check permissions ###
-    if not check_permissions(db, request, "platform.roles.create"):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    access, message = check_permissions(db, request, "platform.roles.create")
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
     ### Get Body ###
     new_role_data, error = await read_json_body(request)
     if error: 
@@ -126,8 +145,10 @@ async def get_roles(request: Request, role_id: str, db: Session = Depends(get_db
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
     
     ### Check permissions ###
-    if not check_permissions(db, request, "platform.roles.update"):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+    access, message = check_permissions(db, request, "platform.roles.update")
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
     
     if not role_id:
         return custom_response(status_code=400, message=translate(lang, "platform.roles.get.single.error"))
@@ -165,8 +186,10 @@ async def get_roles(request: Request, role_id: str, db: Session = Depends(get_db
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
     
     ### Check permissions ###
-    if not check_permissions(db, request, "platform.roles.update"):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+    access, message = check_permissions(db, request, "platform.roles.update")
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
     
     if not role_id:
         return custom_response(status_code=400, message=translate(lang, "platform.roles.get.single.error"))

@@ -49,10 +49,13 @@ async def main(request: Request, db: Session = Depends(get_db)):
     ### Validation ###
     if user == None:
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
-    
+
     ### Check permissions ###
-    if not check_permissions(db, request, "company.income.read", company_id) and not check_permissions(db, request, "company.expenses.read", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+    access, message = check_permissions(db, request, "company.incomes.read", company_id)
+    access2, message2 = check_permissions(db, request, "company.expenses.read", company_id)
+    
+    if not access or not access2:
+        return custom_response(status_code=400, message=message)
     
     ### Local Time ###
     now_local = datetime.now(LOCAL_TZ)
@@ -157,7 +160,7 @@ async def main(request: Request, db: Session = Depends(get_db)):
             "type": row.type,
             "name": row.name,
             "amount": row.amount,
-            "time": local_date.strftime("%H:%M - %d %b %Y")
+            "time": local_date.astimezone(LOCAL_TZ).strftime("%H:%M - %d %b %Y")
         })
 
     for label, items in finance_grouped.items():
@@ -193,9 +196,12 @@ async def create_finance(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     ### Check permissions ###
-    if not check_permissions(db, request, "company.income.read", company_id) and not check_permissions(db, request, "company.expenses.read", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    access, message = check_permissions(db, request, "company.incomes.create", company_id)
+    access2, message2 = check_permissions(db, request, "company.expenses.create", company_id)
+    
+    if not access or not access2:
+        return custom_response(status_code=400, message=message)
+    
     ### Get Body ###
     finance_check, error = await read_json_body(request)
     if error: 

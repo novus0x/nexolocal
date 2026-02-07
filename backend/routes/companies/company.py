@@ -11,7 +11,6 @@ from core.generator import get_uuid
 from core.db_management import add_db
 from core.responses import custom_response
 from core.validators import read_json_body, validate_required_fields
-from core.permissions import check_permissions
 
 ########## Variables ##########
 router = APIRouter()

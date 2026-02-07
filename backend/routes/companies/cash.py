@@ -33,8 +33,10 @@ async def open(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
     
     ### Check permissions ###
-    if not check_permissions(db, request, "company.cash.open", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+    access, message = check_permissions(db, request, "company.cash.open", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
 
     cash_session = db.query(Cash_Session).filter(
         Cash_Session.status == Cash_Session_Status.OPEN,
@@ -100,9 +102,11 @@ async def open(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
     
     ### Check permissions ###
-    if not check_permissions(db, request, "company.cash.close", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    access, message = check_permissions(db, request, "company.cash.close", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
     cash_session = db.query(Cash_Session).filter(
         Cash_Session.status == Cash_Session_Status.OPEN,
         Cash_Session.company_id == company_id

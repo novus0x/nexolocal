@@ -31,16 +31,16 @@ function render_login() {
                                 <input type="checkbox" name="expire" value="true" class="custom-checkbox">
                                 <span class="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">Mantener sesión iniciada</span>
                             </label>
-                            <button type="button" onclick="render_forgot_password()" class="text-[10px] font-bold text-[#FD420A] hover:underline uppercase tracking-wider cursor-pointer">¿Olvidaste la clave?</button>
+                            <button type="button" onclick="render_forgot_password()" class="text-[10px] font-bold text-(--accent) hover:underline uppercase tracking-wider cursor-pointer">¿Olvidaste la clave?</button>
                         </div>
 
-                        <button type="submit" class="w-full bg-[#FD420A] hover:bg-[#E33A08] text-white py-4 rounded-2xl font-bold text-sm transition-all shadow-lg shadow-orange-900/20 active:scale-[0.98] mt-4 cursor-pointer">
+                        <button type="submit" class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer w-full">
                             Entrar al Sistema
                         </button>
                     </form>
                 </div>
             `;
-    toggleText.innerHTML = `¿No tienes una cuenta? <button onclick="render_register()" class="text-[#FD420A] font-bold hover:underline">Regístrate ahora</button>`;
+    toggleText.innerHTML = `¿No tienes una cuenta? <button onclick="render_register()" class="text-(--accent) font-bold hover:underline cursor-pointer">Regístrate ahora</button>`;
 }
 
 function render_register() {
@@ -87,13 +87,14 @@ function render_register() {
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full bg-[#FD420A] hover:bg-[#E33A08] text-white py-4 rounded-2xl font-bold text-sm transition-all shadow-lg shadow-orange-900/20 active:scale-[0.98] mt-4 cursor-pointer">
+                        <button type="submit" class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer w-full">
                             Crear mi Cuenta
                         </button>
                     </form>
                 </div>
             `;
-    toggleText.innerHTML = `¿Ya eres miembro? <button onclick="render_login()" class="text-[#FD420A] font-bold hover:underline">Inicia sesión</button>`;
+
+    toggleText.innerHTML = `¿Ya eres miembro? <button onclick="render_login()" class="text-(--accent) font-bold hover:underline cursor-pointer">Inicia sesión</button>`;
 }
 
 function render_forgot_password() {
@@ -113,7 +114,7 @@ function render_forgot_password() {
                             <input type="email" name="email" required placeholder="email@ejemplo.com" class="input-field w-full px-4 py-3.5 rounded-xl text-sm text-white placeholder-gray-600" autofocus>
                         </div>
 
-                        <button type="submit" class="w-full bg-[#FD420A] hover:bg-[#E33A08] text-white py-4 rounded-2xl font-bold text-sm transition-all shadow-lg shadow-orange-900/20 active:scale-[0.98] mt-4 cursor-pointer">
+                        <button type="submit" class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer w-full">
                             Enviar Instrucciones
                         </button>
                         

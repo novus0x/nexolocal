@@ -65,6 +65,8 @@ export async function require_auth(req, res, next) {
     const user = response.data.user;
     const invitations = response.data.invitations;
 
+    if (user.is_blocked) return res.redirect("/system-alert/403");
+
     req.user = user;
     req.permissions = permissions;
     req.company_id = company_value.id;

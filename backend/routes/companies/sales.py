@@ -52,9 +52,11 @@ async def check_sale(request: Request, page = 1, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     ### Check permissions ###
-    if not check_permissions(db, request, "company.sales.read", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+    access, message = check_permissions(db, request, "company.sales.read", company_id)
     
+    if not access:
+        return custom_response(status_code=400, message=message)
+
     sales = db.query(Sale).filter(
         Sale.company_id == company_id
     ).order_by(desc(Sale.date)).limit(limit).offset(offset).all()
@@ -97,9 +99,11 @@ async def cash_flow_api(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     ### Check permissions ###
-    if not check_permissions(db, request, "company.sales.create", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    access, message = check_permissions(db, request, "company.sales.read", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
     ### Get Body ###
     check_flow, error = await read_json_body(request)
     if error: 
@@ -339,9 +343,11 @@ async def check_reports(request: Request, page = 1, q = None, db: Session = Depe
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     ### Check permissions ###
-    if not check_permissions(db, request, "company.sales.read", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+    access, message = check_permissions(db, request, "company.sales.read", company_id)
     
+    if not access:
+        return custom_response(status_code=400, message=message)
+        
     ### DB Operation ###
     filters = [Sale.company_id == company_id]
 
@@ -389,9 +395,11 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     ### Check permissions ###
-    if not check_permissions(db, request, "company.sales.create", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    access, message = check_permissions(db, request, "company.sales.create", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
     ### Get Body ###
     check_product, error = await read_json_body(request)
     if error: 
@@ -445,9 +453,11 @@ async def check_product_search(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     ### Check permissions ###
-    if not check_permissions(db, request, "company.sales.create", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    access, message = check_permissions(db, request, "company.sales.create", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
     ### Get Body ###
     check_product, error = await read_json_body(request)
     if error: 
@@ -508,9 +518,11 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     ### Check permissions ###
-    if not check_permissions(db, request, "company.sales.create", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    access, message = check_permissions(db, request, "company.sales.create", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
     ### Check Cash Session --> OPEN ###
     cash_session = db.query(Cash_Session).filter(
         Cash_Session.status == Cash_Session_Status.OPEN,
@@ -704,9 +716,12 @@ async def check_sale_item(request: Request, sale_id: str, db: Session = Depends(
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     ### Check permissions ###
-    if not check_permissions(db, request, "company.sales.create", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    access, message = check_permissions(db, request, "company.sales.read", company_id)
+    access2, message = check_permissions(db, request, "company.sales.create", company_id)
+    
+    if not access and not access2:
+        return custom_response(status_code=400, message=message)
+    
     sale = db.query(Sale).filter(
         Sale.id == sale_id,
     ).first()

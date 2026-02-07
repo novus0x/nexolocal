@@ -1,3 +1,29 @@
+:root {
+    --bg-deep: #050608;
+    --bg-main: #0A0C10;
+    --bg-second: #10141B;
+    --bg-input: #080A0D;
+
+    --bg-card: #121720;
+    --card-bg: #161C26;
+    --border: #262D38;
+
+    --accent: #FF4D00;
+    --accent-hover: #FF6A29;
+    --accent-glow: rgba(255, 77, 0, 0.2);
+    --nexo-orange: #FF4D00;
+    --nexo-orange-glow: rgba(255, 77, 0, 0.4);
+
+    --text-main: #F8FAFC;
+    --text-muted: #94A3B8;
+
+    --color-success: #10B981;
+    --color-error: #F43F5E;
+    --color-warning: #F59E0B;
+    --color-info: #3B82F6;
+    --color-bg-notif: #1E293B;
+}
+
 .auth-page {
     display: flex;
     align-items: center;

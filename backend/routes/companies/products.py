@@ -72,8 +72,10 @@ async def get_products(request: Request, page = 1, type_of = "all", q = None, db
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
     
     ### Check permissions ###
-    if not check_permissions(db, request, "company.products.read", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+    access, message = check_permissions(db, request, "company.products.read", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
     
     ### Filter ###
     filters = [Product.company_id == company_id]
@@ -180,9 +182,11 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     ### Check permissions ###
-    if not check_permissions(db, request, "company.products.create", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    access, message = check_permissions(db, request, "company.products.create", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
     ### Check Cash Session --> OPEN ###
     cash_session = db.query(Cash_Session).filter(
         Cash_Session.status == Cash_Session_Status.OPEN,
@@ -380,8 +384,10 @@ async def import_products(request: Request, file: UploadFile = File(...), db: Se
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     ### Check permissions ###
-    if not check_permissions(db, request, "company.products.import.csv", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+    access, message = check_permissions(db, request, "company.products.import.csv", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
     
     ### Check Cash Session --> OPEN ###
     cash_session = db.query(Cash_Session).filter(
@@ -614,9 +620,12 @@ async def get_product_by_id(request: Request, product_id: str, db: Session = Dep
     ### Validation ###
     if user == None:
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
-
-    if not check_permissions(db, request, "company.products.read", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+    
+    ### Check permissions ###
+    access, message = check_permissions(db, request, "company.products.read", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
     
     if not product_id:
         return custom_response(status_code=400, message=translate(lang, "company.products.get.single.error"))
@@ -672,9 +681,12 @@ async def get_product_by_id_to_create_batch(request: Request, product_id: str, d
     if user == None:
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
-    if not check_permissions(db, request, "company.products.read", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    ### Check permissions ###
+    access, message = check_permissions(db, request, "company.products.read", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
     if not product_id:
         return custom_response(status_code=400, message=translate(lang, "company.products.get.single.error"))
 
@@ -727,9 +739,11 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
 
     ### Check permissions ###
-    if not check_permissions(db, request, "company.products.create", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    access, message = check_permissions(db, request, "company.products.create", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
     ### Check Cash Session --> OPEN ###
     cash_session = db.query(Cash_Session).filter(
         Cash_Session.status == Cash_Session_Status.OPEN,

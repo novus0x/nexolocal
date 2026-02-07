@@ -1,29 +1,28 @@
 /*************** Variables ***************/
 :root {
-    --bg-main: #0B0F14;
-    --bg-second: #0D1117;
+    --bg-deep: #050608;
+    --bg-main: #0A0C10;
+    --bg-second: #10141B;
+    --bg-input: #080A0D;
 
-    --bg-card: #151B23;
-    --accent: #FD420A;
-    --accent-hover: #E33A08;
-    --text-main: #F0F6FC;
-    --text-muted: #8B949E;
-    --border: #30363D;
+    --bg-card: #121720;
+    --card-bg: #161C26;
+    --border: #262D38;
 
-    --color-success: #16A34A;
-    --color-error: #DC2626;
+    --accent: #FF4D00;
+    --accent-hover: #FF6A29;
+    --accent-glow: rgba(255, 77, 0, 0.2);
+    --nexo-orange: #FF4D00;
+    --nexo-orange-glow: rgba(255, 77, 0, 0.4);
+
+    --text-main: #F8FAFC;
+    --text-muted: #94A3B8;
+
+    --color-success: #10B981;
+    --color-error: #F43F5E;
     --color-warning: #F59E0B;
-    --color-info: #2979FF;
-    --color-bg-notif: #1C2128;
-
-    --accent-glow: #fd420a33;
-
-    --nexo-orange: #FD420A;
-    --nexo-dark: #0B0F14;
-    --nexo-orange-glow: #fd420a66;
-
-    --bg-deep: #08090a;
-    --card-bg: #111418;
+    --color-info: #3B82F6;
+    --color-bg-notif: #1E293B;
 }
 
 /*************** General ***************/
@@ -41,6 +40,15 @@ input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+.status-pill {
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 /*************** Auth Page ***************/
@@ -516,15 +524,34 @@ input[type="number"]::-webkit-outer-spin-button {
     transition: all 0.2s ease;
 }
 
+.label-text {
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+
+    color: #8B949E;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
 .input-glass {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    color: white;
+    background: var(--bg-input);
+
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+
+    appearance: none;
+    transition: all 0.2s ease;
 }
 
 .input-glass:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px #fd420a26;
+    box-shadow: 0 0 0 2px #fd420a1a;
 }
 
 .cat-badge {

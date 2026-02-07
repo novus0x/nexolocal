@@ -1,6 +1,7 @@
 ########## Modules ##########
 from fastapi import APIRouter, Request, Depends
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from db.database import get_db
@@ -16,7 +17,59 @@ from core.validators import read_json_body, validate_required_fields
 ########## Variables ##########
 router = APIRouter()
 
-########## Get Roles - Generate Company Invitation ##########
+########## Get Companies ##########
+@router.get("/")
+async def get_companies(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+    user = request.state.user
+    companies = []
+
+    ### Validation ###
+    if user == None:
+        return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
+    
+    ### Check permissions ###
+    access, message = check_permissions(db, request, "platform.companies.read")
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
+    ### Operations ###
+    companies_data = db.query(Company).all()
+
+    for company in companies_data:
+        company_invitation = db.query(Company_Invitation).filter(
+            Company_Invitation.id == company.code
+        ).first()
+
+        invited_by = db.query(User).filter(User.id == company_invitation.user_inviter).first()
+        in_charge = db.query(User).filter(User.email == company.email).first()
+
+        companies.append({
+            "id": company.id,
+            "name": company.name,
+            "plan": company.plan_type,
+            "active": company.is_active,
+            "suspended": company.is_suspended,
+            "in_charge": {
+                "username": in_charge.username,
+                "fullname": in_charge.fullname,
+                "email": in_charge.email
+            },
+            "invited_by": {
+                "username": invited_by.username,
+                "fullname": invited_by.fullname,
+                "email": invited_by.email
+            },
+            "date": company.date.strftime("%d %B %Y")
+        })
+        
+    return custom_response(status_code=200, message=translate(lang, "platform.companies.get"), data={
+        "companies": companies
+    })
+
+########## Get roles to select - Create Company ##########
 @router.get("/get_roles")
 async def roles_generate_company(request: Request, db: Session = Depends(get_db)):
     ### Variables ###
@@ -29,13 +82,27 @@ async def roles_generate_company(request: Request, db: Session = Depends(get_db)
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
     
     ### Check permissions ###
-    if not check_permissions(db, request, "platform.companies.create"):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    access, message = check_permissions(db, request, "platform.companies.create")
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
     ### Operations ###
-    roles_data = db.query(User_Role).filter(
-        User_Role.platform_level == True
-    ).all()
+    filters = [
+        User_Role.platform_level == True,
+    ]
+
+    role_access, _ = check_permissions(db, request, "platform.users.role")
+
+    if role_access:
+        filters = [
+            or_(
+                User_Role.platform_level.is_(True),
+                User_Role.hidden.is_(True)
+            )
+        ]
+
+    roles_data = db.query(User_Role).filter(*filters).all()
 
     for role in roles_data:
         roles.append({
@@ -47,7 +114,7 @@ async def roles_generate_company(request: Request, db: Session = Depends(get_db)
         "roles": roles
     })
 
-########## Generate Invitation ##########
+########## Create Company and Generate Invitation ##########
 @router.post("/create")
 async def generate_invitation(request: Request, db: Session = Depends(get_db)):
     ### Get Body ###
@@ -60,9 +127,11 @@ async def generate_invitation(request: Request, db: Session = Depends(get_db)):
     user = request.state.user
 
     ### Check permissions ###
-    if not check_permissions(db, request, "platform.companies.create"):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
+    access, message = check_permissions(db, request, "platform.companies.create")
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
     ### Validations ###
     required_fields, error = validate_required_fields(new_company_values, ["name", "email", "role_id", "notes"], request.state.lang)
     if error:
@@ -111,54 +180,4 @@ async def generate_invitation(request: Request, db: Session = Depends(get_db)):
 
     return custom_response(status_code=200, message=translate(lang, "platform.companies.generate_invitation.success"), data={
         "company_id": new_company.id
-    })
-
-########## Get Companies ##########
-@router.get("/")
-async def get_companies(request: Request, db: Session = Depends(get_db)):
-    ### Variables ###
-    lang = request.state.lang
-    user = request.state.user
-    companies = []
-
-    ### Validation ###
-    if user == None:
-        return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
-    
-    ### Check permissions ###
-    if not check_permissions(db, request, "platform.companies.read"):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
-
-    ### Operations ###
-    companies_data = db.query(Company).all()
-
-    for company in companies_data:
-        company_invitation = db.query(Company_Invitation).filter(
-            Company_Invitation.id == company.code
-        ).first()
-
-        invited_by = db.query(User).filter(User.id == company_invitation.user_inviter).first()
-        in_charge = db.query(User).filter(User.email == company.email).first()
-
-        companies.append({
-            "id": company.id,
-            "name": company.name,
-            "plan": company.plan_type,
-            "active": company.is_active,
-            "suspended": company.is_suspended,
-            "in_charge": {
-                "username": in_charge.username,
-                "fullname": in_charge.fullname,
-                "email": in_charge.email
-            },
-            "invited_by": {
-                "username": invited_by.username,
-                "fullname": invited_by.fullname,
-                "email": invited_by.email
-            },
-            "date": company.date.strftime("%d %B %Y")
-        })
-        
-    return custom_response(status_code=200, message=translate(lang, "platform.companies.get"), data={
-        "companies": companies
     })

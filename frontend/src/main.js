@@ -30,6 +30,8 @@ import companies_settings from './routes/companies/settings.js';
 import users_api from './routes/users/api.js';
 import companies_api from './routes/companies/api.js';
 
+import system_alerts_main from './routes/system_alerts/main.js';
+
 import settings from './settings.js';
 
 /*************** Variables ***************/
@@ -104,8 +106,10 @@ app.use("/companies/:company_id/settings", companies_settings);
 app.use("/users/api", users_api);
 app.use("/companies/:company_id/api", companies_api);
 
+app.use("/system-alert/", system_alerts_main);
+
 app.use((req, res) => {
-    res.status(404).render("system_alerts/404");
+    return res.redirect("/system-alert/404")
 });
 
 /*************** Run App ***************/

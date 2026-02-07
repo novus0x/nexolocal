@@ -7,16 +7,6 @@
 {% include "components/dashboard-header.njk" %}
 
 <style>
-    :root {
-        --bg-main: #0B0F14;
-        --bg-card: #151B23;
-        --accent-primary: #FD420A;
-        --accent-secondary: #3b82f6;
-        /* Blue for expense */
-        --border: #30363D;
-        --current-accent: var(--accent-primary);
-    }
-
     .premium-card {
         background: var(--bg-card);
         border: 1px solid var(--border);
@@ -52,15 +42,6 @@
     input::-webkit-inner-spin-button {
         -webkit-appearance: none;
         margin: 0;
-    }
-
-    .status-pill {
-        padding: 4px 12px;
-        border-radius: 99px;
-        font-size: 10px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
     }
 
     .animate-status {
@@ -100,14 +81,14 @@
             <div id="form-wrapper" class="w-full max-w-xl transition-all duration-500">
                 <div class="flex justify-center mb-6">
                     <div id="type-pill"
-                        class="status-pill bg-[#FD420A]/10 text-[#FD420A] border border-[#FD420A]/20 animate-status">
+                        class="status-pill bg-(--accent)/10 text-(--accent) border border-(--accent)/20 animate-status">
                         <i class="fa-solid fa-arrow-up mr-2"></i>Nueva Entrada de Dinero
                     </div>
                 </div>
 
                 <div class="premium-card p-8 md:p-10 relative overflow-hidden">
                     <div id="glow-effect"
-                        class="absolute -top-24 -right-24 w-48 h-48 bg-[#FD420A] opacity-10 blur-[100px] transition-all duration-700">
+                        class="absolute -top-24 -right-24 w-48 h-48 bg-(--accent) opacity-10 blur-[100px] transition-all duration-700">
                     </div>
 
                     <header class="mb-10">
@@ -123,7 +104,7 @@
                             <div class="relative group">
                                 <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none">
                                     <span id="symbol"
-                                        class="text-4xl font-black text-[#FD420A] transition-colors duration-500">S/</span>
+                                        class="text-4xl font-black text-(--accent) transition-colors duration-500">S/</span>
                                 </div>
                                 <input type="number" step="0.01" id="amount" name="amount" required
                                     class="w-full bg-transparent text-5xl font-black pl-16 pr-6 py-8 border-b-2 border-white/5 focus:outline-none transition-all duration-500 placeholder:text-white/10"
@@ -134,7 +115,7 @@
                                 <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Valor
                                     Neto</span>
                                 <span id="type-desc"
-                                    class="text-[10px] font-bold text-[#FD420A] uppercase tracking-widest transition-colors duration-500">
+                                    class="text-[10px] font-bold text-(--accent) uppercase tracking-widest transition-colors duration-500">
                                     Ingreso Ordinario
                                 </span>
                             </div>
@@ -242,7 +223,7 @@
 
                         <div class="flex flex-col gap-4 pt-4">
                             <button type="submit" id="btn-submit"
-                                class="w-full py-5 rounded-2xl bg-[#FD420A] text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-[#FD420A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer">
+                                class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
                                 Confirmar Transacción
                             </button>
 
@@ -305,12 +286,12 @@
         subcategory_input.placeholder = "Ej: Ingreso X";
 
         pill.innerHTML = '<i class="fa-solid fa-arrow-up mr-2"></i>Nueva Entrada de Dinero';
-        pill.className = "status-pill bg-[#FD420A]/10 text-[#FD420A] border border-[#FD420A]/20 animate-status";
-        symbol.className = "text-4xl font-black text-[#FD420A] transition-colors duration-500";
+        pill.className = "status-pill bg-(--accent)/10 text-(--accent) border border-(--accent)/20 animate-status";
+        symbol.className = "text-4xl font-black text-(--accent) transition-colors duration-500";
         desc.innerText = "Ingreso Ordinario";
-        desc.className = "text-[10px] font-bold text-[#FD420A] uppercase tracking-widest";
+        desc.className = "text-[10px] font-bold text-(--accent) uppercase tracking-widest";
         amount.style.borderColor = "#FD420A";
-        btn.className = "w-full py-5 rounded-2xl bg-[#FD420A] text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-[#FD420A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer";
+        btn.className = "w-full py-5 rounded-2xl bg-(--accent) text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-(--accent)/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer";
 
         extraFields.style.maxHeight = "0";
         extraFields.style.opacity = "0";

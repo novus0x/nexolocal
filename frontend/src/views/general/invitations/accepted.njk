@@ -31,7 +31,7 @@
             <div class="glass-card rounded-[2.5rem] p-20 relative overflow-hidden">
                 <div class="icon-container mb-8 inline-block">
                     <div class="relative w-14 h-14 mx-auto">
-                        <div class="absolute inset-0 bg-[#FD420A] rounded-full"></div>
+                        <div class="absolute inset-0 bg-(--accent) rounded-full"></div>
                         <div
                             class="relative w-full h-full rounded-[2.2rem] flex items-center justify-center shadow-2xl transform rotate-3">
                             <i class="fa-solid fa-check text-white text-2xl"></i>
@@ -42,7 +42,7 @@
                 <div class="space-y-4 mb-10">
                     <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
                         ¡Bienvenido <span class="capitalize">{{ user.username }}</span> al <span
-                            class="text-[#FD420A]">Equipo</span>!
+                            class="text-(--accent)">Equipo</span>!
                     </h1>
                     <p class="text-gray-400 text-base md:text-lg max-w-md mx-auto">
                         Tu invitación ha sido procesada con éxito. Ya tienes acceso total a todas nuestras
@@ -52,7 +52,7 @@
 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="/invitations"
-                        class="btn-shine p-4 bg-[#FD420A] hover:bg-[#ff5a27]text-white font-bold rounded-2xl shadow-[0_10px_30px_rgba(253,66,10,0.35)] transition-all flex items-center justify-center gap-3">
+                        class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
                         Volver a ver las Invitaciones
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>

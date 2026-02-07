@@ -47,7 +47,8 @@ async def user(request: Request, db: Session = Depends(get_db)):
             ).first()
 
             if user_role_data:
-                print("role_id permissions exists")
+                for permission in user_role_data.permissions:
+                    permisions_data.append(permission)
 
         if company_id:
             user_company = db.query(User_Company_Association).filter(

@@ -20,7 +20,7 @@ class User(Base):
     date = Column(DateTime(timezone=True), default=func.now())
 
     is_platform_super_admin = Column(Boolean, default=False)
-    preferred_language = Column(String, default="en")
+    preferred_language = Column(String, default="es")
 
     # Extra #
     is_blocked = Column(Boolean, default=False)
@@ -31,6 +31,23 @@ class User(Base):
     sessions = relationship("User_Session", back_populates="user", cascade="all, delete-orphan")
     company_associations = relationship("User_Company_Association", back_populates="user")
     oauth_accounts = relationship("User_OAuth", back_populates="user")
+
+##### User Contact Information #####
+class User_Contact(Base):
+    __tablename__ = "user_contact"
+
+    id = Column(String, primary_key=True, nullable=False)
+
+    bio = Column(Text, nullable=True)
+    phone = Column(String, nullable=True)
+    address = Column(Text, nullable=True)
+
+    date = Column(DateTime(timezone=True), default=func.now())
+
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+
+    ## Relationships ##
+    user = relationship("User")
 
 ##### User Verification #####
 class User_Verification(Base):
@@ -89,6 +106,7 @@ class User_Role(Base):
     description = Column(Text)
     permissions = Column(JSONB, default=list)
 
+    hidden = Column(Boolean, default=False)
     platform_level = Column(Boolean, default=False)
     company_id = Column(String, ForeignKey("companies.id"), nullable=True)
 

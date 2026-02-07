@@ -18,7 +18,7 @@ router.get("/", require_auth, platform_mod, async (req, res) => {
     if (!permissions.includes("platform.roles.read")) return res.redirect("/");
 
     // Get Structure
-    const response = await get_data("/platform/roles/get_platform", {}, req);
+    const response = await get_data("/platform/roles", {}, req);
 
     if (response.data.roles) roles = response.data.roles;
 
@@ -39,7 +39,7 @@ router.get("/create", require_auth, platform_mod, async (req, res) => {
     if (!permissions.includes("platform.roles.create")) return res.redirect("/");
 
     // Get Structure
-    const response = await get_data("/platform/roles/get", {}, req);
+    const response = await get_data("/platform/roles/get-permissions", {}, req);
 
     if (response.data.permissions) {
         permissions_data = response.data.permissions

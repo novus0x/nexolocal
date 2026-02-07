@@ -80,7 +80,7 @@
                     <div class="flex flex-col items-center space-y-4">
                         <div class="relative group">
                             <div
-                                class="w-40 h-40 rounded-3xl bg-[#0D1117] flex items-center justify-center text-[#FD420A] overflow-hidden shadow-2xl transition-all">
+                                class="w-40 h-40 rounded-3xl bg-[#0D1117] flex items-center justify-center text-(--accent) overflow-hidden shadow-2xl transition-all">
                                 <img src="https://ui-avatars.com/api/?name={{ user.fullname }}&background=FD420A&color=fff"
                                     class="w-40 h-40 rounded" alt="Avatar">
                             </div>
@@ -110,7 +110,7 @@
             <div class="grid grid-cols-1 gap-4"> {# md:grid-cols-2 #}
                 <div class="glass-card p-6" id="update-password-container">
                     <h3 class="font-bold text-xl flex items-center gap-2">
-                        <i class="fa-regular fa-lock text-[#FD420A]"></i>
+                        <i class="fa-regular fa-lock text-(--accent)"></i>
                         Cambiar Contraseña
                     </h3>
                     <div class="space-y-3 mt-4">
@@ -130,7 +130,7 @@
                                 class="w-full input-glass px-5 py-3.5 rounded-xl text-sm" id="confirm_new_password">
                         </div>
                         <button type="button" onclick="update_password()"
-                            class="mt-4 bg-[#FD420A] hover:bg-[#ff5a26] text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                            class="mt-4 bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer w-full">
                             <i class="fa-solid fa-plus"></i>
                             Actualizar contraseña
                         </button>
@@ -139,7 +139,7 @@
 
                 {# <div class="glass-card p-6">
                     <h3 class="font-bold text-xl flex items-center gap-2">
-                        <i class="fa-regular fa-key text-[#FD420A]"></i>
+                        <i class="fa-regular fa-key text-(--accent)"></i>
                         Cuentas Vinculadas
                     </h3>
                     <div class="space-y-3 mt-4">
@@ -188,7 +188,7 @@
                                     <span class="text-[9px] font-bold text-[#8B949E] uppercase">No Conectado</span>
                                 </div>
                                 <button
-                                    class="w-full py-2 bg-[#FD420A] rounded-lg text-[10px] font-bold text-white transition-all uppercase tracking-wider hover:bg-[#E33A08] shadow-[0_0_10px_rgba(253,66,10,0.2)]">Vincular
+                                    class="w-full py-2 bg-(--accent) rounded-lg text-[10px] font-bold text-white transition-all uppercase tracking-wider hover:bg-[#E33A08] shadow-[0_0_10px_rgba(253,66,10,0.2)]">Vincular
                                     Cuenta</button>
                             </div>
 
@@ -209,7 +209,7 @@
                                     <span class="text-[9px] font-bold text-[#8B949E] uppercase">No Conectado</span>
                                 </div>
                                 <button
-                                    class="w-full py-2 bg-[#1C2128] border border-[#30363D] hover:border-[#FD420A] rounded-lg text-[10px] font-bold transition-all uppercase tracking-wider hover:text-[#FD420A]">Conectar</button>
+                                    class="w-full py-2 bg-[#1C2128] border border-[#30363D] hover:border-(--accent) rounded-lg text-[10px] font-bold transition-all uppercase tracking-wider hover:text-(--accent)">Conectar</button>
                             </div> 
 
                         </div>
@@ -221,7 +221,7 @@
                         <h3 class="font-bold text-lg flex items-center gap-2 mb-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="text-[#FD420A]">
+                                stroke-linejoin="round" class="text-(--accent)">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                             </svg>
                             Doble Factor (2FA)

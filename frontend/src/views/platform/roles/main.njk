@@ -23,7 +23,7 @@
                     </li>
                 </ol>
                 <a href="/platform/roles/create"
-                    class="bg-[#FD420A] hover:bg-[#ff5a26] text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95">
+                    class="bg-(--accent) hover:bg-[#ff5a26] text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95">
                     <i class="fa-solid fa-plus"></i>
                     Nuevo Rol
                 </a>
@@ -58,7 +58,7 @@
                                 <div class="flex items-center gap-4">
                                     {% if role.platform %}
                                     <div
-                                        class="w-10 h-10 bg-[#FD420A]/10 text-[#FD420A] rounded-lg flex items-center justify-center">
+                                        class="w-10 h-10 bg-(--accent)/10 text-(--accent) rounded-lg flex items-center justify-center">
                                         <i class="fa-solid fa-code-simple"></i>
                                     </div>
                                     {% else %}
@@ -73,7 +73,7 @@
                             <td class="px-6 py-6 text-gray-400">
                                 {% if role.platform %}
                                 <span
-                                    class="text-xs bg-[#FD420A]/10 text-orange-400 px-2 py-1 rounded">Plataforma</span>
+                                    class="text-xs bg-(--accent)/10 text-orange-400 px-2 py-1 rounded">Plataforma</span>
                                 {% else %}
                                 <span class="text-xs bg-blue-500/10 text-blue-400 px-2 py-1 rounded">Negocio</span>
                                 {% endif %}
@@ -108,7 +108,7 @@
                 <button
                     class="px-4 py-2 bg-[#151B23] border border-[#30363D] rounded-lg text-xs font-bold hover:bg-[#1C222B] transition-colors cursor-pointer">Anterior</button>
                 <button
-                    class="px-4 py-2 bg-[#FD420A] text-white rounded-lg text-xs font-bold shadow-lg shadow-orange-900/20 active:scale-95 transition-all cursor-pointer">Siguiente</button>
+                    class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">Siguiente</button>
             </div>
         </div>
 

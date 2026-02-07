@@ -14,7 +14,7 @@
     <div class="flex border-b border-[#30363D] mb-6" id="tabContainer">
         <button class="px-6 py-3 text-sm font-medium transition-all relative tab-active">
             Pendientes
-            <span class="ml-2 px-1.5 py-0.5 rounded-full text-[10px] bg-[#FD420A]/20">{{ invitations_sidebar.quantity }}</span>
+            <span class="ml-2 px-1.5 py-0.5 rounded-full text-[10px] bg-(--accent)/20">{{ invitations_sidebar.quantity }}</span>
         </button>
         {# <button class="px-6 py-3 text-sm font-medium transition-all relative text-gray-500 hover:text-gray-300">
             Historial
@@ -22,8 +22,8 @@
     </div>
 
     <div class="my-5 p-6 bg-[#0D1117] border border-[#30363D] rounded-2xl flex items-start gap-4">
-        <div class="p-3 bg-[#FD420A]/10 rounded-xl">
-            <i class="fas fa-shield-halved text-[#FD420A] text-xl"></i>
+        <div class="p-3 bg-(--accent)/10 rounded-xl">
+            <i class="fas fa-shield-halved text-(--accent) text-xl"></i>
         </div>
         <div>
             <h4 class="font-bold text-sm text-white">Aviso de Seguridad</h4>
@@ -51,7 +51,7 @@
                         <div>
                             <h3 class="text-lg font-bold">{{ invitation.company_name }}</h3>
                             <div class="flex items-center gap-2 text-sm text-gray-400 mt-1">
-                                <i class="fas fa-id-badge text-[#FD420A]"></i>
+                                <i class="fas fa-id-badge text-(--accent)"></i>
                                 <span class="text-gray-600">•</span>
                                 <span>Invitado por <span class="capitalize">{{ invitation.inviter }}</span></span>
                             </div>

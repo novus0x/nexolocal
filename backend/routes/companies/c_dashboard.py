@@ -104,11 +104,11 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
     
     ### Check permissions ###
-    if not check_permissions(db, request, "company.read", company_id):
-        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+    access, message = check_permissions(db, request, "company.read", company_id)
     
-    filters = []
-
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
     filters = [Product.company_id == company_id]
 
     urgency_expr = case(

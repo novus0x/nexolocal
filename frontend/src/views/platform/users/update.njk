@@ -1,0 +1,208 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<style>
+    .role-tag-large {
+        padding: 12px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+</style>
+
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/" class="hover:text-white transition-colors">Dashboard</a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/platform/users" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Usuarios</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/platform/users/read/{{ user_data.id }}" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">{{ user_data.fullname }}</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Actualizar</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <form action="/platform/users/update/{{ user_data.id }}" method="post"
+            class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <input type="hidden" name="_method" value="put" />
+            <div class="space-y-6">
+                <div class="glass-card p-6 text-center">
+                    <div class="relative group inline-block mb-6">
+                        <div class="w-32 h-32 rounded-[2.5rem] bg-[#0D1117] p-1 overflow-hidden">
+                            <img src="https://ui-avatars.com/api/?name={{ user_data.fullname }}&amp;background=FD420A&amp;color=fff"
+                                class="w-full h-full rounded-[2.2rem] object-cover" alt="Avatar">
+                        </div>
+                    </div>
+
+                    <div class="text-left">
+                        <div class="space-y-4">
+                            {% if not user_data.is_platform_super_admin %}
+                            {% if "platform.users.role" in permissions %}
+                            <label class="label-text">Asignar Rol</label>
+                            <select
+                                class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold appearance-none"
+                                name="role">
+                                <option class="input-field" value="" disabled selected>Cambiar rol...</option>
+                                <option class="input-field" value="delete">Quitar Rol</option>
+                                {% for role in roles %}
+                                <option class="input-field" value="{{ role.id }}">{{ role.name }} {% if role.hidden %} - Rol Oculto {% endif %}</option>
+                                {% endfor %}
+                            </select>
+                            {% else %}
+                            <input type="hidden" name="role" value="" />
+                            {% endif %}
+                            {% endif %}
+
+                            <div class="pt-4 border-t border-[#21262D]">
+                                <p class="text-[10px] font-black uppercase text-gray-500 tracking-widest mb-3">Rol Actual</p>
+
+                                {% if not user_data.is_platform_super_admin %}
+                                {% if not user_role.available %}
+                                <div class="role-tag-large border-2 border-gray-500">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center text-gray-500">
+                                            <i class="fa-regular fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-black text-white capitalize tracking-tight">No Disponible</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="role-tag-large border-2 border-blue-500">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                            <i class="fa-regular fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-black text-white capitalize tracking-tight">
+                                                {{ user_role.name }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% else %}
+                                <div class="role-tag-large border-2 border-(--accent)">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-black text-white capitalize tracking-tight">
+                                                Admin</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if "platform.users.block" in permissions and "platform.users.unblock" in permissions %}
+                <div class="glass-card p-6">
+                    <label class="label-text">Estado del Usuario</label>
+                    <div class="space-y-3">
+                        <select class="w-full input-glass mt-3 px-5 py-3.5 rounded-xl text-sm font-bold appearance-none"
+                            name="status" required>
+                            <option class="input-field" value="active" {% if not user_data.is_blocked %} selected {%
+                                endif %}>Activo</option>
+                            <option class="input-field" value="suspended" {% if user_data.is_blocked %} selected {%
+                                endif %}>Suspendido</option>
+                        </select>
+                        <p class="text-xs text-gray-500 leading-relaxed">
+                            * Un usuario suspendido no podrá realizar ninguna función en la plataforma.
+                        </p>
+                    </div>
+                </div>
+                {% else %}
+                <input type="hidden" name="role" value="{% if user_data.is_blocked %} suspended {% else %} active {% endif %}" />
+                {% endif %}
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass-card p-8">
+                    <h3 class="text-sm font-black uppercase tracking-widest mb-8 pb-4 border-b border-[#21262D]">
+                        Información de Perfil</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="label-text">Nombre de Usuario (@)</label>
+                            <input type="text" class="input-glass" value="{{ user_data.username }}" name="username"
+                                required>
+                        </div>
+                        <div>
+                            <label class="label-text">Nombre Completo</label>
+                            <input type="text" class="input-glass" value="{{ user_data.fullname }}" name="fullname"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="label-text">Correo Electrónico</label>
+                            <input type="email" class="input-glass" value="{{ user_data.email }}" name="email" required
+                                disabled>
+                        </div>
+                        <div>
+                            <label class="label-text">Teléfono Principal</label>
+                            <input type="tel" class="input-glass" value="" name="phone" placeholder="Aún no se puede añadir numero telefónico">
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="label-text">Información del Perfil</label>
+                        <textarea name="description" class="input-glass h-32 resize-none" placeholder="Aún no se le añadir informacion del perfil"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row justify-end gap-3 p-2">
+                    <a href="/platform/users/read/{{ user_data.id }}"
+                        class="px-8 py-3 rounded-2xl border border-[#21262D] text-xs font-bold uppercase tracking-widest hover:bg-[#1C2128] transition-all text-gray-400 cursor-pointer">Volver</a>
+                    <button type="submit"
+                        class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">Actualizar
+                        Usuario</button>
+                </div>
+            </div>
+    </div>
+
+    </div>
+</main>
+
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

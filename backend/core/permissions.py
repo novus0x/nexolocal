@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 
 from db.model import User, User_Role, User_Company_Association
 
+from core.i18n import translate
+
 ########## Variables ##########
 _permissions = json.load(open("db/permissions.json"))
 
@@ -63,23 +65,27 @@ def filter_existing_permissions(requested):
 def check_permissions(db: Session, request, permission, company_id = None):
     ### Variables ###
     user = request.state.user
+    lang = request.state.lang
     is_admin = request.state.user_is_admin
 
     if is_admin:
-        return True
+        return True, ""
     else:
         ## Check available role (opt)
         user = db.query(User).filter(User.id == user.get("id")).first()
 
         if not user:
-            return False
+            return False, translate(lang, "validation.not_necessary_permission")
+    
+        if user.is_blocked:
+            return False, translate(lang, "validation.account_suspended")
         
         if user.role_id:
             role = db.query(User_Role).filter(User_Role.id == user.role_id).first()
 
             if role:
                 if permission in role.permissions:
-                    return True
+                    return True, ""
                 
         if company_id:
             company = db.query(User_Company_Association).filter(
@@ -94,6 +100,6 @@ def check_permissions(db: Session, request, permission, company_id = None):
 
                 if role_c:
                     if permission in role_c.permissions:
-                        return True                
+                        return True, ""        
 
-    return False
+    return False, translate(lang, "validation.not_necessary_permission")

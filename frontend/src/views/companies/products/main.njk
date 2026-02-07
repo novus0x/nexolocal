@@ -50,7 +50,7 @@
                     {% endif %}
                 </div>
                 <a href="/companies/{{ company_information.id }}/products/create"
-                    class="bg-[#FD420A] hover:bg-[#ff5a26] text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95">
+                    class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer w-full">
                     <i class="fa-solid fa-plus"></i>
                     <span class="hidden md:block">Nuevo Producto</span>
                 </a>
@@ -69,7 +69,7 @@
 
             <div class="relative group">
                 <i
-                    class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-white group-focus-within:text-[#FD420A] transition-colors"></i>
+                    class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-white group-focus-within:text-(--accent) transition-colors"></i>
                 <input type="text" placeholder="Buscar por nombre o identificador..."
                     class="w-full lg:w-96 input-glass pl-10 pr-4 py-3 rounded-xl" value="{{ query.q or '' }}"
                     onkeydown="if (event.key === 'Enter') (submit_search(this.value))">
@@ -101,7 +101,7 @@
                                     </div>
                                     <div>
                                         <p
-                                            class="text-sm font-bold text-white group-hover:text-[#FD420A] transition-colors">
+                                            class="text-sm font-bold text-white group-hover:text-(--accent) transition-colors">
                                             {{ product.name }}</p>
                                         <p class="text-xs text-gray-600 tracking-tighter">{{
                                             product.identifier }}

@@ -79,6 +79,7 @@ async def auth_middleware(request: Request, call_next):
         "username": user_data.username,
         "email": user_data.email,
         "email_verified": user_data.email_verified,
+        "is_blocked": user_data.is_blocked,
 
         "date": user_data.date,
         "lang": getattr(user_data, "preferred_language", "en")
