@@ -111,12 +111,11 @@ async def create_role(request: Request, db: Session = Depends(get_db)):
     if error: 
         return custom_response(status_code=400, message=error)
         
-    required_fields, error = validate_required_fields(new_role_data, ["permissions", "role_name", "description"])
+    required_fields, error = validate_required_fields(new_role_data, ["permissions", "role_name", "description", "hidden"])
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
         
     permissions = filter_existing_permissions(new_role_data.permissions)
-    print(permissions)
 
     new_role = User_Role(
         id = get_uuid(db, User_Role),
@@ -125,6 +124,9 @@ async def create_role(request: Request, db: Session = Depends(get_db)):
         permissions = permissions,
         platform_level = True
     )
+
+    if new_role_data.hidden == "1":
+        new_role.hidden = True
 
     add_db(db, new_role)
         
@@ -162,10 +164,12 @@ async def get_roles(request: Request, role_id: str, db: Session = Depends(get_db
         
     ### Operations ###
     permissions = get_permissions()
+
     permissions_selected = {
         "name": check_role.name,
         "description": check_role.description,
-        "permissions": check_role.permissions
+        "permissions": check_role.permissions,
+        "hidden": check_role.hidden
     }
         
     return custom_response(status_code=200, message=translate(lang, "platform.roles.get.single.success"), data={
@@ -198,11 +202,11 @@ async def get_roles(request: Request, role_id: str, db: Session = Depends(get_db
     update_role, error = await read_json_body(request)
     if error: 
         return custom_response(status_code=400, message=error)
-        
-    required_fields, error = validate_required_fields(update_role, ["permissions", "role_name", "description"])
+
+    required_fields, error = validate_required_fields(update_role, ["permissions", "role_name", "description", "hidden"])
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
-        
+
     check_role = db.query(User_Role).filter(
         User_Role.id == role_id
     ).first()
@@ -211,10 +215,16 @@ async def get_roles(request: Request, role_id: str, db: Session = Depends(get_db
         return custom_response(status_code=400, message=translate(lang, "platform.roles.get.single.error"))
     
     permissions = filter_existing_permissions(update_role.permissions)
+    print(permissions)
 
     check_role.name = update_role.role_name
-    check_role.permissions = update_role.permissions
+    check_role.permissions = permissions
     check_role.description = update_role.description
+
+    if update_role.hidden == "1":
+        check_role.hidden = True
+    else:
+        check_role.hidden = False
 
     update_db(db)
         

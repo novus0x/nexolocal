@@ -7,7 +7,7 @@
   <!-- Title -->
   <title>{% block title %}NexoLocal{% endblock %}</title>
   <!-- Icon -->
-  <link rel="icon" href="/public/img/logo.png" />
+  <link rel="icon" href="/public/img/logo.svg" />
   <!-- JS -->
   <!--<script src="https://cdn.tailwindcss.com"></script>-->
   <link rel="stylesheet" href="/public/css/all.css" />
@@ -15,10 +15,15 @@
   <link rel="stylesheet" href="/public/css/animations.css" />
   <link rel="stylesheet" href="/public/css/tailwind.build.css" />
 
+  <!-- Logo - Img -->
+  <link rel="preload" href="/public/img/logo.svg" as="image">
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="overflow-x-hidden overflow-y-auto">
+  {% include "components/loader.njk" %}
+
   <div class="flex h-screen w-full relative"> 
     {# min-h-screen #}
     {% include "components/notifications.njk" %}

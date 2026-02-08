@@ -71,7 +71,7 @@
                         <label>Asignar Rol</label>
                         <select class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold appearance-none" name="role_id" required>
                             {% for role in roles %}
-                            <option class="input-field" value="{{ role.id }}" {% if role_id == role.id %} selected {% endif %} >{{ role.name }}</option>
+                            <option class="input-field" value="{{ role.id }}" {% if role_id == role.id %} selected {% endif %} >{{ role.name }} {% if role.hidden %}- Oculto {% endif %}</option>
                             {% endfor %}
                         </select>
                     </div>

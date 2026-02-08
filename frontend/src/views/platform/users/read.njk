@@ -84,10 +84,14 @@
                         <div class="w-full grid grid-cols-1 gap-3 mb-6">
                             <div class="bg-[#0D1117] p-3 rounded-2xl border border-[#21262D] text-center">
                                 <p class="text-[10px] uppercase font-bold text-gray-500 mb-1">Rol</p>
+                                {% if not user_data.is_platform_super_admin %}
                                 {% if user_role.available %}
                                 <p class="text-xs font-bold text-orange-400">{{ user_role.name }}</p>
                                 {% else %}
                                 <p class="text-xs font-bold text-orange-400">No Disponible</p>
+                                {% endif %}
+                                {% else %}
+                                <p class="text-xs font-bold text-orange-400">Admin</p>
                                 {% endif %}
                             </div>
                             {# <div class="bg-[#0D1117] p-3 rounded-2xl border border-[#21262D] text-center">

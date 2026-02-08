@@ -55,24 +55,49 @@ router.get("/create", require_auth, platform_mod, async (req, res) => {
 router.post("/create", require_auth, platform_mod, async (req, res) => {
     // Variables
     const permissions = req.permissions;
+
+    let errors = [];
+
+    let hidden_v = "0";
+    let permissions_data_v = [];
     let description_s = "No hay descripción";
 
     // Check permissions
     if (!permissions.includes("platform.roles.create")) return res.redirect("/system-alert/403");
 
     // Get POST data
-    const { permissions_data, role_name, description } = req.body;
+    const { permissions_data, role_name, description, hidden } = req.body;
 
     // Correction
     if (description) description_s = description;
 
+    if (hidden == "on") hidden_v = "1";
+
+    if (typeof(permissions_data) == "string") permissions_data_v = [permissions_data]
+    else permissions_data_v = permissions_data
+
     const response = await send_data("/platform/roles/create", {}, {
-        permissions: permissions_data, role_name, description: description_s
+        role_name,
+        
+        permissions: permissions_data_v,
+        description: description_s,
+        hidden: hidden_v
     }, req);
 
     if (response.error) {
-        return res.render("platform/roles/main", {
-            errors: [response.message],
+        let permissions_data_v = []
+
+        if (response.details.length <= 0) errors = [response.message];
+        else errors = response.details;
+
+        const response2 = await get_data("/platform/roles/get-permissions", {}, req);
+
+        if (response2.data.permissions) {
+            permissions_data_v = response.data.permissions
+        }
+
+        return res.render("platform/roles/create", {
+            permissions_data: permissions_data_v
         });
     }
 
@@ -104,9 +129,13 @@ router.get("/update/:role_id", require_auth, platform_mod, async (req, res) => {
     permissions_data = response.data.permissions
     permissions_selected_data = response.data.permissions_selected
 
+    console.log(permissions_selected_data)
+
     // Render content
     return res.render("platform/roles/update", {
-        role_id: role_id, permissions_data, permissions_selected_data
+        role_id: role_id, 
+        permissions_data, 
+        permissions_selected_data
     });
 });
 
@@ -116,20 +145,31 @@ router.put("/update/:role_id", require_auth, platform_mod, async (req, res) => {
     const permissions = req.permissions;
     const role_id = req.params.role_id;
 
+    let hidden_v = "0";
     let description_s = "No hay descripción";
+    let permissions_data_v = [];
 
     // Check permissions
     if (!permissions.includes("platform.roles.update")) return res.redirect("/system-alert/403");
 
     // Get POST data
-    const { permissions_data, role_name, description } = req.body;
+    const { permissions_data, role_name, description, hidden } = req.body;
+
+    if (typeof(permissions_data) == "string") permissions_data_v = [permissions_data]
+    else permissions_data_v = permissions_data
 
     // Correction
     if (description) description_s = description;
 
+    if (hidden == "on") hidden_v = "1";
+
     // Operations
     const response = await send_data(`/platform/roles/update/${role_id}`, {}, {
-        permissions: permissions_data, role_name, description: description_s
+        role_name, 
+
+        permissions: permissions_data_v,
+        description: description_s,
+        hidden: hidden_v
     }, req);
 
     if (response.error) {
@@ -143,7 +183,8 @@ router.put("/update/:role_id", require_auth, platform_mod, async (req, res) => {
         }
 
         return res.render("platform/roles/update", {
-            errors: [response.message], permissions_data, permissions_selected_data
+            errors: [response.message], 
+            permissions_data, permissions_selected_data
         });
     }
 

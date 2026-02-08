@@ -1,0 +1,76 @@
+<style>
+    #loader-container {
+        position: fixed;
+        inset: 0;
+        background-color: var(--bg-main);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        overflow: hidden;
+    }
+
+    .spinner-wrapper {
+        width: 180px;
+        height: 180px;
+    }
+
+
+    .logo-center {
+        position: absolute;
+        z-index: 10;
+        width: 130px;
+        height: 130px;
+        object-fit: contain;
+        background-color: #1a1d23;
+        border-radius: 24px;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        animation: pulse-logo 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-logo {
+
+        0%,
+        100% {
+            transform: scale(1);
+            filter: drop-shadow(0 0 10px rgba(255, 77, 0, 0.2));
+        }
+
+        50% {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 25px rgba(255, 77, 0, 0.5));
+        }
+    }
+
+    .loader-hidden {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+</style>
+
+<div id="loader-container">
+    <div class="absolute w-125 h-125 bg-orange-600/5 blur-[120px] rounded-full pointer-events-none"></div>
+
+    <div class="spinner-wrapper">
+
+        <img src="/public/img/logo.svg" alt="Logo" class="logo-center">
+        <span id="fallback-text" class="hidden text-orange-500 font-bold text-xl z-20">NEXOLOCAL</span>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const loader = document.getElementById("loader-container");
+        if (!loader) return;
+
+        const minTime = 400;
+
+        setTimeout(() => {
+            loader.classList.add("loader-hidden");
+            loader.addEventListener("transitionend", () => loader.remove(), { once: true });
+        }, minTime);
+    });
+
+</script>

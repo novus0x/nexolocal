@@ -28,6 +28,8 @@ router.get("/:company_id", require_auth, at_least_company, async (req, res) => {
 
     const company_id = req.params.company_id;
 
+    console.log(permissions)
+
     // Check permissions
     if (!permissions.includes("company.read")) return res.redirect("/");
 

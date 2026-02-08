@@ -63,11 +63,12 @@
                                 {% for type in perm.permissions %}
                                 <label
                                     class="permission-card group input-glass p-4 flex items-start gap-4 cursor-pointer">
-                                    <input type="checkbox" class="custom-checkbox perm-check" name="permissions_data" value="{{ type.key }}">
+                                    <input type="checkbox" class="custom-checkbox perm-check" name="permissions_data"
+                                        value="{{ type.key }}">
                                     <div class="flex flex-col">
-                                        <span class="text-sm font-semibold text-gray-200 group-hover:text-white">{{ type.label }}</span>
-                                        <span
-                                            class="text-[10px] text-gray-600 mt-1">{{ type.key }}</span>
+                                        <span class="text-sm font-semibold text-gray-200 group-hover:text-white">{{
+                                            type.label }}</span>
+                                        <span class="text-[10px] text-gray-600 mt-1">{{ type.key }}</span>
                                     </div>
                                 </label>
                                 {% endfor %}
@@ -93,9 +94,14 @@
                         <div>
                             <label
                                 class="block text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-wider">Descripción</label>
-                            <textarea
-                                class="input-glass"
-                                rows="5" placeholder="Añadir descripción (opcional)" name="description"></textarea>
+                            <textarea class="input-glass" rows="5" placeholder="Añadir descripción (opcional)"
+                                name="description"></textarea>
+                        </div>
+                        <div>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" name="hidden" class="custom-checkbox">
+                                <span class="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">Ocultar Rol</span>
+                            </label>
                         </div>
                     </div>
                 </div>

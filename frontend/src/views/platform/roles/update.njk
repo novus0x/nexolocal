@@ -105,6 +105,12 @@
                                 class="input-glass"
                                 rows="5" placeholder="Añadir descripción (opcional)" name="description">{{ permissions_selected_data.description }}</textarea>
                         </div>
+                        <div>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" name="hidden" class="custom-checkbox" {% if permissions_selected_data.hidden %} checked {% endif %}>
+                                <span class="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">Ocultar Rol</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
