@@ -73,6 +73,13 @@
         ]
       },
       {
+        "label": "Suppliers",
+        "permissions": [
+          { "key": "company.suppliers.read", "label": "View suppliers" },
+          { "key": "company.suppliers.create", "label": "Create supplier" }
+        ]
+      },
+      {
         "label": "Products",
         "permissions": [
           { "key": "company.products.read", "label": "View products" },

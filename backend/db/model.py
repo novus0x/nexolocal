@@ -1,5 +1,5 @@
 ########## Models ##########
-from db.models.Supplier import Supplier
+from db.models.Supplier import Supplier_Type, Supplier
 from db.models.Category import Category
 from db.models.Business import Business
 from db.models.Taxes import Tax_Profile, Tax_Document, Tax_Document_Item, Tax_Period

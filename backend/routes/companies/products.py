@@ -47,6 +47,7 @@ async def get_products(request: Request, page = 1, type_of = "all", q = None, db
     stock_value = 0
     low_threshold = 1.43
 
+    ### Params ###
     page = is_int(page)
 
     if not page:
@@ -188,13 +189,14 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=message)
     
     ### Check Cash Session --> OPEN ###
-    cash_session = db.query(Cash_Session).filter(
+    """cash_session = db.query(Cash_Session).filter(
         Cash_Session.status == Cash_Session_Status.OPEN,
         Cash_Session.company_id == company_id,
     ).first()
 
     if not cash_session:
         return custom_response(status_code=400, message=translate(lang, "validation.no_open_cash_session"))
+    """
 
     ### Get Body ###
     product_check, error = await read_json_body(request)
@@ -347,6 +349,8 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
             if product_check.tax_include == "1":
                 new_expense.tax_amount = 0
 
+        add_db(db, new_expense)
+        """
         new_cash_movement = Cash_Movement(
             id = get_uuid(db, Cash_Movement),
             type = Cash_Movement_Type.EXPENSE,
@@ -359,8 +363,8 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
             company_id = company_id
         )
 
-        add_db(db, new_expense)
         add_db(db, new_cash_movement)
+        """
 
         new_product_batch.expense_id = new_expense.id
     
@@ -390,6 +394,7 @@ async def import_products(request: Request, file: UploadFile = File(...), db: Se
         return custom_response(status_code=400, message=message)
     
     ### Check Cash Session --> OPEN ###
+    """
     cash_session = db.query(Cash_Session).filter(
         Cash_Session.status == Cash_Session_Status.OPEN,
         Cash_Session.company_id == company_id,
@@ -397,6 +402,7 @@ async def import_products(request: Request, file: UploadFile = File(...), db: Se
 
     if not cash_session:
         return custom_response(status_code=400, message=translate(lang, "validation.no_open_cash_session"))
+    """
 
     ### Check Valid File ###
     if not file.filename.lower().endswith(".csv"):
@@ -581,6 +587,7 @@ async def import_products(request: Request, file: UploadFile = File(...), db: Se
                 company_id = company_id
             )
 
+            """
             new_cash_movement = Cash_Movement(
                 id = new_cash_movement_id,
                 type = Cash_Movement_Type.EXPENSE,
@@ -592,18 +599,19 @@ async def import_products(request: Request, file: UploadFile = File(...), db: Se
                 cash_session_id = cash_session.id,
                 company_id = company_id
             )
+            """
 
             product_batch.expense_id = new_expense.id
 
             expenses.append(new_expense)
-            new_cash_movements.append(new_cash_movement)
+            # new_cash_movements.append(new_cash_movement)
         
         product_batchs.append(product_batch)
 
     add_multiple_db(db, products)
     add_multiple_db(db, expenses)
     add_multiple_db(db, product_batchs)
-    add_multiple_db(db, new_cash_movements)
+    # add_multiple_db(db, new_cash_movements)
 
     return custom_response(status_code=200, message=translate(lang, "company.products.import.success"), data={
         "products_no_created": products_no_created
@@ -745,6 +753,7 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
         return custom_response(status_code=400, message=message)
     
     ### Check Cash Session --> OPEN ###
+    """
     cash_session = db.query(Cash_Session).filter(
         Cash_Session.status == Cash_Session_Status.OPEN,
         Cash_Session.company_id == company_id,
@@ -752,6 +761,7 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
 
     if not cash_session:
         return custom_response(status_code=400, message=translate(lang, "validation.no_open_cash_session"))
+    """
 
     ### Get Body ###
     product_check, error = await read_json_body(request)
@@ -848,6 +858,7 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
 
         new_batch.expense_id = new_expense.id
 
+        """
         new_cash_movement = Cash_Movement(
             id = get_uuid(db, Cash_Movement),
             type = Cash_Movement_Type.EXPENSE,
@@ -859,9 +870,10 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
             company_id = company_id,
             cash_session_id = cash_session.id
         )
+        """
 
         add_db(db, new_expense)
-        add_db(db, new_cash_movement)
+        # add_db(db, new_cash_movement)
 
     update_db(db)
     add_db(db, new_batch)

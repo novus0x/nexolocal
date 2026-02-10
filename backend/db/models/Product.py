@@ -61,6 +61,7 @@ class Product(Base):
     ## Relationships ##
     supplier = relationship("Supplier")
     product_image = relationship("Product_Image")
+    
     company = relationship("Company", back_populates="products")
     category = relationship("Category", back_populates="products")
     sale_items = relationship("Sale_Item", back_populates="product")

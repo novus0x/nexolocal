@@ -55,9 +55,9 @@ class Expense(Base):
 
     ## Relationships ##
     approver = relationship("User")
-
+    supplier = relationship("Supplier")
+    
     company = relationship("Company", back_populates="expenses")
-    supplier = relationship("Supplier", back_populates="expenses")
 
 ##### Expense Recurring #####
 class Expense_Recurring(Base):

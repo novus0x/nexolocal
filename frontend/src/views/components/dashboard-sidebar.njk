@@ -146,6 +146,15 @@
                 <span class="sidebar-text">Equipo</span>
             </a>
             {% endif %}
+            {% if "company.suppliers.read" in permissions %}
+            <a href="/companies/{{ company_information.id }}/suppliers"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-truck-field text-xl"></i>
+                <span class="sidebar-text">Provedores</span>
+                <span
+                    class="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-linear-to-r from-orange-500 to-red-500 text-white shadow-md shadow-orange-500/30 group-hover:scale-105 transition">Nuevo</span>
+            </a>
+            {% endif %}
             {% if "company.products.read" in permissions %}
             <a href="/companies/{{ company_information.id }}/products"
                 class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">

@@ -23,6 +23,7 @@ import platform_analytics from './routes/platform/analytics.js';
 import companies_main from './routes/companies/main.js';
 import companies_cash from './routes/companies/cash.js';
 import companies_finance from './routes/companies/finance.js';
+import companies_suppliers from './routes/companies/suppliers.js';
 import companies_products from './routes/companies/products.js';
 import companies_sales from './routes/companies/sales.js'
 import companies_settings from './routes/companies/settings.js';
@@ -98,6 +99,7 @@ app.use("/platform/analytics", platform_analytics);
 
 app.use("/companies", companies_main);
 app.use("/companies/:company_id/cash", companies_cash);
+app.use("/companies/:company_id/suppliers", companies_suppliers);
 app.use("/companies/:company_id/products", companies_products);
 app.use("/companies/:company_id/finance", companies_finance);
 app.use("/companies/:company_id/sales", companies_sales);

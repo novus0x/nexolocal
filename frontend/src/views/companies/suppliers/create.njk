@@ -1,0 +1,190 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+
+<style>
+    .type-radio:checked+label {
+        border-color: var(--accent);
+        background: #ff4d001a;
+        color: white;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+    }
+
+    input:checked+.slider {
+        background-color: var(--accent);
+    }
+
+    input:checked+.slider:before {
+        transform: translateX(20px);
+    }
+</style>
+
+<main class="overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 justify-between flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/companies/{{ company_information.id }}"
+                            class="hover:text-white transition-colors">Negocio</a>
+                    </li>
+                    <li class="inline-flex items-center">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/companies/{{ company_information.id }}/suppliers"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Provedores</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Nuevo</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="glass-card rounded-3xl overflow-hidden">
+            <div class="p-8 border-b border-white/5 bg-white/2">
+                <h2 class="text-2xl font-bold text-white tracking-tight">Registrar nuevo Proveedor</h2>
+            </div>
+
+            <form class="p-8 space-y-8" action="/companies/{{ company_information.id }}/suppliers/create" method="POST">
+                <section>
+                    <div class="flex items-center gap-2 mb-6">
+                        <span class="h-1 w-8 bg-orange-500 rounded-full"></span>
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-orange-500">Identidad</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="input-group md:col-span-2">
+                            <label for="name">Nombre Comercial <span class="text-orange-500">*</span></label>
+                            <input type="text" id="name" placeholder="Ej: Tech Solutions Global" class="input-glass" name="name"
+                                required>
+                        </div>
+                        <div class="input-group">
+                            <label for="reason_name">Razón Social (Opcional)</label>
+                            <input type="text" id="reason_name" placeholder="Nombre legal completo" class="input-glass" name="reason_name">
+                        </div>
+                        <div class="input-group">
+                            <label for="document">Documento (RUC / NIT) (Opcional)</label>
+                            <input type="text" id="document" placeholder="00000000000" class="input-glass" name="document">
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="flex items-center gap-2 mb-6">
+                        <span class="h-1 w-8 bg-blue-500 rounded-full"></span>
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-blue-500">Canales de Comunicación
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="input-group">
+                            <label for="email">Correo Electrónico (Opcional)</label>
+                            <input type="email" id="email" placeholder="contacto@proveedor.com" class="input-glass" name="email">
+                        </div>
+                        <div class="input-group">
+                            <label for="phone">Teléfono de Contacto (Opcional)</label>
+                            <input type="tel" id="phone" placeholder="+51 900 000 000" class="input-glass" name="phone">
+                        </div>
+                        <div class="input-group">
+                            <label for="domain">Dominio / Sitio Web (Opcional)</label>
+                            <input type="text" id="domain" placeholder="https://www.proveedor.com" class="input-glass" name="domain">
+                        </div>
+                        <div class="input-group">
+                            <label for="address">Dirección Física (Opcional)</label>
+                            <input type="text" id="address" placeholder="Av. Principal 123, Lima" class="input-glass" name="address">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="-mx-8 px-8">
+                    <div class="flex flex-col md:flex-row justify-between gap-8">
+
+                        <div class="flex-1">
+                            <label class="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-4 block">Tipo
+                                de Proveedor (Clasificación)</label>
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                                <div>
+                                    <input type="radio" name="supplier_type" id="type_product" value="product"
+                                        class="hidden type-radio" checked>
+                                    <label for="type_product"
+                                        class="flex flex-col items-center justify-center p-3 border border-white/10 rounded-xl cursor-pointer hover:bg-white/5 transition-all text-sm text-gray-400">
+                                        <span class="font-medium">Producto</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="supplier_type" id="type_service" value="service"
+                                        class="hidden type-radio">
+                                    <label for="type_service"
+                                        class="flex flex-col items-center justify-center p-3 border border-white/10 rounded-xl cursor-pointer hover:bg-white/5 transition-all text-sm text-gray-400">
+                                        <span class="font-medium">Servicio</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="supplier_type" id="type_mixed" value="mixed"
+                                        class="hidden type-radio">
+                                    <label for="type_mixed"
+                                        class="flex flex-col items-center justify-center p-3 border border-white/10 rounded-xl cursor-pointer hover:bg-white/5 transition-all text-sm text-gray-400">
+                                        <span class="font-medium">Mixto</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="supplier_type" id="type_other" value="other"
+                                        class="hidden type-radio">
+                                    <label for="type_other"
+                                        class="flex flex-col items-center justify-center p-3 border border-white/10 rounded-xl cursor-pointer hover:bg-white/5 transition-all text-sm text-gray-400">
+                                        <span class="font-medium">Otro</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col justify-center items-center md:items-end px-6">
+                            <label class="text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-2">Estado
+                                Inicial</label>
+                            <div class="flex items-center gap-3">
+                                <label class="flex items-center gap-3 cursor-pointer group">
+                                    <input type="checkbox" name="is_active" class="custom-checkbox" checked>
+                                    <span
+                                        class="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">Activo</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="flex flex-col md:flex-row items-center justify-end gap-4 pt-4">
+                    <a href="/companies/{{ company_information.id }}/suppliers"
+                        class="w-full md:w-auto px-8 py-3 rounded-xl text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer">
+                        Cancelar
+                    </a>
+                    <button type="submit"
+                        class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                        Crear Proveedor
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</main>
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

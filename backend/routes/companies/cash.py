@@ -60,7 +60,7 @@ async def open(request: Request, db: Session = Depends(get_db)):
 
     initial_cash = is_float(check_cash.initial_cash)
 
-    if not initial_cash:
+    if initial_cash == None:
         return custom_response(status_code=400, message=translate(lang, "company.cash.error.initial_cash"))
 
     new_cash_session = Cash_Session(

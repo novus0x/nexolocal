@@ -178,7 +178,8 @@
                         <p class="text-[10px] text-gray-500 font-bold uppercase">Egresos</p>
                         <p class="text-lg  font-bold mt-1">- S/ {{ company.cash.out }}</p>
                     </div>
-                    <div class="bg-(--accent)/5 border border-(--accent)/20 p-4 rounded-xl border-l-4 border-l-(--accent)">
+                    <div
+                        class="bg-(--accent)/5 border border-(--accent)/20 p-4 rounded-xl border-l-4 border-l-(--accent)">
                         <p class="text-[10px] text-(--accent) font-bold uppercase">Saldo Actual</p>
                         <p class="text-xl  font-bold mt-1">S/ {{ company.cash.current }}</p>
                     </div>
@@ -343,11 +344,13 @@
                 <div class="mt-6 pt-6 border-t border-[#30363D]">
                     <div class="flex justify-between text-xs mb-2">
                         <span class="text-gray-400">Total Efectivo Acum.</span>
-                        <span class="font-bold text-white">S/ {{ company.metrics.month_cash_sessions.total_cash_month }}</span>
+                        <span class="font-bold text-white">S/ {{ company.metrics.month_cash_sessions.total_cash_month
+                            }}</span>
                     </div>
                     <div class="flex justify-between text-xs">
                         <span class="text-gray-400">Frecuencia de Cierre</span>
-                        <span class="font-bold text-green-500">{{ company.metrics.month_cash_sessions.frequency }}% (Diario)</span>
+                        <span class="font-bold text-green-500">{{ company.metrics.month_cash_sessions.frequency }}%
+                            (Diario)</span>
                     </div>
                 </div>
             </div>
@@ -428,7 +431,8 @@
                             <div class="relative group">
                                 <span
                                     class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-semibold text-xl group-focus-within:text-orange-500 transition-colors">S/</span>
-                                <input type="number" id="amount" step="0.01" placeholder="0.00"
+                                <input type="text" pattern="-?[0-9]*[.,]?[0-9]{0,2}" id="amount" step="0.01"
+                                    placeholder="0.00"
                                     class="w-full bg-zinc-950 border border-zinc-800 text-white rounded-xl py-4 pl-10 pr-4 text-3xl focus:border-orange-500 transition-all"
                                     required>
                             </div>
@@ -464,75 +468,75 @@
 
 <script>
     function init_chart() {
-        const weekly_performance = {{ company.metrics.weekly_performance | dump | safe }};
+        const weekly_performance = {{ company.metrics.weekly_performance | dump | safe
+    }};
 
-        const labels = weekly_performance.map(d => d.day);
-        const sales_data = weekly_performance.map(d => d.sales);
-        const expenses_data = weekly_performance.map(d => d.expenses);
+    const labels = weekly_performance.map(d => d.day);
+    const sales_data = weekly_performance.map(d => d.sales);
+    const expenses_data = weekly_performance.map(d => d.expenses);
 
-        const ctx = document.getElementById('weekly_performance_chart').getContext('2d');
+    const ctx = document.getElementById('weekly_performance_chart').getContext('2d');
 
-        Chart.defaults.color = '#8B949E';
-        Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#8B949E';
+    Chart.defaults.font.family = "'Inter', sans-serif";
 
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Ventas',
-                        data: sales_data,
-                        backgroundColor: '#FD420A',
-                        borderRadius: 6,
-                        barThickness: 12,
-                    },
-                    {
-                        label: 'Gastos',
-                        data: expenses_data,
-                        backgroundColor: '#30363D',
-                        borderRadius: 6,
-                        barThickness: 12,
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#151B23',
-                        padding: 12,
-                        titleFont: { size: 12, weight: 'bold' },
-                        bodyFont: { size: 12 },
-                        borderColor: '#30363D',
-                        borderWidth: 1,
-                        displayColors: false
-                    }
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Ventas',
+                    data: sales_data,
+                    backgroundColor: '#FD420A',
+                    borderRadius: 6,
+                    barThickness: 12,
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
-                        ticks: { callback: (v) => 'S/ ' + v }
-                    },
-                    x: {
-                        grid: { display: false }
-                    }
-                },
-                animation: {
-                    duration: 2000,
-                    easing: 'easeOutQuart'
+                {
+                    label: 'Gastos',
+                    data: expenses_data,
+                    backgroundColor: '#30363D',
+                    borderRadius: 6,
+                    barThickness: 12,
                 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#151B23',
+                    padding: 12,
+                    titleFont: { size: 12, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    borderColor: '#30363D',
+                    borderWidth: 1,
+                    displayColors: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                    ticks: { callback: (v) => 'S/ ' + v }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeOutQuart'
             }
-        });
+        }
+    });
     }
 
     init_chart();
-</script>
 
-<script>
+    //
     let already_check = false;
     const company_id = {{ company_information.id | dump | safe }};;
 
@@ -632,6 +636,18 @@
         }
     }
 
+    document.getElementById("amount").addEventListener("input", (e) => {
+        let v = e.target.value;
+
+        // solo un -
+        if (v.indexOf("-") > 0) {
+            e.target.value = v.replace(/-/g, "");
+            return;
+        }
+
+        // normalizar coma a punto
+        e.target.value = v.replace(",", ".");
+    });
 </script>
 
 {% include "components/dashboard-footer.njk" %}
