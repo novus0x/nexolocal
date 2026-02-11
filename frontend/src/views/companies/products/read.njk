@@ -123,6 +123,15 @@
                             <span class="text-[10px] font-bold text-gray-500 uppercase">Nombre Comercial</span>
                             <p>{{ product.name }}</p>
                         </div>
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-bold text-gray-500 uppercase">Provedor</span>
+                            {% if supplier.name %}
+                            <p>{{ supplier.name }}</p>
+                            <p class="text-xs">RUC: <span class="text-gray-400">{% if supplier.document %} {{ supplier.document }} {% else %} ----- {% endif %}</span></p>
+                            {% else %}
+                            <p>-----</p>
+                            {% endif %}
+                        </div>
                         <div class="col-span-2 space-y-2">
                             <span class="text-[10px] font-bold text-gray-500 uppercase">Descripción</span>
                             <p>{{ product.description }}</p>
@@ -131,7 +140,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 gap-8">
-                {% if not product.is_service and not product.is_bulk %}
+                    {% if not product.is_service and not product.is_bulk %}
                     <div class="glass-card p-8 col-span-2">
                         <div class="flex items-center gap-3 mb-6">
                             <div

@@ -1,0 +1,470 @@
+{% extends "layouts/main.njk" %}
+
+{% block title %}NexoLocal{% endblock %}
+
+{% block content %}
+
+<style>
+    .hero-glow {
+        position: absolute;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80vw;
+        height: 50vh;
+        background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+        z-index: -1;
+        filter: blur(80px);
+    }
+
+    .plan-carousel {
+        display: flex;
+        gap: 2rem;
+        transition: transform 0.6s cubic-bezier(.22, 1, .36, 1);
+        will-change: transform;
+    }
+
+    .plan-card {
+        min-width: 320px;
+        width: 320px;
+        flex-shrink: 0;
+        transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    .plan-locked {
+        filter: grayscale(1);
+        opacity: 0.35;
+        pointer-events: none;
+    }
+
+    .plan-active {
+        transform: scale(1.08);
+        opacity: 1;
+        z-index: 10;
+    }
+
+    .plan-inactive {
+        transform: scale(0.95);
+        opacity: 0.6;
+    }
+
+    .nav-arrow {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .nav-arrow:hover {
+        background: white;
+        color: black;
+    }
+
+    .check-icon {
+        color: var(--accent);
+    }
+
+    .problem-item {
+        border-left: 2px solid #ef4444;
+        padding-left: 1.5rem;
+    }
+
+    .solution-item {
+        border-left: 2px solid #22c55e;
+        padding-left: 1.5rem;
+    }
+</style>
+
+<nav class="fixed top-0 w-full z-100 border-b border-white/5 backdrop-blur-lg">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <a href="#" class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center font-bold text-black italic">
+                <img src="/public/img/logo.svg">
+            </div>
+            <span class="text-xl font-bold tracking-tighter">Nexo<span class="text-(--accent)">Local</span>
+        </a>
+        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
+            <a href="#que-es" class="hover:text-white transition-colors">¿Qué es?</a>
+            <a href="#solucion" class="hover:text-white transition-colors">Solución</a>
+            <a href="#precios" class="hover:text-white transition-colors">Precios</a>
+            <a href="#contacto"
+                class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">Empieza
+                ahora</a>
+        </div>
+    </div>
+</nav>
+
+<main class="relative">
+    <div class="hero-glow"></div>
+
+    <section class="pt-48 pb-32 text-center px-6">
+        <h1 class="text-5xl md:text-8xl font-extrabold tracking-tighter mb-8">
+            Gestiona tu negocio <br> desde un solo lugar
+        </h1>
+        <p class="max-w-2xl mx-auto text-zinc-400 text-lg md:text-xl font-medium mb-12">
+            Ventas, inventario y caja en una sola plataforma para gestionar tu negocio de forma clara y ordenada.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="#contacto"
+                class="w-full sm:w-auto px-10 py-5 bg-(--accent) text-white font-black rounded-2xl text-sm uppercase tracking-widest shadow-lg shadow-(--accent)/20 hover:scale-105 transition-all">
+                Empieza ahora
+            </a>
+            <a href="#que-es"
+                class="w-full sm:w-auto px-10 py-5 bg-white/5 text-white font-black rounded-2xl text-sm uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all">
+                Ver cómo funciona
+            </a>
+        </div>
+    </section>
+
+    <section id="que-es" class="max-w-7xl mx-auto px-6 py-32 grid md:grid-cols-2 gap-20 items-center">
+        <div class="glass-card p-12 rounded-[3rem]">
+            <div class="w-16 h-16 bg-orange-500/20 rounded-2xl flex items-center justify-center mb-8">
+                <i class="fa-regular fa-building text-(--accent) text-3xl"></i>
+                </svg>
+            </div>
+            <h2 class="text-4xl font-extrabold mb-6 tracking-tight italic">¿Qué es NexoLocal?</h2>
+            <p class="text-zinc-400 text-lg leading-relaxed mb-6 font-medium">
+                NexoLocal es una plataforma digital que ayuda a <span class="text-white">emprendedores y negocios</span>
+                a organizar sus ventas,
+                controlar su inventario y llevar su caja de forma clara y sencilla.
+            </p>
+            <p class="text-zinc-500 text-md leading-relaxed">
+                Está diseñada para el día a día del negocio: <span class="text-white">simple, rápida y sin
+                    complicaciones.</span> No necesitas ser experto en computación para usarla.
+            </p>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-4">
+                <div class="glass-card p-6 rounded-3xl text-center">
+                    <span class="block text-2xl mb-2">🏪</span>
+                    <span class="text-xs font-bold text-zinc-400">Bodegas</span>
+                </div>
+                <div class="glass-card p-6 rounded-3xl text-center mt-4 bg-orange-500/5 border-orange-500/20">
+                    <span class="block text-2xl mb-2">☕</span>
+                    <span class="text-xs font-bold text-zinc-400">Cafeterías</span>
+                </div>
+            </div>
+            <div class="space-y-4 pt-12">
+                <div class="glass-card p-6 rounded-3xl text-center">
+                    <span class="block text-2xl mb-2">🛠️</span>
+                    <span class="text-xs font-bold text-zinc-400">Servicios</span>
+                </div>
+                <div class="glass-card p-6 rounded-3xl text-center">
+                    <span class="block text-2xl mb-2">🎨</span>
+                    <span class="text-xs font-bold text-zinc-400">Emprendimientos</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="solucion" class="py-32 bg-white/1">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12">
+                <!-- Antes -->
+                <div class="p-10">
+                    <h3 class="text-2xl font-bold mb-10 text-red-500 italic uppercase tracking-widest">¿Te suena
+                        familiar?</h3>
+                    <div class="space-y-6">
+                        <div class="problem-item text-zinc-400 font-medium">Anotas ventas en cuadernos o notas del
+                            celular</div>
+                        <div class="problem-item text-zinc-400 font-medium">No sabes exactamente cuánto ganas al día
+                        </div>
+                        <div class="problem-item text-zinc-400 font-medium">Tu inventario nunca cuadra</div>
+                        <div class="problem-item text-zinc-400 font-medium">Se te acaba el stock sin darte cuenta</div>
+                        <div class="problem-item text-zinc-400 font-medium">La caja no coincide al final del día</div>
+                    </div>
+                </div>
+                <!-- Después -->
+                <div class="glass-card p-10 rounded-[2.5rem] border-green-500/20 bg-green-500/2">
+                    <h3 class="text-2xl font-bold mb-10 text-green-500 italic uppercase tracking-widest">Con NexoLocal
+                        tienes control</h3>
+                    <div class="space-y-6">
+                        <div class="solution-item text-zinc-100 font-medium">Ventas registradas automáticamente</div>
+                        <div class="solution-item text-zinc-100 font-medium">Control de inventario en tiempo real</div>
+                        <div class="solution-item text-zinc-100 font-medium">Caja diaria clara y ordenada</div>
+                        <div class="solution-item text-zinc-100 font-medium">Reportes simples y fáciles de entender
+                        </div>
+                        <div class="solution-item text-zinc-100 font-medium">Menos errores, más control</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FUNCIONALIDADES -->
+    <section class="max-w-7xl mx-auto px-6 py-32">
+        <div class="text-center mb-20">
+            <h2 class="text-4xl font-bold tracking-tighter mb-4">Todo lo que necesitas para empezar</h2>
+            <p class="text-zinc-500 font-medium">Sin funciones innecesarias. Solo lo que realmente importa para tu
+                negocio.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-card p-8 rounded-3xl">
+                <div class="text-3xl mb-4">📦</div>
+                <h4 class="text-lg font-bold mb-2">Gestión de Inventario</h4>
+                <p class="text-zinc-500 text-sm leading-relaxed">Controla stock por unidad o granel. Alertas de bajo
+                    inventario automáticas.</p>
+            </div>
+            <div class="glass-card p-8 rounded-3xl">
+                <div class="text-3xl mb-4">💰</div>
+                <h4 class="text-lg font-bold mb-2">Ventas y Caja</h4>
+                <p class="text-zinc-500 text-sm leading-relaxed">Registro diario de movimientos. Visualiza cuánto
+                    debería haber en caja y detecta fácilmente cualquier diferencia.</p>
+            </div>
+            <div class="glass-card p-8 rounded-3xl">
+                <div class="text-3xl mb-4">📊</div>
+                <h4 class="text-lg font-bold mb-2">Reportes Simples</h4>
+                <p class="text-zinc-500 text-sm leading-relaxed">Mira tus ganancias netas del día, semana o mes en un
+                    solo vistazo.</p>
+            </div>
+            {# <div class="glass-card p-8 rounded-3xl">
+                <div class="text-3xl mb-4">🧾</div>
+                <h4 class="text-lg font-bold mb-2">Boletas y Facturas</h4>
+                <p class="text-zinc-500 text-sm mb-4 leading-relaxed">Emisión electrónica rápida.</p>
+                <span class="text-[10px] font-bold bg-white/10 px-2 py-1 rounded text-orange-500">POR IMPLEMENTAR</span>
+            </div> #}
+            <div class="glass-card p-8 rounded-3xl">
+                <div class="text-3xl mb-4">👤</div>
+                <h4 class="text-lg font-bold mb-2">Acceso Seguro</h4>
+                <p class="text-zinc-500 text-sm leading-relaxed">Un usuario administrador con control total de la
+                    información confidencial.</p>
+            </div>
+            <div class="glass-card p-8 rounded-3xl">
+                <div class="text-3xl mb-4">🌐</div>
+                <h4 class="text-lg font-bold mb-2">Multi-dispositivo</h4>
+                <p class="text-zinc-500 text-sm leading-relaxed">Entra desde tu celular, tablet o PC. Tus datos siempre
+                    están en la nube.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="precios" class="max-w-7xl mx-auto px-6 py-32 overflow-hidden">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+            <div class="max-w-xl">
+                <h2 class="text-xs font-black uppercase tracking-[0.4em] text-orange-500 mb-4">Pricing</h2>
+                <h3 class="text-5xl font-extrabold italic tracking-tight">Un plan claro, sin letras pequeñas</h3>
+            </div>
+            <div class="flex gap-4">
+                <button class="nav-arrow" id="prevBtn">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M15 19l-7-7 7-7" stroke-width="2.5"></path>
+                    </svg>
+                </button>
+                <button class="nav-arrow" id="nextBtn">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 5l7 7-7 7" stroke-width="2.5"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="relative">
+            <div class="plan-carousel" id="carousel">
+                <div
+                    class="plan-card plan-active glass-card p-10 rounded-[2.5rem] border-orange-500/50 relative shadow-2xl shadow-orange-500/10 scale-105 z-10 bg-black">
+                    <div
+                        class="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-black text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">
+                        Recomendado</div>
+                    <div class="text-xs font-bold uppercase mb-4 text-orange-500">Sugerido</div>
+                    <div class="text-4xl font-bold mb-2 italic">Emprendedor</div>
+                    <div class="flex items-baseline gap-1 mb-8">
+                        <span class="text-5xl font-black">S/ 39</span>
+                        <span class="text-zinc-500 text-xs font-bold uppercase">/ mes</span>
+                    </div>
+                    <div class="h-px bg-white/10 w-full mb-8"></div>
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-center gap-3 text-sm font-semibold">
+                            <span class="check-icon">✓</span> 1 usuario administrador
+                        </li>
+                        <li class="flex items-center gap-3 text-sm font-semibold">
+                            <span class="check-icon">✓</span> Ventas ilimitadas
+                        </li>
+                        <li class="flex items-center gap-3 text-sm font-semibold">
+                            <span class="check-icon">✓</span> Control de inventario
+                        </li>
+                        <li class="flex items-center gap-3 text-sm font-semibold">
+                            <span class="check-icon">✓</span> Caja y reportes diarios
+                        </li>
+                        <li class="flex items-center gap-3 text-sm font-semibold">
+                            <span class="check-icon">✓</span> Soporte
+                        </li>
+                    </ul>
+                    <a href="#contacto"
+                        class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">Lo quiero!</a>
+                </div>
+
+                <div class="plan-card glass-card p-10 rounded-[2.5rem] plan-locked">
+                    <div class="text-xs font-bold uppercase mb-4 opacity-50">Próximamente</div>
+                    <div class="text-4xl font-bold mb-6 italic">Próximamente</div>
+                    <div class="h-px bg-white/10 w-full mb-8"></div>
+                    <div class="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4 italic">Próximamente
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <p class="text-center mt-16 text-zinc-500 text-sm font-medium">Sin contratos largos. Cancela cuando quieras.</p>
+    </section>
+
+    <!-- CÓMO FUNCIONA -->
+    <section class="max-w-7xl mx-auto px-6 py-32">
+        <h2 class="text-4xl font-bold text-center mb-20 tracking-tighter italic">Empieza en minutos</h2>
+        <div class="grid md:grid-cols-3 gap-12 relative">
+            <!-- Connectors -->
+            <div
+                class="hidden md:block absolute top-1/2 left-1/4 right-1/4 h-px border-t border-dashed border-white/20 -z-10">
+            </div>
+
+            <div class="text-center">
+                <div
+                    class="w-16 h-16 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mx-auto mb-6 text-xl font-bold">
+                    1</div>
+                <h4 class="font-bold mb-2">Regístrate</h4>
+                <p class="text-zinc-500 text-sm">Crea tu cuenta en NexoLocal de forma segura.</p>
+            </div>
+            <div class="text-center">
+                <div
+                    class="w-16 h-16 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mx-auto mb-6 text-xl font-bold">
+                    2</div>
+                <h4 class="font-bold mb-2">Configura tu negocio</h4>
+                <p class="text-zinc-500 text-sm">Añade tus productos y define tus precios.</p>
+            </div>
+            <div class="text-center">
+                <div
+                    class="w-16 h-16 bg-orange-500 text-black rounded-full flex items-center justify-center mx-auto mb-6 text-xl font-black">
+                    3</div>
+                <h4 class="font-bold mb-2">Empieza a vender</h4>
+                <p class="text-zinc-500 text-sm">Controla todo desde tu dashboard principal.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEGURIDAD -->
+    <section class="max-w-5xl mx-auto px-6 py-32">
+        <div class="glass-card p-12 rounded-[3rem] bg-linear-to-br from-white/2 to-transparent">
+            <div class="flex flex-col md:flex-row gap-12 items-center">
+                <div class="md:w-1/2">
+                    <h2 class="text-3xl font-extrabold mb-6 tracking-tight italic">Tu información está segura</h2>
+                    <p class="text-zinc-400 font-medium mb-8">NexoLocal protege la información de tu negocio y está
+                        diseñado para operar de forma segura y estable.</p>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3 text-sm font-bold text-zinc-300">🔒 Datos protegidos</li>
+                        <li class="flex items-center gap-3 text-sm font-bold text-zinc-300">☁️ Plataforma en la nube
+                        </li>
+                        <li class="flex items-center gap-3 text-sm font-bold text-zinc-300">🛠️ Soporte constante</li>
+                    </ul>
+                </div>
+                <div class="md:w-1/2 grid grid-cols-2 gap-4">
+                    <div class="aspect-square bg-white/5 rounded-3xl flex items-center justify-center text-4xl">🔐</div>
+                    <div class="aspect-square bg-white/5 rounded-3xl flex items-center justify-center text-4xl">💾</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contacto" class="max-w-7xl mx-auto px-6 py-40 text-center">
+        <h2 class="text-5xl md:text-7xl font-extrabold tracking-tighter mb-8 italic">Empieza a ordenar <br> tu negocio
+            <span class="text-(--accent) italic">hoy</span>
+        </h2>
+        <p class="text-zinc-400 text-xl font-medium mb-12 max-w-xl mx-auto">Menos desorden, más control. <br> NexoLocal
+            crece contigo.</p>
+        <a href="/auth"
+            class="inline-block bg-(--accent) hover:bg-(--accent-hover) items-center justify-center gap-2 shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer px-16 py-7 text-white font-black rounded-4xl text-lg uppercase tracking-widest hover:scale-105 transition-all">
+            Empieza ahora
+        </a>
+    </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="border-t border-white/5 py-20 bg-black">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12">
+        <div class="col-span-2">
+            <div class="flex items-center gap-2 mb-6">
+                <div class="w-10 h-10 rounded flex items-center justify-center">
+                    <img src="/public/img/logo.svg">
+                </div>
+                <span class="text-lg font-bold">Nexo<span class="text-(--accent)">Local</span></span>
+            </div>
+            <p class="text-zinc-500 text-sm max-w-sm mb-6">Plataforma de gestión para negocios que buscan
+                digitalizarse de forma simple y eficiente.</p>
+            <p class="text-zinc-600 text-xs">&copy; 2026 NexoLocal. Todos los derechos reservados.</p>
+        </div>
+        <div>
+            <h5 class="font-bold mb-6 uppercase text-xs tracking-widest text-zinc-300">Legal</h5>
+            <ul class="space-y-4 text-sm text-zinc-500">
+                <li><a href="/legal/terms" target="_blank" class="hover:text-white transition-colors">Términos y
+                        condiciones</a></li>
+                {# <li><a href="#" class="hover:text-white transition-colors">Política de privacidad</a></li> #}
+            </ul>
+        </div>
+        <div>
+            <h5 class="font-bold mb-6 uppercase text-xs tracking-widest text-zinc-300">Comunidad</h5>
+            <ul class="space-y-4 text-sm text-zinc-500">
+                {# <li><a href="#" class="hover:text-white transition-colors">Contacto / Soporte</a></li> #}
+                {# <li><a href="#" class="hover:text-white transition-colors">Facebook</a></li> #}
+            </ul>
+        </div>
+    </div>
+</footer>
+
+<script>
+const carousel = document.getElementById('carousel');
+const cards = document.querySelectorAll('.plan-card');
+const nextBtn = document.getElementById('nextBtn');
+const prevBtn = document.getElementById('prevBtn');
+
+let currentIndex = 1; // Emprendedor
+const cardWidth = 320 + 32; // ancho + gap
+
+function updateCarousel() {
+    const offset = -(currentIndex * cardWidth) + cardWidth;
+    carousel.style.transform = `translateX(${offset}px)`;
+
+    cards.forEach((card, index) => {
+        card.classList.remove('active', 'inactive');
+        if (index === currentIndex) {
+            card.classList.add('active');
+        } else {
+            card.classList.add('inactive');
+        }
+    });
+}
+
+// Flecha derecha
+nextBtn.addEventListener('click', () => {
+    if (currentIndex < cards.length - 1) {
+        currentIndex++;
+        updateCarousel();
+    } else {
+        bounce(-1);
+    }
+});
+
+// Flecha izquierda
+prevBtn.addEventListener('click', () => {
+    if (currentIndex > 0) {
+        currentIndex--;
+        updateCarousel();
+    } else {
+        bounce(1);
+    }
+});
+
+function bounce(direction) {
+    carousel.style.transform += ` translateX(${direction * 20}px)`;
+    setTimeout(updateCarousel, 150);
+}
+
+// Init
+updateCarousel();
+</script>
+
+
+{% endblock %}

@@ -9,7 +9,7 @@ from sqlalchemy import func, desc, or_, case, asc
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import Company, Product, Product_Batch, Product_Service_Duration, Expense, Expense_Category, Expense_Status, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Payment_Method
+from db.model import Company, Product, Product_Batch, Product_Service_Duration, Expense, Expense_Category, Expense_Status, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Payment_Method, Supplier
 
 from core.i18n import translate
 from core.generator import get_uuid, get_uuid_value
@@ -170,7 +170,44 @@ async def get_products(request: Request, page = 1, type_of = "all", q = None, db
         "pagination": pagination(total_items, limit, offset)
     })
 
-########## Create Product ##########
+########## Create Product - GET ##########
+@router.get("/create")
+async def create_product_data(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+    user = request.state.user
+    company_id = request.state.company_id
+
+    suppliers = []
+        
+    ### Validation ###
+    if user == None:
+        return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
+    
+    ### Check permissions ###
+    access, message = check_permissions(db, request, "company.products.read", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
+    ### Filter ###
+    filters = [Supplier.company_id == company_id]
+
+    suppliers_data = db.query(Supplier).filter(*filters).order_by(
+        desc(Supplier.date)
+    ).all()
+
+    for supplier in suppliers_data:
+        suppliers.append({
+            "id": supplier.id,
+            "name": supplier.name
+        })
+
+    return custom_response(status_code=200, message=translate(lang, "company.products.get.success"), data={
+        "suppliers": suppliers
+    })
+
+########## Create Product - POST ##########
 @router.post("/create")
 async def create_product(request: Request, db: Session = Depends(get_db)):
     ### Variables ###
@@ -204,9 +241,9 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=error)
 
     required_fields, error = validate_required_fields(product_check, [
-        "name", "sku", "identifier", "category", "description", "sale_price", "sale_cost", "tax_include", "is_bulk",
-        "is_service", "duration", "duration_type", "staff_id", "track_product", "low_stock", "bonus", "weight", "length", 
-        "width", "height", "expiration_date"
+        "name", "sku", "identifier", "category", "description", "supplier_id", "sale_price", "sale_cost", "tax_include", 
+        "is_bulk", "is_service", "duration", "duration_type", "staff_id", "track_product", "low_stock", "bonus", "weight",
+        "length", "width", "height", "expiration_date"
     ])
 
     if error:
@@ -269,6 +306,18 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         sku_v = get_uuid_value()
 
     new_product.sku = check_sku(db, sku_v, company_id)
+
+    ## Supplier ##
+    if product_check.supplier_id != "none":
+        print(product_check.supplier_id)
+        check_supplier = db.query(Supplier).filter(
+            Supplier.id == product_check.supplier_id
+        ).first()
+
+        if check_supplier:
+            new_product.supplier_id = check_supplier.id
+
+            print(new_product.supplier_id)
 
     ## Track Inventory ##
     if product_check.track_product == "1":
@@ -625,6 +674,9 @@ async def get_product_by_id(request: Request, product_id: str, db: Session = Dep
     user = request.state.user
     company_id = request.state.company_id
 
+    supplier = {}
+    product_batchs_values = []
+
     ### Validation ###
     if user == None:
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
@@ -646,7 +698,19 @@ async def get_product_by_id(request: Request, product_id: str, db: Session = Dep
     if not check_product:
         return custom_response(status_code=400, message=translate(lang, "company.products.get.single.error"))
     
-    product_batchs_values = []
+    supplier = db.query(Supplier).filter(
+        Supplier.id == check_product.supplier_id
+    ).first()
+
+    print(check_product.supplier_id)
+
+    if supplier:
+        supplier ={
+            "id": supplier.id,
+            "name": supplier.name,
+            "reason_name": supplier.reason_name,
+            "document": supplier.document
+        }
 
     product_batchs = (
         db.query(
@@ -672,8 +736,11 @@ async def get_product_by_id(request: Request, product_id: str, db: Session = Dep
 
         product_batchs_values.append(batch_value)
 
+    print(supplier)
+
     return custom_response(status_code=200, message=translate(lang, "company.products.get.single.success"), data={
         "product": check_product,
+        "supplier": supplier,
         "batchs": product_batchs_values
     })
 

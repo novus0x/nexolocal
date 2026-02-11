@@ -13,7 +13,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /*************** Main route ***************/
-router.get("/", require_auth, no_permissions, async (req, res) => {
+router.get("/", async (req, res) => {
+    // Variables
+
+    // Render content
+    return res.render("general/main", {});
+});
+
+/*************** Dashboard ***************/
+router.get("/dashboard", require_auth, async (req, res) => {
     // Variables
 
     // Render content

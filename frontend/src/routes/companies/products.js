@@ -49,11 +49,24 @@ router.get("/create", require_auth, at_least_company, async (req, res) => {
     // Variables
     const permissions = req.permissions;
 
+    let suppliers = [];
+
     // Check permissions
     if (!permissions.includes("company.products.create")) return res.redirect("/system-alert/403");
 
+    // Get data
+    const response = await get_data("/company/products/create", {}, req);
+
+    if (response.error) suppliers = [];
+
+    const data = response.data;
+
+    suppliers = data.suppliers;
+
     // Render content
-    return res.render("companies/products/create", {});
+    return res.render("companies/products/create", {
+        suppliers
+    });
 });
 
 /*************** Create Product - POST ***************/
@@ -71,6 +84,7 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     let low_stock_v = "0";
     let bonus_v = "0";
     let description_v = "No description";
+    let supplier_id_v = "none";
     let date_val = new Date().toISOString().split("T")[0];
 
     let weight_v = "0";
@@ -78,16 +92,18 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     let width_v = "0";
     let length_v = "0";
 
-    let errors = []
+    let errors = [];
+    let suppliers = [];
 
     // Check permissions
     if (!permissions.includes("company.products.create")) return res.redirect("/system-alert/403");
 
     // Get POST data
-    const { name, sku, identifier, category, description, sale_price, sale_cost, tax_include, is_bulk, is_service, duration, duration_type, staff_id, stock, track_product, low_stock, bonus, expiration_date, weight, length, width, height } = req.body;
+    const { name, sku, identifier, category, description, supplier_id, sale_price, sale_cost, tax_include, is_bulk, is_service, duration, duration_type, staff_id, stock, track_product, low_stock, bonus, expiration_date, weight, length, width, height } = req.body;
 
     if (stock) stock_v = stock;
     if (description) description_v = description;
+    if (supplier_id) supplier_id_v = supplier_id;
 
     if (is_bulk == "on") is_bulk_v = "1";
 
@@ -124,6 +140,7 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
         bonus: bonus_v,
         stock: stock_v,
         description: description_v,
+        supplier_id: supplier_id_v,
         tax_include: tax_include_v,
         is_bulk: is_bulk_v,
         is_service: is_service_v,
@@ -134,15 +151,24 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     }, req);
 
     if (response.error) {
-        errors = response.details;
+        if (response.details.length <= 0) errors = response.message;
+        else errors = [response.details];
 
-        if (errors.length <= 0) errors.push(response.message);
+        const response2 = await get_data("/company/products/create", {}, req);
+
+        if (response2.error) suppliers = [];
+
+        const data2 = response2.data;
+
+        suppliers = data2.suppliers;
 
         return res.render("companies/products/create", {
             errors: response.details,
-            name, sku, identifier, category, description, sale_price, sale_cost, tax_include,
-            is_service, duration, duration_type, staff_id, stock, track_product, low_stock,
-            bonus, weight, length, width, height, date_val
+
+            suppliers,
+            name, sku, identifier, supplier_id, category, description, sale_price, sale_cost,
+            tax_include, is_service, duration, duration_type, staff_id, stock, track_product,
+            low_stock, bonus, weight, length, width, height, date_val
         })
     }
 
@@ -219,6 +245,7 @@ router.get("/read/:product_id", require_auth, at_least_company, async (req, res)
     let dimensions_v = [];
     let batchs_v = [];
     let batchs_len_v = 0;
+    let supplier = {};
 
     // Check permissions
     if (!permissions.includes("company.products.read")) return res.redirect("/system-alert/403");
@@ -233,6 +260,7 @@ router.get("/read/:product_id", require_auth, at_least_company, async (req, res)
     product_v = data.product;
     batchs_v = data.batchs;
     batchs_len_v = batchs_v.length;
+    supplier = data.supplier;
 
     const qrcode_v = await svg_generator(product_v.identifier, "qrcode");
     const barcode_v = await svg_generator(product_v.identifier, "barcode");
@@ -245,6 +273,8 @@ router.get("/read/:product_id", require_auth, at_least_company, async (req, res)
 
     // Render content
     return res.render("companies/products/read", {
+        supplier,
+
         qrcode: qrcode_v,
         barcode: barcode_v,
         product: product_v,

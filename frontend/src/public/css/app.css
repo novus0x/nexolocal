@@ -26,6 +26,10 @@
 }
 
 /*************** General ***************/
+html {
+    scroll-behavior: smooth;
+}
+
 * {
     outline: none;
 }

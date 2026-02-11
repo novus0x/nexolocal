@@ -10,9 +10,7 @@
       {
         "label": "Core",
         "permissions": [
-          { "key": "platform.dashboard.view", "label": "View platform dashboard" },
-          { "key": "platform.settings.read", "label": "View platform settings" },
-          { "key": "platform.settings.update", "label": "Update platform settings" }
+          { "key": "platform.dashboard.read", "label": "View platform dashboard" }
         ]
       },
       {
@@ -50,6 +48,13 @@
         "permissions": [
           { "key": "platform.analytics.read", "label": "View global analytics" },
           { "key": "platform.analytics.export.csv", "label": "Export analytics (CSV)" }
+        ]
+      },
+      {
+        "label": "Settings",
+        "permissions": [
+          { "key": "platform.settings.read", "label": "View platform settings" },
+          { "key": "platform.settings.update", "label": "Update platform settings" }
         ]
       }
     ]

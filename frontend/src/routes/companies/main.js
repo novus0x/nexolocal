@@ -10,15 +10,14 @@ const router = express.Router();
 /*************** Main route ***************/
 router.get("/", require_auth, at_least_company, async (req, res) => {
     // Variables
-    const user = req.user;
     const permissions = req.permissions;
     const company_id = req.params.company_id;
 
     // Render content
     if (company_id) return res.redirect(`/companies/${company_id}`);
-
-    return res.render("companies/dashboard", {
-    });
+    
+    res.clearCookie("company_id");
+    return res.redirect("/dashboard")
 });
 
 router.get("/:company_id", require_auth, at_least_company, async (req, res) => {

@@ -114,7 +114,7 @@ export async function at_least_company(req, res, next) {
     if (scopes.platform) return next();
     else if (scopes.company) return next();
 
-    return res.redirect("/");
+    return res.redirect("/dashboard");
 }
 
 /*************** Already Login ***************/
@@ -122,7 +122,7 @@ export async function already_login(req, res, next) {
     const token = req.cookies?.[token_name];
 
     if (token) {
-        return res.redirect("/")
+        return res.redirect("/platform")
     }
 
     return next();

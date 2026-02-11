@@ -26,6 +26,8 @@ async def get_supplies(request: Request, page = 1, type_of = "all", q = None, db
     user = request.state.user
     company_id = request.state.company_id
 
+    suppliers = []
+
     ### Params ###
     page = is_int(page)
 
@@ -75,11 +77,21 @@ async def get_supplies(request: Request, page = 1, type_of = "all", q = None, db
             )
         )
 
-    suppliers = db.query(Supplier).filter(*filters).order_by(
+    total_supliers = db.query(Supplier).filter(Supplier.company_id == company_id).count()
+
+    suppliers_data = db.query(Supplier).filter(*filters).order_by(
         desc(Supplier.date)
     ).limit(limit).offset(offset).all()
 
-    total_supliers = db.query(Supplier).filter(Supplier.company_id == company_id).count()
+    for supplier in suppliers_data:
+        suppliers.append({
+            "id": supplier.id,
+            "name": supplier.name,
+            "reason_name": supplier.reason_name,
+            "document": supplier.document,
+            "type": supplier.type,
+            "is_active": supplier.is_active
+        })
 
     return custom_response(status_code=200, message=translate(lang, "company.suppliers.create.success"), data={
         "suppliers": suppliers,
