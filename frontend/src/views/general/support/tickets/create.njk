@@ -1,0 +1,160 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+{% include "components/text-editor.njk" %}
+
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/support" class="hover:text-white transition-colors">Soporte</a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/support/tickets" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Tickets</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Abrir Ticket</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="mb-10">
+            <h1 class="text-3xl font-black italic uppercase tracking-tight mb-2 text-(--accent)">Abrir Ticket</h1>
+            <p class="text-gray-400">Por favor, detalla tu problema para que nuestro equipo pueda ayudarte
+                lo antes posible.</p>
+        </div>
+
+        <form id="ticket_form" class="space-y-8 glass-card p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-widest text-gray-400 ml-1">Categoría</label>
+                    <select id="category" class="input-glass w-full p-4 mt-3 text-sm" required>
+                        <option value="general" class="input-field" selected>Consulta General</option>
+                        <option value="technical" class="input-field">Soporte Técnico</option>
+                        <option value="billing" class="input-field">Facturación y Pagos</option>
+                        <option value="account" class="input-field">Gestión de Cuenta</option>
+                        <option value="configuration" class="input-field">Configuración</option>
+                        <option value="other" class="input-field">Otros</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-widest text-gray-400 ml-1">Prioridad</label>
+                    <select id="priority" class="input-glass w-full p-4 mt-3 text-sm" required>
+                        <option value="low" class="input-field" selected>Baja</option>
+                        <option value="medium" class="input-field">Media</option>
+                        <option value="high" class="input-field">Alta</option>
+                        <option value="urgent" class="input-field">Urgente - Caso excepcional</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-xs font-bold uppercase tracking-widest text-gray-400 ml-1">Asunto / Título</label>
+                <input type="text" id="title" placeholder="Ej: No puedo acceder a mis productos"
+                    class="input-glass w-full p-4 mt-3 text-sm" required>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-xs font-bold uppercase tracking-widest text-gray-400 ml-1">Descripción
+                    Detallada</label>
+
+                <div class="editor-wrapper edit rounded-2xl mt-3">
+                    <div id="editor"></div>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-(--border) flex flex-col md:flex-row gap-4 items-center justify-between">
+
+                <button type="submit"
+                    class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                    Crear Ticket
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+    let valid = true;
+
+    const quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Describe el problema paso a paso. Si hay errores específicos, inclúyelos aquí...',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['link'],
+                ['clean']
+            ]
+        }
+    })
+
+    document.getElementById('ticket_form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        if (!valid) return;
+
+        const category = document.getElementById('category').value;
+        const priority = document.getElementById('priority').value;
+        const title = document.getElementById('title').value;
+
+        const description = quill.root.innerHTML;
+
+        if (!description || description === '<p><br></p>') {
+            notify("La descripción no puede estar vacía", "error");
+            return;
+        }
+
+        const payload = {
+            category,
+            priority,
+            title,
+            description
+        };
+
+        const response = await fetch('/general/api/support/tickets/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            valid = false;
+            notify("Ticket generado satisfactoriamente", "success")
+
+            setTimeout(() => {
+                window.location.href = `/support/tickets/${result.code}`;
+            }, 1500);
+        } else {
+            result.errors.forEach(e => notify(`${e}`, "error"));
+            alert(result.message || "Error al crear el ticket");
+        }
+    });
+
+</script>
+
+{% include "components/dashboard-footer.njk" %}
+{% endblock %}

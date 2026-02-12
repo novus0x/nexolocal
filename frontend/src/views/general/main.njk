@@ -1,6 +1,6 @@
 {% extends "layouts/main.njk" %}
 
-{% block title %}NexoLocal{% endblock %}
+{% block title %}Sistema de Ventas para Negocios en Perú | NexoLocal{% endblock %}
 
 {% block content %}
 
@@ -93,9 +93,8 @@
             <a href="#que-es" class="hover:text-white transition-colors">¿Qué es?</a>
             <a href="#solucion" class="hover:text-white transition-colors">Solución</a>
             <a href="#precios" class="hover:text-white transition-colors">Precios</a>
-            <a href="#contacto"
-                class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">Empieza
-                ahora</a>
+            <a href="/auth"
+                class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">Panel de Control</a>
         </div>
     </div>
 </nav>
@@ -111,7 +110,7 @@
             Ventas, inventario y caja en una sola plataforma para gestionar tu negocio de forma clara y ordenada.
         </p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="#contacto"
+            <a href="/auth"
                 class="w-full sm:w-auto px-10 py-5 bg-(--accent) text-white font-black rounded-2xl text-sm uppercase tracking-widest shadow-lg shadow-(--accent)/20 hover:scale-105 transition-all">
                 Empieza ahora
             </a>
@@ -131,8 +130,7 @@
             <h2 class="text-4xl font-extrabold mb-6 tracking-tight italic">¿Qué es NexoLocal?</h2>
             <p class="text-zinc-400 text-lg leading-relaxed mb-6 font-medium">
                 NexoLocal es una plataforma digital que ayuda a <span class="text-white">emprendedores y negocios</span>
-                a organizar sus ventas,
-                controlar su inventario y llevar su caja de forma clara y sencilla.
+                a organizar sus ventas, controlar su inventario y llevar su flujo de caja de forma clara y sencilla.
             </p>
             <p class="text-zinc-500 text-md leading-relaxed">
                 Está diseñada para el día a día del negocio: <span class="text-white">simple, rápida y sin
@@ -166,7 +164,6 @@
     <section id="solucion" class="py-32 bg-white/1">
         <div class="max-w-7xl mx-auto px-6">
             <div class="grid md:grid-cols-2 gap-12">
-                <!-- Antes -->
                 <div class="p-10">
                     <h3 class="text-2xl font-bold mb-10 text-red-500 italic uppercase tracking-widest">¿Te suena
                         familiar?</h3>
@@ -180,7 +177,6 @@
                         <div class="problem-item text-zinc-400 font-medium">La caja no coincide al final del día</div>
                     </div>
                 </div>
-                <!-- Después -->
                 <div class="glass-card p-10 rounded-[2.5rem] border-green-500/20 bg-green-500/2">
                     <h3 class="text-2xl font-bold mb-10 text-green-500 italic uppercase tracking-widest">Con NexoLocal
                         tienes control</h3>
@@ -197,7 +193,6 @@
         </div>
     </section>
 
-    <!-- FUNCIONALIDADES -->
     <section class="max-w-7xl mx-auto px-6 py-32">
         <div class="text-center mb-20">
             <h2 class="text-4xl font-bold tracking-tighter mb-4">Todo lo que necesitas para empezar</h2>
@@ -245,18 +240,18 @@
     </section>
 
     <section id="precios" class="max-w-7xl mx-auto px-6 py-32 overflow-hidden">
-        <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-24 gap-6">
             <div class="max-w-xl">
                 <h2 class="text-xs font-black uppercase tracking-[0.4em] text-orange-500 mb-4">Pricing</h2>
                 <h3 class="text-5xl font-extrabold italic tracking-tight">Un plan claro, sin letras pequeñas</h3>
             </div>
             <div class="flex gap-4">
-                <button class="nav-arrow" id="prevBtn">
+                <button class="nav-arrow" id="prev_btn">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M15 19l-7-7 7-7" stroke-width="2.5"></path>
                     </svg>
                 </button>
-                <button class="nav-arrow" id="nextBtn">
+                <button class="nav-arrow" id="next_btn">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M9 5l7 7-7 7" stroke-width="2.5"></path>
                     </svg>
@@ -286,10 +281,22 @@
                             <span class="check-icon">✓</span> Ventas ilimitadas
                         </li>
                         <li class="flex items-center gap-3 text-sm font-semibold">
-                            <span class="check-icon">✓</span> Control de inventario
+                            <span class="check-icon">✓</span> Control de inventario con alertas
                         </li>
                         <li class="flex items-center gap-3 text-sm font-semibold">
-                            <span class="check-icon">✓</span> Caja y reportes diarios
+                            <span class="check-icon">✓</span> Registro de gastos y egresos
+                        </li>
+                        <li class="flex items-center gap-3 text-sm font-semibold">
+                            <span class="check-icon">✓</span> Gestión de proveedores
+                        </li>
+                        <li class="flex items-center gap-3 text-sm font-semibold">
+                            <span class="check-icon">✓</span> Resumen de ganancias en tiempo real
+                        </li>
+                        <li class="flex items-center gap-3 text-sm font-semibold">
+                            <span class="check-icon">✓</span> Caja y arqueo diario
+                        </li>
+                        <li class="flex items-center gap-3 text-sm font-semibold">
+                            <span class="check-icon">✓</span> Historial completo de ventas
                         </li>
                         <li class="flex items-center gap-3 text-sm font-semibold">
                             <span class="check-icon">✓</span> Soporte
@@ -312,11 +319,9 @@
         <p class="text-center mt-16 text-zinc-500 text-sm font-medium">Sin contratos largos. Cancela cuando quieras.</p>
     </section>
 
-    <!-- CÓMO FUNCIONA -->
     <section class="max-w-7xl mx-auto px-6 py-32">
         <h2 class="text-4xl font-bold text-center mb-20 tracking-tighter italic">Empieza en minutos</h2>
         <div class="grid md:grid-cols-3 gap-12 relative">
-            <!-- Connectors -->
             <div
                 class="hidden md:block absolute top-1/2 left-1/4 right-1/4 h-px border-t border-dashed border-white/20 -z-10">
             </div>
@@ -345,7 +350,6 @@
         </div>
     </section>
 
-    <!-- SEGURIDAD -->
     <section class="max-w-5xl mx-auto px-6 py-32">
         <div class="glass-card p-12 rounded-[3rem] bg-linear-to-br from-white/2 to-transparent">
             <div class="flex flex-col md:flex-row gap-12 items-center">
@@ -382,7 +386,6 @@
 
 </main>
 
-<!-- FOOTER -->
 <footer class="border-t border-white/5 py-20 bg-black">
     <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12">
         <div class="col-span-2">
@@ -417,8 +420,8 @@
 <script>
 const carousel = document.getElementById('carousel');
 const cards = document.querySelectorAll('.plan-card');
-const nextBtn = document.getElementById('nextBtn');
-const prevBtn = document.getElementById('prevBtn');
+const next_btn = document.getElementById('next_btn');
+const prev_btn = document.getElementById('prev_btn');
 
 let currentIndex = 1; // Emprendedor
 const cardWidth = 320 + 32; // ancho + gap
@@ -438,7 +441,7 @@ function updateCarousel() {
 }
 
 // Flecha derecha
-nextBtn.addEventListener('click', () => {
+next_btn.addEventListener('click', () => {
     if (currentIndex < cards.length - 1) {
         currentIndex++;
         updateCarousel();
@@ -448,7 +451,7 @@ nextBtn.addEventListener('click', () => {
 });
 
 // Flecha izquierda
-prevBtn.addEventListener('click', () => {
+prev_btn.addEventListener('click', () => {
     if (currentIndex > 0) {
         currentIndex--;
         updateCarousel();

@@ -9,8 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.auth.oauth import google
 
 from routes.users import u_settings
-from routes.general import welcome, invitations
-from routes.platform import companies, roles, users
+from routes.general import welcome, invitations, g_support
+from routes.platform import companies, roles, users, p_support
 from routes.auth import login, register, sessions, logout, forgot_password
 from routes.companies import company, products, finance, sales, c_dashboard, cash, suppliers
 
@@ -73,6 +73,7 @@ app.include_router(u_settings.router, prefix="/api/users", tags=["Users", "Setti
 app.include_router(companies.router, prefix="/api/platform/companies", tags=["Platform", "Companies"])
 app.include_router(users.router, prefix="/api/platform/users", tags=["Platform", "Users"])
 app.include_router(roles.router, prefix="/api/platform/roles", tags=["Platform", "Roles"])
+app.include_router(p_support.router, prefix="/api/platform/support", tags=["Platform", "Support"])
 
 app.include_router(c_dashboard.router, prefix="/api/company/dashboard", tags=["Dashboard", "Company"])
 app.include_router(company.router, prefix="/api/company/companies", tags=["Companies", "Company"])
@@ -83,5 +84,6 @@ app.include_router(sales.router, prefix="/api/company/sales", tags=["Sales", "Co
 app.include_router(cash.router, prefix="/api/company/cash", tags=["Cash", "Company"])
 
 app.include_router(invitations.router, prefix="/api/general/invitations", tags=["General", "Invitations"])
+app.include_router(g_support.router, prefix="/api/general/support", tags=["General", "Support"])
 
 app.include_router(welcome.router, prefix="/api/public", tags=["Public"])

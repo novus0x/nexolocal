@@ -10,3 +10,4 @@ from db.models.Income import Income_Status, Income
 from db.models.Expenses import Expense_Category, Expense_Status, Expense
 from db.models.User import User, User_Contact, User_Verification, User_Recover, User_Session, User_Role, User_Company_Association, User_Company_Invitation, User_OAuth
 from db.models.Cash import Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement
+from db.models.Ticket import Ticket_Priority, Ticket_Category, Ticket_Source, Ticket_Status, Ticket_Waiting_For, Ticket_Close_Reason, Ticket, Ticket_Response

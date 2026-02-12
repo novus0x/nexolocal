@@ -1,0 +1,89 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 justify-between flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/support" class="hover:text-white transition-colors">Soporte</a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Tickets</span>
+                        </div>
+                    </li>
+                </ol>
+                <a href="/support/tickets/create"
+                    class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-plus"></i>
+                    Nuevo Ticket
+                </a>
+            </nav>
+        </div>
+
+        <div class="rounded-3xl overflow-hidden glass-card">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white/5 border-bottom border-(--border)">
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">
+                                ID</th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">
+                                Ticket</th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">
+                                Estado</th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">
+                                Fecha</th>
+                            <th
+                                class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">
+                                Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm font-medium">
+                        {% for ticket in tickets %}
+                        <tr class="table-row">
+                            <td class="px-6 py-5">
+                                <p class="text-xs text-(--text-muted) font-bold">{{ ticket.code }}</p>
+                            </td>
+                            <td class="px-6 py-5">
+                                <p class="text-sm text-white">{{ ticket.title }}</p>
+                            </td>
+                            <td class="px-6 py-5">
+                                {% if ticket.waiting_for == "support" %}
+                                <span class="status-badge badge-pending">Esperando Respuesta de Soporte</span>
+                                {% elif ticket.waiting_for == "client" %}
+                                <span class="status-badge badge-blocked">Esperando su Respuesta</span>
+                                {% else %}
+                                <span class="status-badge badge-active">Cerrado</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-5">
+                                <p class="text-(--text-muted) text-xs font-bold capitalize">{{ ticket.date }}</p>
+                            </td>
+                            <td class="px-6 py-5">
+                                <a href="/support/tickets/{{ ticket.code }}" class="bg-(--border) hover:bg-(--card-bg) text-white px-6 py-3 rounded-2xl text-sm font-bold gap-2 transition-all active:scale-95 cursor-pointer">
+                                    Ir al Ticket
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+{% include "components/dashboard-footer.njk" %}
+{% endblock %}

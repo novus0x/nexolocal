@@ -129,8 +129,6 @@ router.get("/update/:role_id", require_auth, platform_mod, async (req, res) => {
     permissions_data = response.data.permissions
     permissions_selected_data = response.data.permissions_selected
 
-    console.log(permissions_selected_data)
-
     // Render content
     return res.render("platform/roles/update", {
         role_id: role_id, 

@@ -66,9 +66,9 @@
     </div>
     {% endif %}
 
-    <nav class="flex-1 px-4 space-y-8 overflow-y-auto pt-2 overflow-x-hidden">
+    <nav class="flex-1 px-4 space-y-4 overflow-y-auto pt-2 overflow-x-hidden">
         {% if invitations_sidebar.exist %}
-        <h4 class="sidebar-text sidebar-section-title">Invitations</h4>
+        <h4 class="sidebar-text sidebar-section-title mt-4">Invitations</h4>
         <div class="space-y-1">
             <a href="/invitations"
                 class="flex items-center gap-4 px-4 py-3 rounded-xl text-amber-600 hover:bg-[#161B22] hover:text-white transition-all group">
@@ -82,20 +82,13 @@
         {% if permissions %}
 
         {% if scopes.platform %}
-        <h4 class="sidebar-text sidebar-section-title">Platform</h4>
+        <h4 class="sidebar-text sidebar-section-title mt-4">Platform</h4>
         <div class="space-y-1">
-            {% if "platform.dashboard.view" in permissions %}
+            {% if "platform.dashboard.read" in permissions %}
             <a href="/platform"
                 class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
                 <i class="fa-jelly fa-regular fa-grid text-xl"></i>
                 <span class="sidebar-text">Dashboard</span>
-            </a>
-            {% endif %}
-            {% if "platform.settings.read" in permissions %}
-            <a href="#"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
-                <i class="fa-regular fa-cog text-xl"></i>
-                <span class="sidebar-text">Ajustes</span>
             </a>
             {% endif %}
             {% if "platform.companies.read" in permissions %}
@@ -119,6 +112,13 @@
                 <span class="sidebar-text">Roles</span>
             </a>
             {% endif %}
+            {% if "platform.support.read" in permissions %}
+            <a href="/platform/support"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-headset text-xl"></i>
+                <span class="sidebar-text">Soporte</span>
+            </a>
+            {% endif %}
             {% if "platform.analytics.read" in permissions %}
             <a href="/platform/analytics"
                 class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
@@ -126,11 +126,18 @@
                 <span class="sidebar-text">Analiticas</span>
             </a>
             {% endif %}
+            {% if "platform.settings.read" in permissions %}
+            <a href="#"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-cog text-xl"></i>
+                <span class="sidebar-text">Ajustes</span>
+            </a>
+            {% endif %}
         </div>
         {% endif %}
 
         {% if scopes.company and company_information.id %}
-        <h4 class="sidebar-text sidebar-section-title">Company</h4>
+        <h4 class="sidebar-text sidebar-section-title mt-10">Company</h4>
         <div class="space-y-1">
             {% if "company.read" in permissions %}
             <a href="/companies/{{ company_information.id }}"
@@ -208,6 +215,21 @@
             {% endif %}
         </div>
         {% endif %}
+
+        <h4 class="sidebar-text sidebar-section-title mt-10">General</h4>
+        <div class="space-y-1">
+            <a href="/support"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-headset text-xl"></i>
+                <span class="sidebar-text">Soporte</span>
+            </a>
+            <a href="/support/tickets"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-ticket text-xl"></i>
+                <span class="sidebar-text">Tickets</span>
+            </a>
+        </div>
+        
         {% endif %}
     </nav>
 

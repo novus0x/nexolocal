@@ -1,0 +1,97 @@
+<!-- Vendors -->
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+
+<style>
+    .view .ql-editor {
+        margin: -70px auto !important ;
+    }
+
+    .editor-wrapper .ql-container {
+        background: #0E131B;
+        border: none;
+        font-size: 0.95rem;
+    }
+
+    .editor-wrapper .ql-toolbar {
+        background: #111827;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .editor-wrapper .ql-toolbar,
+    .editor-wrapper .ql-toolbar button,
+    .editor-wrapper .ql-toolbar .ql-picker-label,
+    .editor-wrapper .ql-toolbar .ql-picker-item {
+        color: #E5E7EB;
+    }
+
+    .editor-wrapper .ql-toolbar button svg,
+    .editor-wrapper .ql-toolbar .ql-picker-label svg {
+        fill: #E5E7EB;
+        stroke: #E5E7EB;
+    }
+
+    .editor-wrapper .ql-toolbar button:hover svg,
+    .editor-wrapper .ql-toolbar .ql-picker-label:hover svg {
+        fill: #FFFFFF;
+        stroke: #FFFFFF;
+    }
+
+    .editor-wrapper .ql-toolbar button.ql-active svg,
+    .editor-wrapper .ql-toolbar .ql-picker-label.ql-active svg {
+        fill: #FF4D00;
+        stroke: #FF4D00;
+    }
+
+    .editor-wrapper .ql-toolbar .ql-formats:not(:last-child) {
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        padding-right: 0.75rem;
+        margin-right: 0.75rem;
+    }
+
+    .editor-wrapper .ql-picker {
+        color: #E5E7EB;
+    }
+
+    .editor-wrapper .ql-picker-options {
+        background: #0A0C10;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 0.5rem;
+    }
+
+    .editor-wrapper .ql-picker-item {
+        color: #E5E7EB;
+    }
+
+    .editor-wrapper .ql-picker-item:hover {
+        color: #FFFFFF;
+    }
+
+    .editor-wrapper .ql-editor {
+        min-height: 200px;
+        padding: 1.5rem;
+        color: #F3F4F6;
+        line-height: 1.75;
+        font-size: 0.95rem;
+    }
+
+    .editor-wrapper .ql-editor.ql-blank::before {
+        color: rgba(255, 255, 255, 0.45);
+        font-style: normal;
+    }
+
+    .editor-wrapper .ql-container.ql-focus {
+        border-color: rgba(255, 255, 255, 0.20);
+    }
+
+    .editor-wrapper .ql-editor.ql-blank::before {
+        left: 1.5rem;
+        right: 1.5rem;
+        top: 1.5rem;
+    }
+
+</style>

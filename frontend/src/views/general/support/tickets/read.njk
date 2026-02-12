@@ -1,0 +1,160 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+{% include "components/text-editor.njk" %}
+
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/support" class="hover:text-white transition-colors">Soporte</a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/support/tickets" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Tickets</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">{{ ticket.code }}</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="relative activity-line space-y-10 pl-4">
+
+            {% for item in ticket.items %}
+            <div class="relative flex gap-6">
+                <div class="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 z-10 overflow-hidden">
+                    {% if item.user.staff %}
+                    <img src="/public/img/logo.svg" alt="Avatar">
+                    {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ item.user.fullname }}&amp;background=FD420A&amp;color=fff"
+                        alt="Avatar">
+                    {% endif %}
+                </div>
+                <div class="glass-card rounded-2xl p-6 flex-1 shadow-sm">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-bold text-white uppercase tracking-wider">
+                                {% if not item.user.staff %}
+                                {{ item.user.fullname }}
+                                {% else %}
+                                NexoLocal Support
+                                {% endif %}
+                            </span>
+                        </div>
+                        <span class="text-[10px] font-mono text-zinc-500">{{ item.date }}</span>
+                    </div>
+
+                    <div class="editor-wrapper view">
+                        <div class="ql-snow">
+                            <div class="ql-editor">
+                                {{ item.content | safe }}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <div class="glass-card rounded-2xl overflow-hidden">
+
+            <div class="px-6 py-3 border-b border-white/5 flex justify-between items-center">
+                <span class="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest">
+                    Respuesta del Usuario
+                </span>
+            </div>
+
+            <div class="editor-wrapper edit">
+                <div id="editor"></div>
+            </div>
+
+            <div class="px-5 py-4 flex flex-row items-center justify-between gap-5">
+                <button onclick="new_response()"
+                    class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                    Enviar
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+</main>
+
+<script>
+    let valid = true;
+    const ticket_id = {{ ticket.id | dump | safe }};
+
+    const quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Escribe aquí su duda/respuesta...',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['link'],
+                ['clean']
+            ]
+        }
+    })
+
+    async function new_response() {
+        if (!valid) return;
+
+        const description = quill.root.innerHTML;
+
+        if (!description || description === '<p><br></p>') {
+            notify("La descripción no puede estar vacía", "error");
+            return;
+        }
+
+        const payload = {
+            ticket_id, description,
+        }
+
+        const response = await fetch('/general/api/support/tickets/response/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            valid = false;
+
+            notify("Respuesta enviada", "success");
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500)
+        } else {
+            result.errors.forEach(e => {
+                notify(`${e}`, "error");
+            });
+        }
+    }
+
+</script>
+
+{% include "components/dashboard-footer.njk" %}
+{% endblock %}

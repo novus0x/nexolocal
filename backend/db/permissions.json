@@ -51,6 +51,16 @@
         ]
       },
       {
+        "label": "Support",
+        "permissions": [
+          { "key": "platform.support.read", "label": "View support" },
+          { "key": "platform.support.tickets.read", "label": "View support tickets" },
+          { "key": "platform.support.tickets.edit", "label": "Edit support tickets" },
+          { "key": "platform.support.tickets.delete", "label": "Delete support tickets" },
+          { "key": "platform.support.tickets.manage", "label": "Manage support tickets" }
+        ]
+      },
+      {
         "label": "Settings",
         "permissions": [
           { "key": "platform.settings.read", "label": "View platform settings" },

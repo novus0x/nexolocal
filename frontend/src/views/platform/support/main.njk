@@ -1,0 +1,301 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 justify-between flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/platform" class="hover:text-white transition-colors">Dashboard</a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Soporte</span>
+                        </div>
+                    </li>
+                </ol>
+                <a href="/support/tickets/create"
+                    class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-plus"></i>
+                    Abrir ticket
+                </a>
+            </nav>
+        </div>
+
+        <!-- Pestañas Principales -->
+        <nav class="flex items-center gap-1 mb-6 border-b border-white/5 overflow-x-auto no-scrollbar">
+            <button
+                class="px-6 py-4 text-xs font-bold text-zinc-500 hover:text-white transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer">
+                Tickets Activos
+            </button>
+            <button
+                class="px-6 py-4 text-xs font-bold text-zinc-500 hover:text-white transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer">
+                Tickets Cerrados
+            </button>
+        </nav>
+
+        <div class="glass-card rounded-2xl p-4 mb-8 flex flex-col gap-4">
+
+            <div class="flex flex-col lg:flex-row gap-4 items-center">
+                <div class="relative w-full lg:flex-1">
+                    <input type="text" id="search_input" oninput="handle_global_filters()"
+                        placeholder="Buscar por ID, asunto o cliente..."
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-orange-500/50 transition-all text-zinc-200 placeholder:text-zinc-600">
+                    <div class="absolute inset-y-0 left-3.5 flex items-center">
+                        <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap sm:flex-nowrap gap-3 w-full lg:w-auto">
+                    <select id="category_filter" onchange="handle_global_filters()"
+                        class="custom-select flex-1 sm:w-40 bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-[11px] font-bold text-zinc-400 focus:outline-none focus:border-orange-500/50">
+                        <option value="all" class="input-field">Todos</option>
+                        <option value="general" class="input-field">General</option>
+                        <option value="technical" class="input-field">Técnico</option>
+                        <option value="billing" class="input-field">Facturación</option>
+                        <option value="account" class="input-field">Cuenta</option>
+                        <option value="configuration" class="input-field">Configuración</option>
+                        <option value="other" class="input-field">Otros</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="h-px bg-white/5 w-full"></div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mr-2">Severidad:</span>
+                <button onclick="set_sev_filter('all')"
+                    class="sev-pill active filter-pill px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-bold uppercase tracking-tighter hover:bg-white/5 cursor-pointer">Todos</button>
+                <button onclick="set_sev_filter('low')"
+                    class="sev-pill filter-pill px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-bold uppercase tracking-tighter hover:text-zinc-400 cursor-pointer">Baja</button>
+                <button onclick="set_sev_filter('medium')"
+                    class="sev-pill filter-pill px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-bold uppercase tracking-tighter hover:text-blue-400 cursor-pointer">Media</button>
+                <button onclick="set_sev_filter('high')"
+                    class="sev-pill filter-pill px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-bold uppercase tracking-tighter hover:text-orange-400 cursor-pointer">Alta</button>
+                <button onclick="set_sev_filter('urgent')"
+                    class="sev-pill filter-pill px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-bold uppercase tracking-tighter hover:text-red-400 cursor-pointer">Crítico</button>
+            </div>
+        </div>
+
+        <div class="glass-card rounded-2xl overflow-hidden shadow-2xl shadow-black/50">
+            <div class="px-8 py-5 border-b border-white/5 bg-white/5 flex items-center justify-between">
+                <div>
+                    <h3 class="text-[11px] font-bold text-white uppercase tracking-widest">Panel de Monitoreo</h3>
+                </div>
+                <div id="ticket-count" class="text-xs text-gray-500 bg-white/5 px-3 py-1 rounded-lg">
+                    Cargando registros...
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr
+                            class="text-[10px] uppercase tracking-[0.2em] text-zinc-600 font-bold border-b border-white/5">
+                            <th class="px-8 py-4">ID</th>
+                            <th class="px-8 py-4">Ticket / Cliente</th>
+                            <th class="px-8 py-4">Categoría</th>
+                            <th class="px-8 py-4 text-center">Prioridad</th>
+                            <th class="px-8 py-4 text-right">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body" class="divide-y divide-white/3">
+                    </tbody>
+                </table>
+            </div>
+            <div id="empty-state" class="hidden py-16 text-center border-t border-white/5">
+                <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <p class="text-zinc-500 text-xs font-medium">No se encontraron tickets con los filtros actuales.</p>
+                <button onclick="resetFilters()"
+                    class="text-orange-500 text-[10px] font-bold uppercase mt-4 underline decoration-orange-500/30">Limpiar
+                    todos los filtros</button>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between mt-6">
+            <span class="px-4 py-2 rounded-xl bg-white/5 text-gray-500 cursor-not-allowed">
+                <i class="fa-duotone fa-regular fa-angle-left"></i> Anterior
+            </span>
+
+            <span class="text-sm text-gray-400">
+                Página 1 de 1
+            </span>
+
+            <span class="px-4 py-2 rounded-xl bg-white/5 text-gray-500 cursor-not-allowed">
+                Siguiente <i class="fa-duotone fa-regular fa-angle-right"></i>
+            </span>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    let tickets = [];
+    let current_page = 1;
+    let pagination_meta = {
+        next: false,
+        back: false,
+        q_pages: 1
+    };
+
+    let filters = {
+        search: '',
+        priority: '',
+        category: ''
+    };
+
+    async function load_tickets() {
+        const params = new URLSearchParams();
+
+        if (filters.search) params.append("q", filters.search);
+        if (filters.priority) params.append("priority", filters.priority);
+        if (filters.category) params.append("category", filters.category);
+
+        params.append("page", current_page);
+
+        try {
+            const response = await fetch(`/platform/api/support/tickets?${params.toString()}`);
+            const result = await response.json();
+
+            if (result.success) {
+                tickets = result.tickets;
+                pagination_meta = result.pagination || {
+                    next: false,
+                    back: false,
+                    q_pages: 1
+                };
+
+                render_table();
+                update_pagination();
+            } else {
+                console.error(result.message);
+            }
+        } catch (err) {
+            console.error("Error cargando tickets:", err);
+        }
+    }
+
+    function handle_global_filters() {
+        filters.search = document.getElementById('search_input').value.trim();
+        filters.category = document.getElementById('category_filter').value !== "TODOS"
+            ? document.getElementById('category_filter').value.toLowerCase()
+            : '';
+        current_page = 1;
+        load_tickets();
+    }
+
+    function set_priority_filter(priority) {
+        filters.priority = priority !== "TODOS" ? priority.toLowerCase() : '';
+        current_page = 1;
+        load_tickets();
+    }
+
+    function render_table() {
+        const body = document.getElementById('data-table-body');
+        const empty_state = document.getElementById('empty-state');
+        const count_label = document.getElementById('ticket-count');
+
+        count_label.innerText = `${tickets.length} RESULTADOS`;
+
+        if (tickets.length === 0) {
+            body.innerHTML = '';
+            empty_state.classList.remove('hidden');
+            return;
+        }
+
+        empty_state.classList.add('hidden');
+
+        body.innerHTML = tickets.map(item => `
+            <tr class="hover:bg-white/[0.02] transition-all group cursor-pointer"
+                onclick="go_to_ticket('${item.code}')">
+                <td class="px-8 py-5">
+                    <span class="text-[10px] font-bold text-gray-400 group-hover:text-orange-500 transition-colors">
+                        ${item.code}
+                    </span>
+                </td>
+                <td class="px-8 py-5">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-gray-300 group-hover:text-white transition-colors">
+                            ${item.title}
+                        </span>
+                        <span class="text-[10px] text-gray-600 mt-1">
+                            ${item.user.email}
+                        </span>
+                    </div>
+                </td>
+                <td class="px-8 py-5">
+                    <span class="text-sm font-medium text-gray-500">
+                        ${item.category}
+                    </span>
+                </td>
+                <td class="px-8 py-5 text-center">
+                    <span class="text-xs font-black px-2 py-0.5 rounded border border-white/5 bg-white/5">
+                        ${item.priority}
+                    </span>
+                </td>
+                <td class="px-8 py-5 text-right">
+                    <span class="text-xs font-bold text-gray-400">
+                        ${new Date(item.date).toLocaleString()}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function update_pagination() {
+        const pageLabel = document.querySelector(".text-sm.text-gray-400");
+
+        pageLabel.innerText = `Página ${current_page} de ${pagination_meta.q_pages}`;
+
+        const prev_btn = document.querySelector(".prev-btn");
+        const next_btn = document.querySelector(".next-btn");
+
+        if (prev_btn) {
+            prev_btn.classList.toggle("cursor-not-allowed", !pagination_meta.back);
+            prev_btn.classList.toggle("opacity-40", !pagination_meta.back);
+        }
+
+        if (next_btn) {
+            next_btn.classList.toggle("cursor-not-allowed", !pagination_meta.next);
+            next_btn.classList.toggle("opacity-40", !pagination_meta.next);
+        }
+    }
+
+    function go_to_ticket(id) {
+        window.location.href = `/platform/support/tickets/${id}`;
+    }
+
+    function set_sev_filter(priority) {
+        filters.priority = priority;
+        current_page = 1;
+
+        document.querySelectorAll('.sev-pill').forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+        event.target.classList.add("active");
+
+        load_tickets();
+    }
+
+    window.onload = load_tickets;
+</script>
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

@@ -7,7 +7,7 @@ import { get_data, send_data } from '../../utils/api.js';
 const router = express.Router();
 
 /*************** Main route ***************/
-router.get("/check-ticket", (req, res) => {
+router.get("/check-ticket", async (req, res) => {
     // Variables
 
     // Render content

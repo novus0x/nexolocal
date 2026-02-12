@@ -114,10 +114,8 @@ function toggle_filter_roles() {
     if (current_filter_roles === "company") {
         opt_system.classList.remove("active");
         opt_user.classList.add("active");
-        console.log(current_filter_roles);
     } else {
         opt_system.classList.add("active");
         opt_user.classList.remove("active");
-        console.log(current_filter_roles);
     }
 }
