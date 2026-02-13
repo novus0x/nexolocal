@@ -16,7 +16,8 @@ template_routes = SimpleNamespace(
         google = "oauth/password-google.html"
     ),
     account = SimpleNamespace(
-        password_updated = "account/password-updated.html"
+        password_updated = "account/password-updated.html",
+        verify = "account/verify.html"
     )
 )
 
