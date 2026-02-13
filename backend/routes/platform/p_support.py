@@ -110,7 +110,7 @@ async def get_support_tickets(request: Request, q = None, priority: str = None, 
 
     total_tickets = db.query(Ticket).filter(*filters).count()
 
-    return custom_response(status_code=200, message=translate(lang, "platform.support.tickets.get"), data={
+    return custom_response(status_code=200, message=translate(lang, "platform.support.tickets.get.success"), data={
         "tickets": tickets,
         "pagination": pagination(total_tickets, limit, offset)
     })

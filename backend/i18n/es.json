@@ -4,7 +4,10 @@
         "invalid_json": "JSON inválido",
         "required_f": "Campos obligatorios",
         "require_auth": "Debes iniciar sesión para poder acceder al contenido",
-        "not_necessary_permission": "No tienes los permisos necesarios"
+        "not_necessary_permission": "No tienes los permisos necesarios",
+        "account_suspended": "Tu cuenta está suspendida",
+        "invalid_file_type": "Tipo de archivo inválido",
+        "no_open_cash_session": "Debes tener una caja abierta"
     },
     "auth": {
         "login": {
@@ -28,6 +31,18 @@
         },
         "logout": {
             "success": "Cierre de sesión exitoso"
+        },
+        "forgot_password": {
+            "success": "Si el correo existe, se enviaron instrucciones de recuperación"
+        },
+        "recover": {
+            "invalid_or_expired": "El token de recuperación es inválido o expiró",
+            "min_char": "La contraseña debe tener al menos 12 caracteres por razones de seguridad",
+            "pass_dont_match": "Las contraseñas no coinciden"
+        },
+        "recovery": {
+            "success": "Contraseña actualizada satisfactoriamente",
+            "valid": "El token de recuperación es válido"
         }
     },
     "platform": {
@@ -38,19 +53,55 @@
                 "success": "Invitacion generada satisfactoriamente",
                 "get_roles": "Roles obtenidos satisfactoriamente"
             },
-            "get": "Negocios obtenidas satisfactoriamente"
+            "get": "Negocios obtenidas satisfactoriamente",
+            "get_roles": "Roles obtenidos satisfactoriamente"
         },
         "roles": {
             "get": {
-                "success": "Roles obtenidos satisfactoriamente"
+                "success": "Roles obtenidos satisfactoriamente",
+                "single": {
+                    "error": "El rol no existe",
+                    "success": "Rol obtenido satisfactoriamente"
+                }
             },
             "create": {
                 "success": "Rol creado satisfactoriamente"
+            },
+            "update": {
+                "single": {
+                    "success": "Rol actualizado satisfactoriamente"
+                }
             }
         },
         "users": {
             "get": {
+                "unique": "Usuario obtenido satisfactoriamente",
                 "success": "Usuarios obtenidos satisfactoriamente"
+            },
+            "error": "El usuario no existe",
+            "update": {
+                "error": "No se pudo actualizar el usuario",
+                "success": "Usuario actualizado satisfactoriamente"
+            }
+        },
+        "support": {
+            "ticket": {
+                "create": {
+                    "success": "Ticket de soporte creado satisfactoriamente"
+                },
+                "response": {
+                    "create": {
+                        "success": "Respuesta de soporte enviada satisfactoriamente"
+                    }
+                }
+            },
+            "tickets": {
+                "get": {
+                    "unique": {
+                        "error": "El ticket de soporte no existe"
+                    },
+                    "success": "Tickets de soporte obtenidos satisfactoriamente"
+                }
             }
         }
     },
@@ -61,10 +112,146 @@
                 "error": "La invitación no existe",
                 "no_role": "El rol no existe",
                 "no_company": "El negocio no existe",
-                "already_used": "La invitación ya ha sido utilizada"
+                "already_used": "La invitación ya ha sido utilizada",
+                "success": "Invitación aceptada satisfactoriamente"
             },
             "decline": {
                 "error": "La invitación no existe"
+            }
+        },
+        "support": {
+            "ticket": {
+                "create": {
+                    "error": {
+                        "incorrect_option": "La opción de soporte seleccionada es inválida"
+                    },
+                    "success": "Ticket de soporte creado satisfactoriamente"
+                },
+                "response": {
+                    "create": {
+                        "success": "Respuesta de soporte enviada satisfactoriamente"
+                    }
+                }
+            },
+            "tickets": {
+                "get": {
+                    "success": "Tickets de soporte obtenidos satisfactoriamente",
+                    "unique": {
+                        "error": "El ticket de soporte no existe"
+                    }
+                }
+            }
+        }
+    },
+    "company": {
+        "cash": {
+            "close": {
+                "error": {
+                    "already_close": "No hay una caja abierta para cerrar",
+                    "incorrect_amount": "El monto de cierre es inválido",
+                    "require_description": "Se requiere una descripción cuando hay diferencia en el monto de cierre"
+                },
+                "success": "Caja cerrada satisfactoriamente"
+            },
+            "create": {
+                "success": "Caja abierta satisfactoriamente"
+            },
+            "error": {
+                "already_open": "Ya existe una caja abierta",
+                "initial_cash": "El monto inicial de caja es inválido"
+            }
+        },
+        "companies": {
+            "dashboard": {
+                "get": "Datos del dashboard de la empresa obtenidos satisfactoriamente"
+            },
+            "verify": {
+                "no_exist": "La empresa no existe",
+                "success": "Empresa verificada satisfactoriamente"
+            }
+        },
+        "finances": {
+            "create": {
+                "error_amount": "El monto debe ser mayor que 0",
+                "success": "Registro financiero creado satisfactoriamente"
+            },
+            "get": "Datos financieros obtenidos satisfactoriamente"
+        },
+        "products": {
+            "create": {
+                "batch": {
+                    "error": "No se pudo completar la operación por lote",
+                    "success": "Operación por lote completada satisfactoriamente"
+                },
+                "error": {
+                    "bulk_service_not_allowed": "No se permite venta a granel para productos de servicio",
+                    "incorrect_price": "El precio es inválido",
+                    "incorrect_quantity": "La cantidad es inválida"
+                },
+                "inconsistent_price_comparation": "El precio de comparación no puede ser menor que el precio de venta",
+                "incorrect_servide_duration": "La duración del servicio es inválida",
+                "success": "Producto creado satisfactoriamente"
+            },
+            "get": {
+                "single": {
+                    "error": "El producto no existe",
+                    "success": "Producto obtenido satisfactoriamente"
+                },
+                "success": "Productos obtenidos satisfactoriamente"
+            },
+            "import": {
+                "invalid_headers": "El archivo importado tiene encabezados inválidos",
+                "success": "Productos importados satisfactoriamente"
+            }
+        },
+        "sales": {
+            "check": {
+                "error": "No se pudo validar la venta",
+                "success": "Venta validada satisfactoriamente"
+            },
+            "create": {
+                "error": {
+                    "bulk_not_allowed": "Este producto no permite venta a granel",
+                    "incorrect_payment_method": "El método de pago es inválido",
+                    "incorrect_product_quantity": "La cantidad del producto es inválida",
+                    "product_does_not_exist": "Uno o más productos no existen"
+                },
+                "success": "Venta creada satisfactoriamente"
+            },
+            "flow": {
+                "error": {
+                    "incorrect_option": "La opción de flujo de venta seleccionada es inválida"
+                },
+                "success": "Flujo de ventas actualizado satisfactoriamente"
+            },
+            "get": {
+                "success": "Ventas obtenidas satisfactoriamente"
+            }
+        },
+        "suppliers": {
+            "create": {
+                "error": {
+                    "incorrect_type": "El tipo de proveedor es inválido"
+                },
+                "success": "Proveedor guardado satisfactoriamente"
+            }
+        }
+    },
+    "oauth": {
+        "google": {
+            "error": {
+                "token": "El token de Google es inválido"
+            },
+            "success": "Autenticación con Google exitosa"
+        }
+    },
+    "users": {
+        "settings": {
+            "update_password": {
+                "incorrect_password": "La contraseña actual es incorrecta",
+                "min_char": "La nueva contraseña debe tener al menos 12 caracteres",
+                "passwords_dont_match": "Las nuevas contraseñas no coinciden",
+                "success": "Contraseña actualizada satisfactoriamente"
             }
         }
     }

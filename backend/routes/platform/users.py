@@ -56,7 +56,7 @@ async def users(request: Request, db: Session = Depends(get_db)):
             "date": user_value.date.astimezone(LOCAL_TZ).strftime("%d %B %Y")
         })
         
-    return custom_response(status_code=200, message=translate(lang, "platform.users.get"), data={
+    return custom_response(status_code=200, message=translate(lang, "platform.users.get.success"), data={
         "users": users
     })
 

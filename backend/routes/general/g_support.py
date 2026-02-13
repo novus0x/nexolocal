@@ -116,7 +116,7 @@ async def get_tickets(request: Request, db: Session = Depends(get_db)):
             "date": ticket.date.astimezone(LOCAL_TZ).strftime("%H:%M - %d %b %Y")
         })
 
-    return custom_response(status_code=200, message=translate(lang, "platform.support.tickets.get"), data={
+    return custom_response(status_code=200, message=translate(lang, "general.support.tickets.get.success"), data={
         "tickets": tickets
     })
 

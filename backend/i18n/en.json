@@ -4,7 +4,10 @@
         "invalid_json": "Invalid JSON",
         "required_f": "Fields required",
         "require_auth": "You must log in to access the content",
-        "not_necessary_permission": "You do not have the necessary permissions"
+        "not_necessary_permission": "You do not have the necessary permissions",
+        "account_suspended": "Your account is suspended",
+        "invalid_file_type": "Invalid file type",
+        "no_open_cash_session": "You must have an open cash session"
     },
     "auth": {
         "login": {
@@ -28,6 +31,18 @@
         },
         "logout": {
             "success": "Logout successful"
+        },
+        "forgot_password": {
+            "success": "If the email exists, recovery instructions were sent"
+        },
+        "recover": {
+            "invalid_or_expired": "The recovery token is invalid or has expired",
+            "min_char": "The password must be at least 12 characters long for security reasons",
+            "pass_dont_match": "The passwords do not match"
+        },
+        "recovery": {
+            "success": "Password updated successfully",
+            "valid": "Recovery token is valid"
         }
     },
     "platform": {
@@ -38,19 +53,55 @@
                 "success": "Invitation generated successfully",
                 "get_roles": "Roles successfully obtained"
             },
-            "get": "Companies successfully obtained"
+            "get": "Companies successfully obtained",
+            "get_roles": "Roles successfully obtained"
         },
         "roles": {
             "get": {
-                "success": "Roles successfully obtained"
+                "success": "Roles successfully obtained",
+                "single": {
+                    "error": "Role does not exist",
+                    "success": "Role obtained successfully"
+                }
             },
             "create": {
                 "success": "Role created successfully"
+            },
+            "update": {
+                "single": {
+                    "success": "Role updated successfully"
+                }
             }
         },
         "users": {
             "get": {
+                "unique": "User obtained successfully",
                 "success": "Users successfully obtained"
+            },
+            "error": "The user does not exist",
+            "update": {
+                "error": "Could not update user",
+                "success": "User updated successfully"
+            }
+        },
+        "support": {
+            "ticket": {
+                "create": {
+                    "success": "Support ticket created successfully"
+                },
+                "response": {
+                    "create": {
+                        "success": "Support response sent successfully"
+                    }
+                }
+            },
+            "tickets": {
+                "get": {
+                    "unique": {
+                        "error": "Support ticket does not exist"
+                    },
+                    "success": "Support tickets obtained successfully"
+                }
             }
         }
     },
@@ -61,10 +112,146 @@
                 "error": "The invitation does not exist",
                 "no_role": "The role does not exist",
                 "no_company": "The company does not exist",
-                "already_used": "The invitation has already been used"
+                "already_used": "The invitation has already been used",
+                "success": "Invitation accepted successfully"
             },
             "decline": {
                 "error": "The invitation does not exist"
+            }
+        },
+        "support": {
+            "ticket": {
+                "create": {
+                    "error": {
+                        "incorrect_option": "The selected support option is invalid"
+                    },
+                    "success": "Support ticket created successfully"
+                },
+                "response": {
+                    "create": {
+                        "success": "Support response sent successfully"
+                    }
+                }
+            },
+            "tickets": {
+                "get": {
+                    "success": "Support tickets obtained successfully",
+                    "unique": {
+                        "error": "Support ticket does not exist"
+                    }
+                }
+            }
+        }
+    },
+    "company": {
+        "cash": {
+            "close": {
+                "error": {
+                    "already_close": "There is no open cash session to close",
+                    "incorrect_amount": "Closing amount is invalid",
+                    "require_description": "A description is required when there is a difference in the closing amount"
+                },
+                "success": "Cash session closed successfully"
+            },
+            "create": {
+                "success": "Cash session opened successfully"
+            },
+            "error": {
+                "already_open": "There is already an open cash session",
+                "initial_cash": "Initial cash amount is invalid"
+            }
+        },
+        "companies": {
+            "dashboard": {
+                "get": "Company dashboard data obtained successfully"
+            },
+            "verify": {
+                "no_exist": "The company does not exist",
+                "success": "Company verified successfully"
+            }
+        },
+        "finances": {
+            "create": {
+                "error_amount": "Amount must be greater than 0",
+                "success": "Finance record created successfully"
+            },
+            "get": "Finance data obtained successfully"
+        },
+        "products": {
+            "create": {
+                "batch": {
+                    "error": "The batch operation could not be completed",
+                    "success": "Batch operation completed successfully"
+                },
+                "error": {
+                    "bulk_service_not_allowed": "Bulk is not allowed for service products",
+                    "incorrect_price": "Price is invalid",
+                    "incorrect_quantity": "Quantity is invalid"
+                },
+                "inconsistent_price_comparation": "Comparison price cannot be lower than the sale price",
+                "incorrect_servide_duration": "Service duration is invalid",
+                "success": "Product created successfully"
+            },
+            "get": {
+                "single": {
+                    "error": "Product does not exist",
+                    "success": "Product obtained successfully"
+                },
+                "success": "Products obtained successfully"
+            },
+            "import": {
+                "invalid_headers": "The imported file has invalid headers",
+                "success": "Products imported successfully"
+            }
+        },
+        "sales": {
+            "check": {
+                "error": "Unable to validate the sale",
+                "success": "Sale validated successfully"
+            },
+            "create": {
+                "error": {
+                    "bulk_not_allowed": "This product does not allow bulk sales",
+                    "incorrect_payment_method": "Payment method is invalid",
+                    "incorrect_product_quantity": "Product quantity is invalid",
+                    "product_does_not_exist": "One or more products do not exist"
+                },
+                "success": "Sale created successfully"
+            },
+            "flow": {
+                "error": {
+                    "incorrect_option": "The selected sale flow option is invalid"
+                },
+                "success": "Sales flow updated successfully"
+            },
+            "get": {
+                "success": "Sales obtained successfully"
+            }
+        },
+        "suppliers": {
+            "create": {
+                "error": {
+                    "incorrect_type": "Supplier type is invalid"
+                },
+                "success": "Supplier saved successfully"
+            }
+        }
+    },
+    "oauth": {
+        "google": {
+            "error": {
+                "token": "Google token is invalid"
+            },
+            "success": "Google authentication successful"
+        }
+    },
+    "users": {
+        "settings": {
+            "update_password": {
+                "incorrect_password": "Current password is incorrect",
+                "min_char": "The new password must be at least 12 characters long",
+                "passwords_dont_match": "The new passwords do not match",
+                "success": "Password updated successfully"
             }
         }
     }
