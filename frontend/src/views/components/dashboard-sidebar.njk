@@ -91,6 +91,20 @@
                 <span class="sidebar-text">Dashboard</span>
             </a>
             {% endif %}
+            {% if "platform.roles.read" in permissions %}
+            <a href="/platform/roles"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-key text-xl"></i>
+                <span class="sidebar-text">Roles</span>
+            </a>
+            {% endif %}
+            {% if "platform.company_plans.read" in permissions %}
+            <a href="/platform/plans"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-crown text-xl"></i>
+                <span class="sidebar-text">Planes</span>
+            </a>
+            {% endif %}
             {% if "platform.companies.read" in permissions %}
             <a href="/platform/companies"
                 class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
@@ -103,13 +117,6 @@
                 class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
                 <i class="fa-regular fa-users text-xl"></i>
                 <span class="sidebar-text">Usuarios</span>
-            </a>
-            {% endif %}
-            {% if "platform.roles.read" in permissions %}
-            <a href="/platform/roles"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
-                <i class="fa-regular fa-key text-xl"></i>
-                <span class="sidebar-text">Roles</span>
             </a>
             {% endif %}
             {% if "platform.support.read" in permissions %}

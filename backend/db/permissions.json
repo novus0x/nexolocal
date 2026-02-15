@@ -14,6 +14,21 @@
         ]
       },
       {
+        "label": "Roles",
+        "permissions": [
+          { "key": "platform.roles.read", "label": "View roles" },
+          { "key": "platform.roles.create", "label": "Create roles" },
+          { "key": "platform.roles.update", "label": "Update roles" },
+          { "key": "platform.roles.delete", "label": "Delete users" }
+        ]
+      },
+      {
+        "label": "Companies Plans",
+        "permissions": [
+          { "key": "platform.company_plans.read", "label": "View companies plans" }
+        ]
+      },
+      {
         "label": "Companies",
         "permissions": [
           { "key": "platform.companies.read", "label": "View companies" },
@@ -32,15 +47,6 @@
           { "key": "platform.users.role", "label": "Update users roles" },
           { "key": "platform.users.block", "label": "Block users" },
           { "key": "platform.users.unblock", "label": "Unblock users" }
-        ]
-      },
-      {
-        "label": "Roles",
-        "permissions": [
-          { "key": "platform.roles.read", "label": "View roles" },
-          { "key": "platform.roles.create", "label": "Create roles" },
-          { "key": "platform.roles.update", "label": "Update roles" },
-          { "key": "platform.roles.delete", "label": "Delete users" }
         ]
       },
       {

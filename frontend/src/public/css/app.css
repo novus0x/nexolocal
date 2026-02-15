@@ -371,6 +371,49 @@ input[type="number"]::-webkit-outer-spin-button {
     border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
+/*************** Switch ***************/
+.nexo-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.nexo-switch input {
+    display: none;
+}
+
+.nexo-switch .bg {
+    width: 44px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--nexo-border);
+    border-radius: 100px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nexo-switch .dot {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    background: #cbd5e1;
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+}
+
+.nexo-switch input:checked + .bg {
+    background-color: var(--nexo-orange);
+    box-shadow: 0 0 15px rgba(255, 77, 0, 0.3);
+    border-color: var(--nexo-orange);
+}
+
+.nexo-switch input:checked + .bg + .dot {
+    transform: translateX(20px);
+    background-color: white;
+}
+
 /*************** Platform - Create ***************/
 .form-section {
     background: var(--bg-card);
@@ -592,15 +635,6 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 /*************** New Product ***************/
-.switch-input:checked~.switch-dot {
-    transform: translateX(100%);
-    background-color: white;
-}
-
-.switch-input:checked~.switch-bg {
-    background-color: var(--nexo-orange);
-}
-
 .hidden-section {
     display: none;
 }

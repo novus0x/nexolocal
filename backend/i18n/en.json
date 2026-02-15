@@ -235,6 +235,16 @@
                 },
                 "success": "Supplier saved successfully"
             }
+        },
+        "error": {
+            "does_not_exist": "The company does not exist"
+        },
+        "legal_profile_does_not_exist": "The company legal profile does not exist",
+        "settings": {
+            "does_not_exist": "The company settings do not exist",
+            "get": {
+                "success": "Company settings obtained successfully"
+            }
         }
     },
     "oauth": {

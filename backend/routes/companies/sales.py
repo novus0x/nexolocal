@@ -8,7 +8,7 @@ from sqlalchemy import or_, desc, func, extract
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import Product, Product_Batch, Company, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Expense, Expense_Status
+from db.model import Product, Product_Batch, Company, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Tax_Profile
 
 from core.config import settings
 
@@ -19,6 +19,8 @@ from core.generator import get_uuid, generate_nxid
 from core.db_management import add_db, update_db, add_multiple_db
 from core.validators import read_json_body, validate_required_fields
 from core.utils import is_int, is_float, pagination, normalize_search
+
+from services.tax_engine.main import process
 
 ########## Variables ##########
 router = APIRouter()
@@ -519,10 +521,10 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
 
     ### Check permissions ###
     access, message = check_permissions(db, request, "company.sales.create", company_id)
-    
+
     if not access:
         return custom_response(status_code=400, message=message)
-    
+
     ### Check Cash Session --> OPEN ###
     cash_session = db.query(Cash_Session).filter(
         Cash_Session.status == Cash_Session_Status.OPEN,
@@ -551,9 +553,16 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
     if not payment_method_value in Payment_Method._value2member_map_:
         return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.incorrect_payment_method"))
 
+    company = db.query(Company).filter(
+        Company.id == company_id
+    ).first()
+
+    if not company:
+        return custom_response(status_code=400, message=translate(lang, "company.error.does_not_exist"))
+
     ### Create Sale ###
     amount = 0
-    
+
     sale_items = []
     sale_items_ids = []
 
@@ -599,7 +608,7 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
             if not check_product.is_bulk:
                 if quantity != is_int(quantity):
                     return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.bulk_not_allowed"))
-                
+
                 quantity = is_int(quantity)
 
         current_cost = 0
@@ -665,18 +674,35 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
 
         sale_items.append(new_sale_item)
 
+    ### Tax Creation ###
+    if not company.is_formal:
+        new_sale.subtotal = amount
+        new_sale.taxable_amount = 0
+        new_sale.tax_amount = 0
+        new_sale.total = amount
+        new_sale.total_amount = amount
+    else:
+        check_company_legal = db.query(Tax_Profile).filter(
+            Tax_Profile.company_id == company_id
+        ).first()
+
+        if not check_company_legal:
+            return custom_response(status_code=400, message=translate(lang, "company.legal_profile_does_not_exist"))
+        
+        await process()
+        
+        print("Tax Creation")
+
     ### Create Income ###
     new_income = Income(
         id = get_uuid(db, Income),
         name = f"Nueva Venta: {new_sale.invoice_number}",
-        amount = amount,
+        amount = new_sale.total,
         status = Income_Status.RECEIVED,
         approved_by_id = user.get("id"),
         company_id = company_id
     )
 
-    new_sale.total = amount
-    new_sale.subtotal = amount
     new_sale.income_id = new_income.id
 
     new_cash_movement = Cash_Movement(
@@ -696,7 +722,7 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
     add_db(db, new_sale)
     add_db(db, new_cash_movement)
     add_multiple_db(db, sale_items)
-    
+
     return custom_response(status_code=200, message=translate(lang, "company.sales.create.success"), data={
         "sale_id": new_sale.id
     })

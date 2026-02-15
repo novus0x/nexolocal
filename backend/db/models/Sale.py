@@ -24,14 +24,27 @@ class Sale(Base):
 
     id = Column(String, primary_key=True)
     invoice_number = Column(String)
+
+    doc_type = Column(String(2), nullable=True) # 01 | 03
+
+    series = Column(String, nullable=True)
+    correlativo = Column(Integer, nullable=True)
+
+    currency = Column(String(3), default="PEN")
+
     subtotal = Column(Numeric(10, 2), nullable=False)
+    taxable_amount = Column(Numeric(10, 2), default=0)
     tax_amount = Column(Numeric(10, 2), default=0)
     discount_amount = Column(Numeric(10, 2), default=0)
     total = Column(Numeric(10, 2), nullable=False)
+    total_amount = Column(Numeric(10, 2), default=0)
 
     client_name = Column(String, nullable=True)
     client_email = Column(String, nullable=True)
     client_phone = Column(String, nullable=True)
+    client_doc_type = Column(String, nullable=True)
+    client_doc_number = Column(String, nullable=True)
+    client_address = Column(String, nullable=True)
 
     status = Column(Enum(Sale_Status), default=Sale_Status.PENDING)
     payment_method = Column(Enum(Payment_Method))
@@ -68,6 +81,9 @@ class Sale_Item(Base):
     name = Column(String, nullable=False)
     quantity = Column(Numeric(10, 3), nullable=False)
     unit_price = Column(Numeric(10, 2), nullable=False)
+    line_base_amount = Column(Numeric(10, 2), default=0)
+    line_tax_amount = Column(Numeric(10, 2), default=0)
+    tax_affectation_code = Column(String(2), default="10")
     discount = Column(Numeric(10, 2), default=0)
     total = Column(Numeric(10, 2), nullable=False)
 

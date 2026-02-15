@@ -49,9 +49,9 @@ async def get_companies(request: Request, db: Session = Depends(get_db)):
         companies.append({
             "id": company.id,
             "name": company.name,
-            "plan": company.plan_type,
+            # "plan": company.plan_type,
             "active": company.is_active,
-            "suspended": company.is_suspended,
+            "suspended": company.subscription_status,
             "in_charge": {
                 "username": in_charge.username,
                 "fullname": in_charge.fullname,

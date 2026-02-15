@@ -101,7 +101,7 @@
                                 name="supplier_id" required>
                                 <option class="input-field" value="none">seleccionar Provedor</option>
                                 {% for supplier in suppliers %}
-                                <option class="input-field" value="{{ supplier.id }}" {% if supplier.id == supplier_id %}
+                                <option class="input-field" value="{{ supplier.id }}" {% if supplier.id==supplier_id %}
                                     selected {% endif %}>{{ supplier.name }}</option>
                                 {% endfor %}
                             </select>
@@ -135,7 +135,7 @@
                         </div>
                         <div class="col-span-1 md:col-span-2" id="product_type_container">
                             <label class="flex items-center mb-3 gap-3 cursor-pointer">
-                                <input type="checkbox" name="is_bulk" id="bulkSwitch" class="custom-checkbox"
+                                <input type="checkbox" name="is_bulk" class="custom-checkbox"
                                     onchange="toggle_bulk(this.checked)">
                                 <span class="text-sm text-gray-300">
                                     Producto a granel (kg / L)
@@ -171,14 +171,13 @@
                                     es un producto físico</p>
                             </div>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="serviceSwitch" class="sr-only switch-input"
-                                onchange="toggle_section('serviceOptions', this.checked)" name="is_service" {% if
-                                is_service %} checked {% endif %}>
-                            <div class="w-11 h-6 bg-white/10 rounded-full transition-all switch-bg"></div>
-                            <div
-                                class="absolute left-1 top-1 bg-gray-500 w-4 h-4 rounded-full transition-all switch-dot">
-                            </div>
+                        <label class="nexo-switch">
+                            <input type="checkbox" id="serviceSwitch" name="is_service"
+                                onchange="toggle_section('serviceOptions', this.checked)" {% if is_service %} checked {%
+                                endif %}>
+
+                            <div class="bg"></div>
+                            <div class="dot"></div>
                         </label>
                     </div>
 
@@ -246,14 +245,10 @@
                                 <p class="text-[11px] font-bold text-gray-300">Rastrear Inventario</p>
                                 <p class="text-xs text-gray-500">Notificarme si queda poco stock</p>
                             </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="trackInventory" class="sr-only switch-input"
-                                    onchange="toggle_stock('low_stock_field', this.checked)" name="track_product" {% if
-                                    track_product %} checked {% endif %}>
-                                <div class="w-10 h-5 bg-white/10 rounded-full transition-all switch-bg"></div>
-                                <div
-                                    class="absolute left-1 top-0.5 bg-gray-500 w-4 h-4 rounded-full transition-all switch-dot">
-                                </div>
+                            <label class="nexo-switch">
+                                <input type="checkbox" id="serviceSwitch">
+                                <div class="bg"></div>
+                                <div class="dot"></div>
                             </label>
                         </div>
                         <div id="low_stock_field"

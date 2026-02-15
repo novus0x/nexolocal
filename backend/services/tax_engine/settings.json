@@ -1,0 +1,16 @@
+{
+    "pe": {
+        "currency": "PEN",
+        "percentage": 0.18,
+        "doc_types": {
+            "invoice": "01",
+            "receipt": "03"
+        },
+        "taxt_affectation_codes": {
+            "gravado": "10",
+            "exonerado": "20",
+            "inafecto": "30",
+            "gratuito": "21"
+        }
+    }
+}

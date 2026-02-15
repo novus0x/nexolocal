@@ -12,7 +12,7 @@ from routes.users import u_settings
 from routes.general import welcome, invitations, g_support
 from routes.platform import companies, roles, users, p_support
 from routes.auth import login, register, sessions, logout, forgot_password
-from routes.companies import company, products, finance, sales, c_dashboard, cash, suppliers
+from routes.companies import company, products, finance, sales, c_dashboard, cash, suppliers, c_settings
 
 from middlewares.i18n import i18n_middleware
 from middlewares.auth import auth_middleware
@@ -82,6 +82,7 @@ app.include_router(products.router, prefix="/api/company/products", tags=["Produ
 app.include_router(finance.router, prefix="/api/company/finance", tags=["Finance", "Company"])
 app.include_router(sales.router, prefix="/api/company/sales", tags=["Sales", "Company"])
 app.include_router(cash.router, prefix="/api/company/cash", tags=["Cash", "Company"])
+app.include_router(c_settings.router, prefix="/api/company/settings", tags=["Settings", "Company"])
 
 app.include_router(invitations.router, prefix="/api/general/invitations", tags=["General", "Invitations"])
 app.include_router(g_support.router, prefix="/api/general/support", tags=["General", "Support"])

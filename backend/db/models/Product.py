@@ -4,7 +4,7 @@ import enum
 from db.database import Base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean, Text, Numeric, Integer, Enum
+from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean, Text, Numeric, Enum
 
 ##### Product-Service type of duration #####
 class Product_Service_Duration(enum.Enum):
@@ -31,6 +31,7 @@ class Product(Base):
     compare_price = Column(Numeric(10, 2), nullable=True)
     
     tax_included = Column(Boolean, default=False)
+    tax_affectation_code = Column(String(2), default="10") # 10 gravado, 20 exonerado, 30 inafecto
 
     stock = Column(Numeric(10, 3), default=0)
     low_stock_alert = Column(Numeric(10, 3), default=5)

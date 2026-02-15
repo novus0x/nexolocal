@@ -29,6 +29,17 @@ def sync_schema():
     inspector = inspect(engine)
 
     with engine.begin() as conn:
+
+        model_tables = set(Base.metadata.tables.keys())
+        db_tables = set(inspector.get_table_names())
+
+        for db_table in db_tables:
+            if db_table not in model_tables:
+                warnings.append(
+                    f"[EXTRA TABLE] {db_table} "
+                    "(exists in DB but not in models)"
+                )
+
         for table in Base.metadata.tables.values():
             if not inspector.has_table(table.name):
                 continue 
@@ -36,6 +47,15 @@ def sync_schema():
             db_columns = {
                 col["name"]: col for col in inspector.get_columns(table.name)
             }
+
+            model_column_names = {c.name for c in table.columns}
+
+            for db_column_name in db_columns.keys():
+                if db_column_name not in model_column_names:
+                    warnings.append(
+                        f"[EXTRA COLUMN] {table.name}.{db_column_name} "
+                        "(exists in DB but not in model)"
+                    )
 
             for column in table.columns:
                 if column.name not in db_columns:

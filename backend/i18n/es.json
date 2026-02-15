@@ -235,6 +235,16 @@
                 },
                 "success": "Proveedor guardado satisfactoriamente"
             }
+        },
+        "error": {
+            "does_not_exist": "La empresa no existe"
+        },
+        "legal_profile_does_not_exist": "El perfil legal de la empresa no existe",
+        "settings": {
+            "does_not_exist": "La configuración de la empresa no existe",
+            "get": {
+                "success": "Configuración de la empresa obtenida satisfactoriamente"
+            }
         }
     },
     "oauth": {
