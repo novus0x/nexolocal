@@ -221,7 +221,7 @@ async def update_user(request: Request, user_id: str, db: Session = Depends(get_
     if error: 
         return custom_response(status_code=400, message=error)
     
-    required_fields, error = validate_required_fields(update_user, ["username", "fullname", "email", "status", "role", "phone", "description"])
+    required_fields, error = validate_required_fields(update_user, ["username", "fullname", "email", "status", "role", "phone", "description"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
     

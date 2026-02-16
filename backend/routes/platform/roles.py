@@ -111,7 +111,7 @@ async def create_role(request: Request, db: Session = Depends(get_db)):
     if error: 
         return custom_response(status_code=400, message=error)
         
-    required_fields, error = validate_required_fields(new_role_data, ["permissions", "role_name", "description", "hidden"])
+    required_fields, error = validate_required_fields(new_role_data, ["permissions", "role_name", "description", "hidden"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
         
@@ -203,7 +203,7 @@ async def get_roles(request: Request, role_id: str, db: Session = Depends(get_db
     if error: 
         return custom_response(status_code=400, message=error)
 
-    required_fields, error = validate_required_fields(update_role, ["permissions", "role_name", "description", "hidden"])
+    required_fields, error = validate_required_fields(update_role, ["permissions", "role_name", "description", "hidden"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 

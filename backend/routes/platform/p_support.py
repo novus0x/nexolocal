@@ -251,7 +251,7 @@ async def create_new_ticket_response(request: Request, ticket_id: str, db: Sessi
     if error: 
         return custom_response(status_code=400, message=error)
         
-    required_fields, error = validate_required_fields(check_new_response, ["description", "internal"])
+    required_fields, error = validate_required_fields(check_new_response, ["description", "internal"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 

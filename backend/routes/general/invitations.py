@@ -65,16 +65,16 @@ async def invitations(request: Request, db: Session = Depends(get_db)):
 ########## Invitations ##########
 @router.post("/accept")
 async def accept_invitation(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+
     ### Get Body ###
     invitation, error = await read_json_body(request)
     if error: 
         return custom_response(status_code=400, message=error)
     
-    ### Variables ###
-    lang = request.state.lang
-    
     ### Validations ###
-    required_fields, error = validate_required_fields(invitation, ["invitation_id"], request.state.lang)
+    required_fields, error = validate_required_fields(invitation, ["invitation_id"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
     

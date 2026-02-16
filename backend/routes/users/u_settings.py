@@ -35,7 +35,7 @@ async def update_password(request: Request, db: Session = Depends(get_db)):
 
     required_fields, error = validate_required_fields(user_update_password, [
         "current_password", "new_password", "confirm_new_password"
-    ])
+    ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)

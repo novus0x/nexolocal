@@ -209,7 +209,7 @@ async def create_finance(request: Request, db: Session = Depends(get_db)):
 
     required_fields, error = validate_required_fields(finance_check, [
         "amount", "title", "description", "expense_category", "subcategory", "date", "receipt_url"
-    ])
+    ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)

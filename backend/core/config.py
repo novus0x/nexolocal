@@ -6,22 +6,24 @@ class Settings(BaseSettings):
     TIMEZONE: str
 
     DATABASE_MODE: str
+
     DATABASE_URL_LOCAL: str
     DATABASE_URL_DOCKER: str
 
     TOKEN_NAME: str
     SECRET_KEY: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
 
     SMTP_HOST: str
     SMTP_PORT: int
     SMTP_USER: str
     SMTP_PASS: str
 
-    EMAIL_ENABLED: bool = True
-
     GOOGLE_CLIENT_ID: str
     GOOGLE_SECRET_ID: str
+
+    EMAIL_ENABLED: bool = True
+    TAX_ENGINE_PRODUCTION: bool = False
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
 
     @property
     def DATABASE_URL(self):

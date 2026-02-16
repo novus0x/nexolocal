@@ -43,7 +43,7 @@ async def create_new_ticket_support(request: Request, db: Session = Depends(get_
 
     required_fields, error = validate_required_fields(check_ticket, [
         "category", "priority", "title", "description"
-    ])
+    ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
@@ -227,7 +227,7 @@ async def create_new_ticket_response(request: Request, ticket_id: str, db: Sessi
     if error: 
         return custom_response(status_code=400, message=error)
         
-    required_fields, error = validate_required_fields(check_new_response, ["description"])
+    required_fields, error = validate_required_fields(check_new_response, ["description"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 

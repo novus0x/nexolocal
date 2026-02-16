@@ -68,7 +68,11 @@
                                 <p class="text-[11px] text-(--text-muted)">{{ company.in_charge.email }}</p>
                             </td>
                             <td class="px-6 py-5">
-                                <span class="badge badge-active uppercase mb-2">{{ company.plan }}</span>
+                                {% if company.plan.available %}
+                                <span class="badge badge-active uppercase mb-2">{{ company.plan.name }}</span>
+                                {% else %}
+                                <span class="badge badge-pending uppercase mb-2">---</span>
+                                {% endif %}
                                 <div class="flex items-center gap-2">
                                     {% if not company.suspended and not company.active %}
                                     <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>

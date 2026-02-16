@@ -25,6 +25,10 @@ async def get_companies(request: Request, db: Session = Depends(get_db)):
     user = request.state.user
     companies = []
 
+    plan = {
+        "available": False
+    }
+
     ### Validation ###
     if user == None:
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
@@ -49,9 +53,9 @@ async def get_companies(request: Request, db: Session = Depends(get_db)):
         companies.append({
             "id": company.id,
             "name": company.name,
-            # "plan": company.plan_type,
             "active": company.is_active,
-            "suspended": company.subscription_status,
+            "suspended": company.is_suspended,
+            "plan": plan,
             "in_charge": {
                 "username": in_charge.username,
                 "fullname": in_charge.fullname,
@@ -119,14 +123,14 @@ async def roles_generate_company(request: Request, db: Session = Depends(get_db)
 ########## Create Company and Generate Invitation ##########
 @router.post("/create")
 async def generate_invitation(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+    user = request.state.user
+
     ### Get Body ###
     new_company_values, error = await read_json_body(request)
     if error: 
         return custom_response(status_code=400, message=error)
-
-    ### Variables ###
-    lang = request.state.lang
-    user = request.state.user
 
     ### Check permissions ###
     access, message = check_permissions(db, request, "platform.companies.create")
@@ -135,7 +139,7 @@ async def generate_invitation(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=message)
     
     ### Validations ###
-    required_fields, error = validate_required_fields(new_company_values, ["name", "email", "role_id", "notes"], request.state.lang)
+    required_fields, error = validate_required_fields(new_company_values, ["name", "email", "role_id", "notes"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 

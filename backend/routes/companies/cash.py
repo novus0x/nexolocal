@@ -53,7 +53,7 @@ async def open(request: Request, db: Session = Depends(get_db)):
 
     required_fields, error = validate_required_fields(check_cash, [
         "initial_cash"
-    ])
+    ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
@@ -122,7 +122,7 @@ async def open(request: Request, db: Session = Depends(get_db)):
 
     required_fields, error = validate_required_fields(check_cash, [
         "amount", "description"
-    ])
+    ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)

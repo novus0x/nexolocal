@@ -31,7 +31,7 @@ async def validate_company_id(request: Request, db: Session = Depends(get_db)):
     if error: 
         return custom_response(status_code=400, message=error)
         
-    required_fields, error = validate_required_fields(company_check, ["company_id"])
+    required_fields, error = validate_required_fields(company_check, ["company_id"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 

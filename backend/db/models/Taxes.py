@@ -27,11 +27,12 @@ class Tax_Profile(Base):
     country = Column(String(2), default="PE")
 
     tax_id_type = Column(String, nullable=True) # RUC, DNI, VAT, ETC
+
     tax_id = Column(String, nullable=True) # RUC value
     tax_regime = Column(String, nullable=True) # NRUS RER RMT RG
 
-    sol_user = Column(String, nullable=True)
-    sol_password = Column(String, nullable=True)
+    tax_user = Column(String, nullable=True)
+    tax_password = Column(String, nullable=True)
 
     tax_provider = Column(String, default="none")
     environment = Column(Enum(Tax_Environment_Type), default=Tax_Environment_Type.SANDBOX)
@@ -154,14 +155,20 @@ class Tax_Period(Base):
     company = relationship("Company")
 
 ##### Tax Series #####
+class Tax_Document_Type(enum.Enum):
+    INVOICE = "01"
+    RECEIPT = "03"
+
 class Tax_Series(Base):
     __tablename__ = "tax_series"
 
     id = Column(String, primary_key=True, nullable=False)
 
-    doc_type = Column(String, nullable=False) # 01 | 03
+    doc_type = Column(Enum(Tax_Document_Type), nullable=False)
+
     series = Column(String, nullable=False)
     current_number = Column(Integer, default=0, nullable=False)
+    
     is_active = Column(Boolean, default=True)
 
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())

@@ -24,13 +24,13 @@ router = APIRouter()
 ########## Register ##########
 @router.post("/register")
 async def register(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+
     ### Get Body ###
     user, error = await read_json_body(request)
     if error: 
         return custom_response(status_code=400, message=error)
-    
-    ### Variables ###
-    lang = request.state.lang
     
     ### Validations ###
     required_fields, error = validate_required_fields(user, ["username", "fullname", "email", "password", "confirm_password", "birth"], lang)

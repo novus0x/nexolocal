@@ -23,6 +23,9 @@ router = APIRouter()
 ########## Forgot Password ##########
 @router.post("/forgot-password")
 async def forgot_password(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+
     ### Get Body ###
     user, error = await read_json_body(request)
 
@@ -33,7 +36,7 @@ async def forgot_password(request: Request, db: Session = Depends(get_db)):
     lang = request.state.lang
     
     ### Validations ###
-    required_fields, error = validate_required_fields(user, ["email"], request.state.lang)
+    required_fields, error = validate_required_fields(user, ["email"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
     
@@ -69,6 +72,9 @@ async def forgot_password(request: Request, db: Session = Depends(get_db)):
 ########## Recover Account Verify ##########
 @router.post("/recover-account-verify")
 async def recover_account_verify(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+
     ### Get Body ###
     recover, error = await read_json_body(request)
 
@@ -79,7 +85,7 @@ async def recover_account_verify(request: Request, db: Session = Depends(get_db)
     lang = request.state.lang
     
     ### Validations ###
-    required_fields, error = validate_required_fields(recover, ["recover_id"], request.state.lang)
+    required_fields, error = validate_required_fields(recover, ["recover_id"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
     
@@ -99,6 +105,9 @@ async def recover_account_verify(request: Request, db: Session = Depends(get_db)
 ########## Recover Account ##########
 @router.post("/recover-account")
 async def recover_account(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+
     ### Get Body ###
     recover, error = await read_json_body(request)
 
@@ -109,7 +118,7 @@ async def recover_account(request: Request, db: Session = Depends(get_db)):
     lang = request.state.lang
     
     ### Validations ###
-    required_fields, error = validate_required_fields(recover, ["recover_id", "new_password", "confirm_new_password"], request.state.lang)
+    required_fields, error = validate_required_fields(recover, ["recover_id", "new_password", "confirm_new_password"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
     

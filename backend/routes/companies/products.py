@@ -244,7 +244,7 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         "name", "sku", "identifier", "category", "description", "supplier_id", "sale_price", "sale_cost", "tax_include", 
         "is_bulk", "is_service", "duration", "duration_type", "staff_id", "track_product", "low_stock", "bonus", "weight",
         "length", "width", "height", "expiration_date"
-    ])
+    ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
@@ -837,7 +837,7 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
 
     required_fields, error = validate_required_fields(product_check, [
         "product_id", "quantity", "bonus", "price", "cost", "reception_date", "expiration_date"
-    ])
+    ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)

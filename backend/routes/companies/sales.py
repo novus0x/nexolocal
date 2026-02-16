@@ -113,7 +113,7 @@ async def cash_flow_api(request: Request, db: Session = Depends(get_db)):
 
     required_fields, error = validate_required_fields(check_flow, [
         "type"
-    ])
+    ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
@@ -409,7 +409,7 @@ async def check_product_scan(request: Request, db: Session = Depends(get_db)):
 
     required_fields, error = validate_required_fields(check_product, [
         "identifier"
-    ])
+    ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
@@ -467,7 +467,7 @@ async def check_product_search(request: Request, db: Session = Depends(get_db)):
 
     required_fields, error = validate_required_fields(check_product, [
         "query"
-    ])
+    ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
@@ -541,7 +541,7 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
 
     required_fields, error = validate_required_fields(check_sale, [
         "client_id", "payment_method", "items"
-    ])
+    ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)

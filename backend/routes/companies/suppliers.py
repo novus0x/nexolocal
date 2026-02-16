@@ -124,7 +124,7 @@ async def create_supplier(request: Request, db: Session = Depends(get_db)):
 
     required_fields, error = validate_required_fields(supplier_check, [
         "name", "reason_name", "document", "email", "phone", "address", "supplier_type", "is_active"
-    ])
+    ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)

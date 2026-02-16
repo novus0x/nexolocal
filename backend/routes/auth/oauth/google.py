@@ -27,13 +27,13 @@ router = APIRouter()
 ##########  ##########
 @router.post("/google")
 async def google_auth(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+
     ### Get Body ###
     google_auth_data, error = await read_json_body(request)
     if error: 
         return custom_response(status_code=400, message=error)
-    
-    ### Variables ###
-    lang = request.state.lang
     
     user_id_v = ""
 
@@ -41,7 +41,7 @@ async def google_auth(request: Request, db: Session = Depends(get_db)):
     create_link_account = True
     
     ### Validations ###
-    required_fields, error = validate_required_fields(google_auth_data, ["code"], request.state.lang)
+    required_fields, error = validate_required_fields(google_auth_data, ["code"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 
