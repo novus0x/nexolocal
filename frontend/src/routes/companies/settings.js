@@ -1,4 +1,5 @@
 /*************** Modules ***************/
+import fs from 'fs';
 import express from 'express';
 
 import upload from '../../middlewares/upload.js';
@@ -25,11 +26,12 @@ router.get("/", require_auth, at_least_company, async (req, res) => {
     if (response.error) return res.redirect("/platform");
 
     const data = response.data.information;
-    console.log(data)
 
     // Render content
     return res.render("companies/settings/main", {
-        company: data.company
+        company: data.company,
+        plan: data.plan,
+        tax_profile: data.tax_profile,
     });
 });
 
@@ -58,12 +60,13 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
     let invoice_number_v = "none";
     let receipt_series_v = "none";
     let receipt_number_v = "none";
+    let certificate_password_v = "none";
 
     // Check permissions
     if (!permissions.includes("company.settings.update")) return res.redirect("/system-alert/403");
 
     // Get Body
-    const { commercial_name, description, email, phone, is_formal, legal_name, tax_id, address_line, region, city, postal_code, tax_user, tax_password, invoice_series, invoice_number, receipt_series, receipt_number } = req.body;
+    const { commercial_name, description, email, phone, is_formal, legal_name, tax_id, address_line, region, city, postal_code, tax_user, tax_password, invoice_series, invoice_number, receipt_series, receipt_number, certificate_password } = req.body;
 
     if (description) description_v = description;
     if (phone) phone_v = phone;
@@ -86,11 +89,16 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
 
             const data2 = response2.data.information;
 
-            // Need to be fixed
             return res.render("companies/settings/main", {
                 errors,
 
-                company: data2.company
+                commercial_name, description, email, phone, is_formal, legal_name, tax_id, address_line, 
+                region, city, postal_code, tax_user, invoice_series, invoice_number, receipt_series, 
+                receipt_number,
+
+                company: data2.company,
+                plan: data2.plan,
+                tax_profile: data2.tax_profile,
             });
         }
 
@@ -99,6 +107,10 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
             type: file.mimetype
         });
 
+        // Temp Logo
+        const buffer = fs.readFileSync("src/public/img/utils/logo-here.png");
+        const blob2 = new Blob([buffer], {type: "image/png"});
+
         // Check Data
         if (legal_name) legal_name_v = legal_name;
         if (tax_id) tax_id_v = tax_id;
@@ -106,14 +118,16 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
         if (region) region_v = region;
         if (city) city_v = city;
         if (postal_code) postal_code_v = postal_code;
-        if (tax_user) tax_id_v = tax_id;
+        if (tax_user) tax_user_v = tax_user;
         if (tax_password) tax_password_v = tax_password;
         if (invoice_series) invoice_series_v = invoice_series;
         if (invoice_number) invoice_number_v = invoice_number;
         if (receipt_series) receipt_series_v = receipt_series;
         if (receipt_number) receipt_number_v = receipt_number;
+        if (certificate_password) certificate_password_v = certificate_password;
 
         form.append("file", blob, req.file.originalname);
+        form.append("logo", blob2, "logo-here.png");
     }
 
     // Add Data to Form
@@ -135,6 +149,7 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
     form.append("invoice_number", invoice_number_v);
     form.append("receipt_series", receipt_series_v);
     form.append("receipt_number", receipt_number_v);
+    form.append("certificate_password", certificate_password_v);
 
     const response = await send_form_data("/company/settings/update", {}, form, req);
 
@@ -148,11 +163,16 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
 
         const data2 = response2.data.information;
 
-        // Need to be fixed
         return res.render("companies/settings/main", {
             errors,
 
-            company: data2.company
+            commercial_name, description, email, phone, is_formal, legal_name, tax_id, address_line, 
+            region, city, postal_code, tax_user, invoice_series, invoice_number, receipt_series, 
+            receipt_number,
+
+            company: data2.company,
+            plan: data2.plan,
+            tax_profile: data2.tax_profile,
         });
     }
 
@@ -168,7 +188,9 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
     return res.render("companies/settings/main", {
         notifications,
 
-        company: data3.company
+        company: data3.company,
+        plan: data3.plan,
+        tax_profile: data3.tax_profile,
     });
 });
 

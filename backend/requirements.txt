@@ -8,7 +8,9 @@ fastapi
 uvicorn
 aiosmtplib
 sqlalchemy
+cryptography
 python-dotenv
+python-dateutil
 psycopg2-binary
 python-multipart
 pydantic-settings

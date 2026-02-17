@@ -1,6 +1,7 @@
 ########## Modules ##########
 from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta, date, time
+from dateutil.relativedelta import relativedelta
 
 from fastapi import APIRouter, Request, Depends
 
@@ -138,13 +139,13 @@ async def cash_flow_api(request: Request, db: Session = Depends(get_db)):
         mode = "day"
 
     elif check_flow.type == "6m":
-        base = today.replace(day=1) - timedelta(days=180)
+        base = today.replace(day=1) - relativedelta(months=6)
         start_local = datetime.combine(base.replace(day=1), time.min, tzinfo=LOCAL_TZ)
         end_local = now
         mode = "month"
 
     elif check_flow.type == "12m":
-        base = today.replace(day=1) - timedelta(days=365)
+        base = today.replace(day=1) - relativedelta(months=12)
         start_local = datetime.combine(base.replace(day=1), time.min, tzinfo=LOCAL_TZ)
         end_local = now
         mode = "month"

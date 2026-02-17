@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     TOKEN_NAME: str
     SECRET_KEY: str
 
+    TAX_ENGINE_USER: str
+    TAX_ENGINE_PASSWORD: str
+
     SMTP_HOST: str
     SMTP_PORT: int
     SMTP_USER: str
@@ -22,7 +25,6 @@ class Settings(BaseSettings):
     GOOGLE_SECRET_ID: str
 
     EMAIL_ENABLED: bool = True
-    TAX_ENGINE_PRODUCTION: bool = False
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
 
     @property

@@ -81,7 +81,8 @@
                         </div>
                     </div>
 
-                    <form class="grid grid-cols-12 gap-8" action="/companies/{{ company_information.id }}/settings" enctype="multipart/form-data" method="post" >
+                    <form class="grid grid-cols-12 gap-8" action="/companies/{{ company_information.id }}/settings"
+                        enctype="multipart/form-data" method="post">
                         <div class="col-span-12 lg:col-span-8 space-y-8">
 
                             <section class="glass-card rounded-[2.5rem] p-10 relative overflow-hidden">
@@ -141,17 +142,25 @@
                                             <i class="fa-regular fa-file-lines text-xl"></i>
                                         </div>
                                         <div>
-                                            <h3 class="text-lg font-black italic uppercase">Activa el Perfil Fiscal y
-                                                Facturación</h3>
+                                            {% if not company.is_formal %}
+                                            <h3 class="text-lg font-black italic uppercase">Activa el Perfil Fiscal</h3>
                                             <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
                                                 Una vez activado no se puede desactivar, sin embargo una vez creado
                                                 luego puede decidir si desea que la emisión sea automática o manual.
                                             </p>
+                                            {% else %}
+                                            <h3 class="text-lg font-black italic text-(--accent) uppercase">Editar Pefil Fiscal</h3>
+                                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                                                Con esto podra editar el perfil fiscal en caso desee actualizar o
+                                                corregir algun dato.
+                                            </p>
+                                            {% endif %}
                                         </div>
                                     </div>
 
                                     <label class="nexo-switch">
-                                        <input type="checkbox" name="is_formal" onchange="activate_taxes(this.checked)">
+                                        <input type="checkbox" name="is_formal" onchange="toggle_taxes()" {% if
+                                            is_formal %} checked {% endif %}>
                                         <div class="bg"></div>
                                         <div class="dot"></div>
                                     </label>
@@ -173,7 +182,7 @@
                                         <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Razón
                                             Social</label>
                                         <input type="text" name="legal_name"
-                                            class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm uppercase">
+                                            class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm">
                                     </div>
                                     <div class="md:col-span-4 space-y-1">
                                         <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Identificación
@@ -183,7 +192,7 @@
                                     </div>
                                     <div class="md:col-span-6 space-y-1">
                                         <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Dirección
-                                            Fiscal</label>
+                                            Fiscal (Copiar y Pegarla tal cual se encuentra en su proveedor)</label>
                                         <input type="text" name="address_line"
                                             class="w-full input-glass px-5 py-4 rounded-xl text-sm">
                                     </div>
@@ -233,7 +242,7 @@
                                                 <label class="text-[9px] font-black uppercase text-gray-500 ml-2">
                                                     Contraseña
                                                 </label>
-                                                <input type="password" name="tax_password"
+                                                <input type="password" name="tax_password" placeholder="************"
                                                     class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm">
                                                 <p class="text-[10px] text-gray-500 ml-2 flex items-center gap-1">
                                                     <i class="fa-solid fa-circle-info text-(--accent)"></i>
@@ -247,11 +256,26 @@
                                                 <label class="text-[9px] font-black uppercase text-gray-500 ml-2">
                                                     Certificado Digital
                                                 </label>
-                                                <input type="file" name="file" accept=".pem,.crt,.cer"
+                                                <input type="file" name="file" accept=".pem,.pfx,.p12"
                                                     class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-(--accent) file:text-black hover:file:bg-(--accent-hover)">
                                                 <p class="text-[10px] text-gray-500 ml-2 flex items-center gap-1">
                                                     <i class="fa-solid fa-circle-info text-(--accent)"></i>
                                                     Archivo necesario para firmar electrónicamente tus comprobantes.
+                                                    <a href="#" class="text-(--accent) hover:underline ml-1 font-bold">
+                                                        Ver ayuda
+                                                    </a>
+                                                </p>
+                                            </div>
+                                            <div class="md:col-span-12 space-y-1">
+                                                <label class="text-[9px] font-black uppercase text-gray-500 ml-2">
+                                                    Contraseña del Certificado (Solo si el certificado subido no termina
+                                                    en .pem)
+                                                </label>
+                                                <input type="password" name="certificate_password"
+                                                    class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm">
+                                                <p class="text-[10px] text-gray-500 ml-2 flex items-center gap-1">
+                                                    <i class="fa-solid fa-circle-info text-(--accent)"></i>
+                                                    Contraseña asociada a tu certificado.
                                                     <a href="#" class="text-(--accent) hover:underline ml-1 font-bold">
                                                         Ver ayuda
                                                     </a>
@@ -262,6 +286,182 @@
                                 </div>
                             </section>
                             {% else %}
+                            <section class="glass-card rounded-[2.5rem] p-10 hidden" id="creation_tax_profile">
+                                <div class="flex items-center gap-4 mb-10">
+                                    <div>
+                                        <h2 class="text-2xl font-black italic uppercase">Perfil Fiscal</h2>
+                                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">
+                                            Configuración de Emisor Electrónico</p>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                                    <div class="md:col-span-8 space-y-1">
+                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Razón
+                                            Social</label>
+                                        <input type="text" name="legal_name"
+                                            value="{{ tax_profile.profile.legal_name }}"
+                                            class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm">
+                                    </div>
+                                    <div class="md:col-span-4 space-y-1">
+                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Identificación
+                                            Fiscal (ID)</label>
+                                        <input type="text" name="tax_id" value="{{ tax_profile.profile.tax_id }}"
+                                            class="w-full input-glass px-5 py-4 rounded-xl font-mono text-sm tracking-widest">
+                                    </div>
+                                    <div class="md:col-span-6 space-y-1">
+                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Dirección
+                                            Fiscal (Copiar y Pegarla tal cual se encuentra en su proveedor)</label>
+                                        <input type="text" name="address_line" value="{{ tax_profile.profile.address }}"
+                                            class="w-full input-glass px-5 py-4 rounded-xl text-sm">
+                                    </div>
+                                    <div class="md:col-span-2 space-y-1">
+                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Región</label>
+                                        <input type="text" name="region" value="{{ tax_profile.profile.region }}"
+                                            class="w-full input-glass px-5 py-4 rounded-xl text-sm">
+                                    </div>
+                                    <div class="md:col-span-2 space-y-1">
+                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Ciudad</label>
+                                        <input type="text" name="city" value="{{ tax_profile.profile.city }}"
+                                            class="w-full input-glass px-5 py-4 rounded-xl text-sm">
+                                    </div>
+                                    <div class="md:col-span-2 space-y-1">
+                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Código
+                                            Postal</label>
+                                        <input type="text" name="postal_code"
+                                            value="{{ tax_profile.profile.postal_code }}"
+                                            class="w-full input-glass px-5 py-4 rounded-xl text-sm">
+                                    </div>
+                                    <div class="md:col-span-12">
+                                        <div class="mb-4">
+
+                                            <h2 class="text-sm font-black uppercase text-(--accent)">
+                                                Credenciales de Facturación Electrónica
+                                            </h2>
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                Estas credenciales permiten emitir comprobantes electrónicos de forma
+                                                segura desde la plataforma.
+                                            </p>
+                                        </div>
+                                        <div class="grid md:grid-cols-12 gap-4">
+                                            <div class="md:col-span-6 space-y-1">
+                                                <label class="text-[9px] font-black uppercase text-gray-500 ml-2">
+                                                    Usuario
+                                                </label>
+                                                <input type="text" name="tax_user"
+                                                    value="{{ tax_profile.profile.tax_user }}"
+                                                    class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm">
+                                                <p class="text-[10px] text-gray-500 ml-2 flex items-center gap-1">
+                                                    <i class="fa-solid fa-circle-info text-(--accent)"></i>
+                                                    Usuario proporcionado por tu proveedor de facturación.
+                                                    <a href="#" class="text-(--accent) hover:underline ml-1 font-bold">
+                                                        Ver ayuda
+                                                    </a>
+                                                </p>
+                                            </div>
+                                            <div class="md:col-span-6 space-y-1">
+                                                <label class="text-[9px] font-black uppercase text-gray-500 ml-2">
+                                                    Contraseña
+                                                </label>
+                                                <input type="password" name="tax_password" placeholder="************"
+                                                    class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm">
+                                                <p class="text-[10px] text-gray-500 ml-2 flex items-center gap-1">
+                                                    <i class="fa-solid fa-circle-info text-(--accent)"></i>
+                                                    Contraseña asociada a tu usuario.
+                                                    <a href="#" class="text-(--accent) hover:underline ml-1 font-bold">
+                                                        Ver ayuda
+                                                    </a>
+                                                </p>
+                                            </div>
+                                            <div class="md:col-span-12 space-y-1">
+                                                <label class="text-[9px] font-black uppercase text-gray-500 ml-2">
+                                                    Certificado Digital
+                                                </label>
+                                                <input type="file" name="file" accept=".pem,.pfx,.p12"
+                                                    class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-(--accent) file:text-black hover:file:bg-(--accent-hover)">
+                                                <p class="text-[10px] text-gray-500 ml-2 flex items-center gap-1">
+                                                    <i class="fa-solid fa-circle-info text-(--accent)"></i>
+                                                    Archivo necesario para firmar electrónicamente tus comprobantes.
+                                                    <a href="#" class="text-(--accent) hover:underline ml-1 font-bold">
+                                                        Ver ayuda
+                                                    </a>
+                                                </p>
+                                            </div>
+                                            <div class="md:col-span-12 space-y-1">
+                                                <label class="text-[9px] font-black uppercase text-gray-500 ml-2">
+                                                    Contraseña del Certificado (Solo si el certificado subido no termina
+                                                    en .pem)
+                                                </label>
+                                                <input type="password" name="certificate_password"
+                                                    class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm">
+                                                <p class="text-[10px] text-gray-500 ml-2 flex items-center gap-1">
+                                                    <i class="fa-solid fa-circle-info text-(--accent)"></i>
+                                                    Contraseña asociada a tu certificado.
+                                                    <a href="#" class="text-(--accent) hover:underline ml-1 font-bold">
+                                                        Ver ayuda
+                                                    </a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="hidden glass-card rounded-[3rem] p-10" id="tax_profile_series_container">
+                                <div class="mb-6">
+                                    <h3 class="text-xl font-black italic uppercase">
+                                        Series de Comprobantes
+                                    </h3>
+                                    <p class="text-[10px] text-gray-500 mt-1 flex items-center gap-1">
+                                        <i class="fa-solid fa-circle-info text-(--accent)"></i>
+                                        Define la serie y el número inicial para tus comprobantes.
+                                        <a href="#" class="text-(--accent) hover:underline font-bold ml-1">
+                                            Ver ayuda
+                                        </a>
+                                    </p>
+                                </div>
+
+                                <div class="grid md:grid-cols-12 gap-6">
+                                    <div class="md:col-span-6 space-y-3">
+                                        <label class="text-[10px] font-black uppercase text-gray-500">
+                                            Factura
+                                        </label>
+                                        <div class="space-y-1">
+                                            <label class="text-[9px] text-gray-600 uppercase ml-2">
+                                                Serie
+                                            </label>
+                                            <input name="receipt_series" placeholder="F001" value="{{ tax_profile.series.receipt.series }}"
+                                                class="w-full input-glass px-5 py-4 rounded-xl font-black text-lg tracking-widest uppercase">
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label class="text-[9px] text-gray-600 uppercase ml-2">
+                                                Número Actual
+                                            </label>
+                                            <input type="number" name="receipt_number" placeholder="0" min="0" value="{{ tax_profile.series.receipt.number }}"
+                                                class="w-full input-glass px-5 py-4 rounded-xl font-bold text-lg font-mono">
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-6 space-y-3">
+                                        <label class="text-[10px] font-black uppercase text-gray-500">
+                                            Boleta
+                                        </label>
+                                        <div class="space-y-1">
+                                            <label class="text-[9px] text-gray-600 uppercase ml-2">
+                                                Serie
+                                            </label>
+                                            <input name="invoice_series" placeholder="B001" value="{{ tax_profile.series.invoice.series }}"
+                                                class="w-full input-glass px-5 py-4 rounded-xl font-black text-lg tracking-widest uppercase">
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label class="text-[9px] text-gray-600 uppercase ml-2">
+                                                Número Actual
+                                            </label>
+                                            <input type="number" name="invoice_number" placeholder="0" min="0" value="{{ tax_profile.series.invoice.number }}"
+                                                class="w-full input-glass px-5 py-4 rounded-xl font-bold text-lg font-mono">
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
                             {% endif %}
                         </div>
 
@@ -323,14 +523,14 @@
                                             <label class="text-[9px] text-gray-600 uppercase ml-2">
                                                 Serie
                                             </label>
-                                            <input name="invoice_series" placeholder="F001" maxlength="4"
+                                            <input name="receipt_series" placeholder="F001"
                                                 class="w-full input-glass px-5 py-4 rounded-xl font-black text-lg tracking-widest uppercase">
                                         </div>
                                         <div class="space-y-1">
                                             <label class="text-[9px] text-gray-600 uppercase ml-2">
                                                 Número Actual
                                             </label>
-                                            <input type="number" name="invoice_number" placeholder="0" min="0"
+                                            <input type="number" name="receipt_number" placeholder="0" min="0"
                                                 class="w-full input-glass px-5 py-4 rounded-xl font-bold text-lg font-mono">
                                         </div>
                                     </div>
@@ -342,14 +542,14 @@
                                             <label class="text-[9px] text-gray-600 uppercase ml-2">
                                                 Serie
                                             </label>
-                                            <input name="receipt_series" placeholder="B001" maxlength="4"
+                                            <input name="invoice_series" placeholder="B001"
                                                 class="w-full input-glass px-5 py-4 rounded-xl font-black text-lg tracking-widest uppercase">
                                         </div>
                                         <div class="space-y-1">
                                             <label class="text-[9px] text-gray-600 uppercase ml-2">
                                                 Número Actual
                                             </label>
-                                            <input type="number" name="receipt_number" placeholder="0" min="0"
+                                            <input type="number" name="invoice_number" placeholder="0" min="0"
                                                 class="w-full input-glass px-5 py-4 rounded-xl font-bold text-lg font-mono">
                                         </div>
                                     </div>
@@ -365,53 +565,41 @@
                                 </div>
 
                                 <div class="space-y-4">
-                                    <!-- SERIE 01 -->
                                     <div
                                         class="bg-[#050608] border border-[#1A1F26] p-6 rounded-2xl flex justify-between items-center group hover:border-[#FF4D00]/50 transition-colors">
                                         <div>
                                             <div class="flex items-center gap-2 mb-1">
                                                 <span
-                                                    class="text-[9px] font-black text-gray-500 uppercase italic">Factura
-                                                    (01)</span>
+                                                    class="text-[9px] font-black text-gray-500 uppercase italic">Factura</span>
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                             </div>
-                                            <p class="text-2xl font-black italic text-(--accent)">F001</p>
+                                            <p class="text-2xl font-black italic text-(--accent)">{{
+                                                tax_profile.series.receipt.series }}</p>
                                         </div>
                                         <div class="text-right">
                                             <p class="text-[9px] font-black text-gray-600 uppercase mb-1">Correlativo
                                             </p>
-                                            <p class="text-xl font-black font-mono">00001248</p>
+                                            <p class="text-xl font-black font-mono">{{ tax_profile.series.receipt.number
+                                                }}</p>
                                         </div>
                                     </div>
-
-                                    <!-- SERIE 03 -->
                                     <div
                                         class="bg-[#050608] border border-[#1A1F26] p-6 rounded-2xl flex justify-between items-center group hover:border-[#FF4D00]/50 transition-colors">
                                         <div>
                                             <div class="flex items-center gap-2 mb-1">
                                                 <span
-                                                    class="text-[9px] font-black text-gray-500 uppercase italic">Boleta
-                                                    (03)</span>
+                                                    class="text-[9px] font-black text-gray-500 uppercase italic">Boleta</span>
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                             </div>
-                                            <p class="text-2xl font-black italic text-(--accent)">B001</p>
+                                            <p class="text-2xl font-black italic text-(--accent)">{{
+                                                tax_profile.series.invoice.series }}</p>
                                         </div>
                                         <div class="text-right">
                                             <p class="text-[9px] font-black text-gray-600 uppercase mb-1">Correlativo
                                             </p>
-                                            <p class="text-xl font-black font-mono">00008512</p>
+                                            <p class="text-xl font-black font-mono">{{ tax_profile.series.invoice.number
+                                                }}</p>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <div class="mt-8 flex gap-4">
-                                    <div class="flex-1 bg-white/5 p-4 rounded-2xl text-center border border-white/5">
-                                        <p class="text-[8px] font-black text-gray-600 uppercase mb-1">Total Ventas</p>
-                                        <p class="text-sm font-bold">10.2k</p>
-                                    </div>
-                                    <div class="flex-1 bg-white/5 p-4 rounded-2xl text-center border border-white/5">
-                                        <p class="text-[8px] font-black text-gray-600 uppercase mb-1">Gastos Mes</p>
-                                        <p class="text-sm font-bold">S/ 4.5k</p>
                                     </div>
                                 </div>
                             </section>
@@ -604,17 +792,19 @@
         });
 
     });
-</script>
 
-{% if not company.is_formal %}
-<script>
-    function activate_taxes(e) {
+    function toggle_taxes() {
         const tax_profile_container = document.getElementById("creation_tax_profile");
         const tax_profile_series_container = document.getElementById("tax_profile_series_container");
 
         tax_profile_container.classList.toggle("hidden");
         tax_profile_series_container.classList.toggle("hidden");
     }
+</script>
+
+{% if is_formal %}
+<script>
+    toggle_taxes()
 </script>
 {% endif %}
 

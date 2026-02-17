@@ -17,7 +17,6 @@ class Tax_Profile(Base):
     id = Column(String, primary_key=True, nullable=False)
 
     legal_name = Column(String, nullable=False) # razon social
-    country_code = Column(String(2), default="PE")
 
     address_line = Column(Text, nullable=True)
     region = Column(String, nullable=True)
@@ -25,6 +24,7 @@ class Tax_Profile(Base):
     postal_code = Column(String, nullable=True)
 
     country = Column(String(2), default="PE")
+    country_code = Column(String(2), default="PE")
 
     tax_id_type = Column(String, nullable=True) # RUC, DNI, VAT, ETC
 
@@ -36,6 +36,8 @@ class Tax_Profile(Base):
 
     tax_provider = Column(String, default="none")
     environment = Column(Enum(Tax_Environment_Type), default=Tax_Environment_Type.SANDBOX)
+
+    tax_token = Column(String, nullable=False)
 
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
     date = Column(DateTime(timezone=True), default=func.now())
@@ -156,8 +158,8 @@ class Tax_Period(Base):
 
 ##### Tax Series #####
 class Tax_Document_Type(enum.Enum):
-    INVOICE = "01"
-    RECEIPT = "03"
+    INVOICE = "01" # Invoice
+    RECEIPT = "03" # Receipt
 
 class Tax_Series(Base):
     __tablename__ = "tax_series"
@@ -186,6 +188,10 @@ class Tax_Emission_Status(enum.Enum):
 
 class Tax_Subscription_Plan(enum.Enum):
     FREE = "free"
+    STARTER = "starter"
+    BUSINESS = "business"
+    SCALE = "scale"
+    ENTERPRISE = "enterprise"
     PREMIUM = "premium"
 
 class Tax_Subscription(Base):
@@ -195,14 +201,14 @@ class Tax_Subscription(Base):
 
     emission_mode = Column(Enum(Tax_Emission_Status), default=Tax_Emission_Status.AUTO)
 
-    plan_type = Column(Enum(Tax_Subscription_Plan), default=Tax_Subscription_Plan.FREE) # FREE | PREMIUM
     is_active = Column(Boolean, default=True, nullable=False)
+    plan_type = Column(Enum(Tax_Subscription_Plan), default=Tax_Subscription_Plan.FREE)
 
     start_date = Column(DateTime(timezone=True), default=func.now(), nullable=False)
     end_date = Column(DateTime(timezone=True), nullable=True)
 
-    created_at = Column(DateTime(timezone=True), default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)
+    date = Column(DateTime(timezone=True), default=func.now(), nullable=False)
 
     company_id = Column(String, ForeignKey("companies.id"), nullable=False)
 
@@ -219,8 +225,8 @@ class Tax_Usage(Base):
     month = Column(Integer, nullable=False)
     emissions_count = Column(Integer, default=0, nullable=False)
 
-    date = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+    date = Column(DateTime(timezone=True), default=func.now())
 
     company_id = Column(String, ForeignKey("companies.id"), nullable=False)
 

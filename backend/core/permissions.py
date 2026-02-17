@@ -14,7 +14,6 @@ _permissions = json.load(open("db/permissions.json"))
 def get_permissions():
     return [_permissions.get("platform"), _permissions.get("company")]
 
-
 def get_permission(type):
     # print(_permissions.get("meta"))
     # print(_permissions.get("platform"))

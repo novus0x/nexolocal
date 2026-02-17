@@ -11,6 +11,15 @@
             "exonerado": "20",
             "inafecto": "30",
             "gratuito": "21"
+        },
+        "api": {
+            "base": "https://facturacion.apisperu.com/api/v1",
+            "routes": {
+                "auth": "/auth/login",
+                "companies": {
+                    "create": "/companies"
+                }
+            }
         }
     }
 }

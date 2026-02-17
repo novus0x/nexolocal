@@ -2,6 +2,8 @@
 import uuid, random, string, jwt, secrets, re
 
 from datetime import datetime, timezone, timedelta
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.serialization import pkcs12
 
 from sqlalchemy.orm import Session
 
@@ -67,3 +69,25 @@ def generate_nxid(entity: str):
 def generate_temp_password(length = TOKEN_LENGTH) -> str:
     password = "".join(secrets.choice(ALPHABET_PASSWORD) for _ in range(length))
     return password
+
+########## Generate .pem Certificate ##########
+def generate_pem_certificate(certificate, password):
+
+    try:
+        private_key, certificate, additional = pkcs12.load_key_and_certificates(certificate, password.encode())
+    except:
+        return False
+    
+    pem_bytes = b""
+
+    pem_bytes += private_key.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.PKCS8,
+        serialization.NoEncryption()
+    )
+
+    pem_bytes += certificate.public_bytes(
+        serialization.Encoding.PEM
+    )
+    
+    return pem_bytes

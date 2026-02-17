@@ -1,6 +1,7 @@
 ########## Modules ##########
 from zoneinfo import ZoneInfo
-from datetime import date, timedelta, time, datetime
+from datetime import timedelta, time, datetime
+from dateutil.relativedelta import relativedelta
 
 from fastapi import APIRouter, Request, Depends
 
@@ -8,7 +9,7 @@ from sqlalchemy import func, case, extract, desc
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import Company, Product, Cash_Session_Status, Cash_Session, Cash_Movement, Cash_Movement_Type, Sale, Sale_Item, Sale_Status, Expense, Expense_Status, Payment_Method
+from db.model import Product, Cash_Session_Status, Cash_Session, Cash_Movement, Cash_Movement_Type, Sale, Sale_Item, Sale_Status, Expense, Expense_Status, Payment_Method
 
 from core.config import settings
 
@@ -49,7 +50,8 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
 
     month_start = today.replace(day=1)
     month_start_dt = datetime.combine(month_start, time.min, tzinfo=LOCAL_TZ)
-    next_month = (month_start + timedelta(days=32)).replace(day=1)
+
+    next_month = month_start + relativedelta(months=1)
     month_end_dt = datetime.combine(next_month, time.min, tzinfo=LOCAL_TZ)
 
     start = datetime.combine(today, time.min)

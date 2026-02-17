@@ -1,5 +1,5 @@
 ########## Modules ##########
-import jwt, bcrypt
+import jwt, bcrypt, base64
 
 from core.config import settings
 
@@ -22,3 +22,15 @@ def check_jwt(token):
         return None, True
 
     return payload, None
+
+########## Generate base64 file ##########
+def generate_base_64(data):
+    base64_str = base64.b64encode(data) # data --> bytes
+
+    return base64_str
+
+########## Decode base64 file ##########
+def decode_base_64(data):
+    original_str = base64.b64decode(data) # data --> bytes/str
+
+    return original_str
