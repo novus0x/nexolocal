@@ -28,6 +28,24 @@ async def create_company(db: Session, company_id, tax_profile, files):
 
     return response, ""
 
+########## Get Tax Rate ##########
+async def get_tax_rate(db: Session, company_id):
+    company = db.query(Company).filter(
+        Company.id == company_id
+    ).first()
+
+    country_code = company.country_code.lower()
+
+    engine, message = get_engine(country_code)
+
+    if not engine:
+        return False, message
+    
+    ### Get Tax Function ###
+    response = await engine.get_tax_rate()
+
+    print(response)
+
 ########## Process ##########
 async def process(db, company_id, sale):
     #

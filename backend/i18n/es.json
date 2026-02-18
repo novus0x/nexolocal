@@ -244,6 +244,13 @@
             "does_not_exist": "La configuración de la empresa no existe",
             "get": {
                 "success": "Configuración de la empresa obtenida satisfactoriamente"
+            },
+            "incorrect_certificate": "El archivo de certificado es inválido. Formatos permitidos: .pem, .p12, .pfx",
+            "require_certificate_password": "La contraseña del certificado es obligatoria para archivos .p12 o .pfx",
+            "incorrect_password": "La contraseña del certificado es incorrecta",
+            "tax_info_required": "Todos los campos de información tributaria son obligatorios",
+            "update": {
+                "success": "Configuración de la empresa actualizada satisfactoriamente"
             }
         }
     },
@@ -263,6 +270,18 @@
                 "passwords_dont_match": "Las nuevas contraseñas no coinciden",
                 "success": "Contraseña actualizada satisfactoriamente"
             }
+        }
+    },
+    "tax_engine": {
+        "error": {
+            "country_not_available": "El motor tributario no está disponible para este país",
+            "creating_engine": "Ocurrió un error al cargar el motor tributario"
+        },
+        "api": {
+            "duplicated_company": "La empresa ya existe en el proveedor tributario"
+        },
+        "system": {
+            "incorrect_credentials": "Las credenciales del motor tributario son inválidas"
         }
     }
 }

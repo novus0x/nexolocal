@@ -18,6 +18,7 @@ import general_check_ticket from './routes/general/check_ticket.js';
 import platform_main from './routes/platform/main.js';
 import platform_users from './routes/platform/users.js';
 import platform_roles from './routes/platform/roles.js';
+import platform_plans from './routes/platform/plans.js';
 import platform_companies from './routes/platform/companies.js';
 import platform_support from './routes/platform/support.js';
 import platform_analytics from './routes/platform/analytics.js';
@@ -100,6 +101,7 @@ app.use("/platform", platform_main);
 app.use("/platform/companies", platform_companies);
 app.use("/platform/users", platform_users);
 app.use("/platform/roles", platform_roles);
+app.use("/platform/plans", platform_plans);
 app.use("/platform/support", platform_support);
 app.use("/platform/analytics", platform_analytics);
 

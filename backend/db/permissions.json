@@ -25,7 +25,7 @@
       {
         "label": "Companies Plans",
         "permissions": [
-          { "key": "platform.company_plans.read", "label": "View companies plans" }
+          { "key": "platform.plans.read", "label": "View companies plans" }
         ]
       },
       {

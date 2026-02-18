@@ -244,6 +244,13 @@
             "does_not_exist": "The company settings do not exist",
             "get": {
                 "success": "Company settings obtained successfully"
+            },
+            "incorrect_certificate": "The certificate file is invalid. Allowed formats: .pem, .p12, .pfx",
+            "require_certificate_password": "Certificate password is required for .p12 or .pfx files",
+            "incorrect_password": "The certificate password is incorrect",
+            "tax_info_required": "All tax information fields are required",
+            "update": {
+                "success": "Company settings updated successfully"
             }
         }
     },
@@ -263,6 +270,18 @@
                 "passwords_dont_match": "The new passwords do not match",
                 "success": "Password updated successfully"
             }
+        }
+    },
+    "tax_engine": {
+        "error": {
+            "country_not_available": "Tax engine is not available for this country",
+            "creating_engine": "An error occurred while loading the tax engine"
+        },
+        "api": {
+            "duplicated_company": "The company already exists in the tax provider"
+        },
+        "system": {
+            "incorrect_credentials": "Tax engine credentials are invalid"
         }
     }
 }

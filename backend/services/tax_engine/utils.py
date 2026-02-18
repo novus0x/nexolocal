@@ -40,3 +40,9 @@ async def get_tax_engine_credintials(url: str, data):
     response = await api_post(url, data)
 
     return response
+
+########## Get Tax Rate ##########
+async def get_tax_rate_util(country_code: str):
+    tax_rate = _settings[country_code]["percentage"]
+
+    return tax_rate

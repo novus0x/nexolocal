@@ -5,10 +5,11 @@ from core.config import settings
 
 from core.http_requests import api_post
 
-from services.tax_engine.utils import get_endpoint, get_tax_engine_credintials
+from services.tax_engine.utils import get_endpoint, get_tax_engine_credintials, get_tax_rate_util
 
 ########## Variables ##########
 endpoint, routes = get_endpoint("pe")
+tax_rate = get_tax_rate_util("pe")
 
 ########## Create Company ##########
 async def create_company(company: Company, tax_profile, files):
@@ -52,3 +53,7 @@ async def create_company(company: Company, tax_profile, files):
     })
 
     return response, ""
+
+########## Get Tax Rate ##########
+async def get_tax_rate():
+    return tax_rate
