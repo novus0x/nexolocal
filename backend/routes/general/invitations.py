@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import Company, Company_Invitation, User_Company_Invitation, User_Role, User, User_Company_Association
+from db.model import Company, User_Company_Invitation, User_Role, User, User_Company_Association
 
 from core.utils import time_ago
 from core.i18n import translate
@@ -42,18 +42,16 @@ async def invitations(request: Request, db: Session = Depends(get_db)):
             User_Role.id == invitation.role_id
         ).first()
 
-        company_invitation = db.query(Company_Invitation).filter(
-            Company_Invitation.email == user.get("email")
-        ).first()
-
-        user_inviter = db.query(User).filter(
-            User.id == company_invitation.user_inviter
-        ).first()
+        user_inviter = None
+        if company.referred_by_user_id:
+            user_inviter = db.query(User).filter(
+                User.id == company.referred_by_user_id
+            ).first()
 
         invitations.append({
             "id": invitation.id,
             "company_name": company.name,
-            "inviter": user_inviter.fullname,
+            "inviter": user_inviter.fullname if user_inviter else None,
             "permissions": role.permissions,
             "date": time_ago(invitation.date)
         })

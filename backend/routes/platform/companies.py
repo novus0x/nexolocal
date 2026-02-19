@@ -5,7 +5,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import User, User_Role, Company_Invitation, Company, User_Company_Invitation
+from db.model import User, User_Role, Company_Origin, Company, User_Company_Invitation
 
 from core.i18n import translate
 from core.generator import get_uuid
@@ -43,11 +43,10 @@ async def get_companies(request: Request, db: Session = Depends(get_db)):
     companies_data = db.query(Company).all()
 
     for company in companies_data:
-        company_invitation = db.query(Company_Invitation).filter(
-            Company_Invitation.id == company.code
-        ).first()
+        invited_by = None
+        if company.referred_by_user_id:
+            invited_by = db.query(User).filter(User.id == company.referred_by_user_id).first()
 
-        invited_by = db.query(User).filter(User.id == company_invitation.user_inviter).first()
         in_charge = db.query(User).filter(User.email == company.email).first()
 
         companies.append({
@@ -61,10 +60,11 @@ async def get_companies(request: Request, db: Session = Depends(get_db)):
                 "fullname": in_charge.fullname,
                 "email": in_charge.email
             },
+            "origin": company.origin,
             "invited_by": {
-                "username": invited_by.username,
-                "fullname": invited_by.fullname,
-                "email": invited_by.email
+                "username": invited_by.username if invited_by else None,
+                "fullname": invited_by.fullname if invited_by else None,
+                "email": invited_by.email if invited_by else None
             },
             "date": company.date.strftime("%d %B %Y")
         })
@@ -73,7 +73,7 @@ async def get_companies(request: Request, db: Session = Depends(get_db)):
         "companies": companies
     })
 
-########## Get roles to select - Create Company ##########
+########## Get roles to select - Create Company ########## Gonna be fix --> plans
 @router.get("/get_roles")
 async def roles_generate_company(request: Request, db: Session = Depends(get_db)):
     ### Variables ###
@@ -120,7 +120,7 @@ async def roles_generate_company(request: Request, db: Session = Depends(get_db)
         "roles": roles
     })
 
-########## Create Company and Generate Invitation ##########
+########## Create Company and Generate Invitation ########## gonna be fix --> plans
 @router.post("/create")
 async def generate_invitation(request: Request, db: Session = Depends(get_db)):
     ### Variables ###
@@ -153,25 +153,16 @@ async def generate_invitation(request: Request, db: Session = Depends(get_db)):
     if not check_user_role:
         return custom_response(status_code=400, message=translate(lang, "platform.companies.generate_invitation.invalid_role_id"))
 
-    ### Generate invitation ###
-    new_company_invitation = Company_Invitation(
-        id = get_uuid(db, Company_Invitation),
-        email = new_company_values.email,
-        role_id = check_user_role.id,
-        user_inviter = user.get("id")
-    )
-
     new_company = Company(
         id = get_uuid(db, Company),
         name = new_company_values.name,
-        code = new_company_invitation.id,
+        code = get_uuid(db, Company),
         email = new_company_values.email,
+        origin = Company_Origin.STAFF,
+        referred_by_user_id = user.get("id")
     )
 
     add_db(db, new_company)
-
-    new_company_invitation.company_id = new_company.id
-    add_db(db, new_company_invitation)
 
     new_user_invitation = User_Company_Invitation(
         id = get_uuid(db, User_Company_Invitation),

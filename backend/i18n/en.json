@@ -103,6 +103,31 @@
                     "success": "Support tickets obtained successfully"
                 }
             }
+        },
+        "plans": {
+            "get": {
+                "error": "The plan does not exist",
+                "unique": "Plan obtained successfully",
+                "success": "Plans obtained successfully"
+            },
+            "get_roles": "Roles obtained successfully",
+            "create": {
+                "error": {
+                    "invalid_price": "Price is invalid",
+                    "invalid_position": "Position is invalid",
+                    "invalid_role": "Role is invalid"
+                },
+                "success": "Plan created successfully"
+            },
+            "update": {
+                "error": {
+                    "invalid_price": "Price is invalid",
+                    "invalid_position": "Position is invalid",
+                    "invalid_role": "Role is invalid",
+                    "general": "The plan does not exist"
+                },
+                "success": "Plan updated successfully"
+            }
         }
     },
     "general": {
@@ -141,6 +166,9 @@
                     }
                 }
             }
+        },
+        "plans": {
+            "get": "Plans obtained successfully"
         }
     },
     "company": {

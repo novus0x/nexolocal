@@ -3,7 +3,7 @@ from db.models.Supplier import Supplier_Type, Supplier
 from db.models.Category import Category
 from db.models.Business import Business
 from db.models.Taxes import Tax_Environment_Type, Tax_Profile, Tax_Document_Status, Tax_Document_Type, Tax_Document, Tax_Document_Item, Tax_Period_Status, Tax_Period, Tax_Series, Tax_Emission_Status, Tax_Subscription_Plan, Tax_Subscription, Tax_Subscription, Tax_Usage
-from db.models.Company import Company_Subscription_Status, Company, Plan_Cicle, Company_Plan, Billing_Status, Company_Billing, Company_Invitation
+from db.models.Company import Company_Subscription_Status, Company_Origin, Company, Plan_Cicle, Company_Plan, Billing_Status, Company_Billing
 from db.models.Product import Product, Product_Batch, Product_Image, Product_Service_Duration
 from db.models.Sale import Sale_Status, Payment_Method, Sale, Sale_Item
 from db.models.Income import Income_Status, Income

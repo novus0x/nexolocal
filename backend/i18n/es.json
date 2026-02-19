@@ -103,6 +103,31 @@
                     "success": "Tickets de soporte obtenidos satisfactoriamente"
                 }
             }
+        },
+        "plans": {
+            "get": {
+                "error": "El plan no existe",
+                "unique": "Plan obtenido satisfactoriamente",
+                "success": "Planes obtenidos satisfactoriamente"
+            },
+            "get_roles": "Roles obtenidos satisfactoriamente",
+            "create": {
+                "error": {
+                    "invalid_price": "El precio es inválido",
+                    "invalid_position": "La posición es inválida",
+                    "invalid_role": "El rol es inválido"
+                },
+                "success": "Plan creado satisfactoriamente"
+            },
+            "update": {
+                "error": {
+                    "invalid_price": "El precio es inválido",
+                    "invalid_position": "La posición es inválida",
+                    "invalid_role": "El rol es inválido",
+                    "general": "El plan no existe"
+                },
+                "success": "Plan actualizado satisfactoriamente"
+            }
         }
     },
     "general": {
@@ -141,6 +166,9 @@
                     }
                 }
             }
+        },
+        "plans": {
+            "get": "Planes obtenidos satisfactoriamente"
         }
     },
     "company": {

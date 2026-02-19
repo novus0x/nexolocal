@@ -22,7 +22,45 @@
                         </div>
                     </li>
                 </ol>
+                <a href="/platform/plans/create"
+                    class="bg-(--accent) hover:bg-[#ff5a26] text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-plus"></i>
+                    Nuevo Plan
+                </a>
             </nav>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for plan in plans %}
+            <div class="space-y-6">
+                <div class="plan-card plan-active glass-card p-10 rounded-[2.5rem] relative z-10">
+                    {% if plan.highlight %}
+                    <div
+                        class="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase">
+                        {{ plan.highlight_title }}
+                    </div>
+                    <div class="text-xs font-bold uppercase mb-4 text-orange-500">
+                        {{ plan.highlight_subtitle }}
+                    </div>
+                    {% endif %}
+                    <div class="text-4xl font-bold mb-2 italic">{{ plan.name }}</div>
+                    <div class="flex items-baseline gap-1 mb-8">
+                        <span class="text-5xl font-black">S/ <span>{{ plan.price }}</span></span>
+                        <span class="text-zinc-500 text-xs font-bold uppercase">/ mes</span>
+                    </div>
+                    <div class="h-px bg-white/10 w-full mb-8"></div>
+                    <ul class="space-y-4 mb-10">
+                        {% for item in plan.description %}
+                        <li class="flex items-center gap-3 text-sm font-semibold">
+                            <span class="text-(--accent)"><i class="fa-sharp fa-solid fa-check"></i></span> {{ item }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <a href="/platform/plans/update/{{ plan.id }}"
+                        class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">Editar</a>
+                </div>
+            </div>
+            {% endfor %}
         </div>
 
     </div>

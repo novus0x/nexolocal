@@ -40,37 +40,44 @@
             </div>
         </div>
 
-        <div class="bg-[#151B23] border border-[#30363D] rounded-3xl overflow-hidden shadow-2xl">
+        <div class="rounded-3xl overflow-hidden glass-card">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse custom-table">
+                <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr
-                            class="bg-[#0D1117] text-[10px] uppercase font-black tracking-widest text-gray-500 border-b border-[#30363D]">
-                            <th class="px-8 py-5">Nombre Del Rol</th>
-                            <th class="px-6 py-5">Origen</th>
-                            <th class="px-8 py-5 text-right">Acciones</th>
+                        <tr class="bg-white/5 border-bottom border-(--border)">
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">
+                                Nombre del Rol</th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">
+                                Origen</th>
+                            <th
+                                class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted) text-right">
+                                Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-[#30363D]">
+                    <tbody class="text-sm font-medium">
                         {% for role in roles %}
-                        <tr class="group">
-                            <td class="px-8 py-6">
+                        <tr class="table-row">
+                            <td class="px-6 py-5">
                                 <div class="flex items-center gap-4">
                                     {% if role.platform %}
                                     <div
-                                        class="w-10 h-10 bg-(--accent)/10 text-(--accent) rounded-lg flex items-center justify-center">
+                                        class="flex items-center justify-center w-10 h-10 bg-(--accent)/10 text-(--accent) rounded-lg">
                                         <i class="fa-solid fa-code-simple"></i>
                                     </div>
                                     {% else %}
                                     <div
-                                        class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center">
+                                        class="flex items-center justify-center w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg">
                                         <i class="fa-solid fa-user"></i>
                                     </div>
                                     {% endif %}
-                                    <span class="font-semibold">{{ role.name }}</span>
+                                    <div>
+                                        <p class="font-bold">{{ role.name }}</p>
+                                        <p class="text-[10px] text-(--text-muted) font-bold uppercase">{{ company.date
+                                            }}</p>
+                                    </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-6 text-gray-400">
+                            <td class="px-6 py-5">
                                 {% if role.platform %}
                                 <span
                                     class="text-xs bg-(--accent)/10 text-orange-400 px-2 py-1 rounded">Plataforma</span>
@@ -78,22 +85,27 @@
                                 <span class="text-xs bg-blue-500/10 text-blue-400 px-2 py-1 rounded">Negocio</span>
                                 {% endif %}
                             </td>
-                            <td class="px-8 py-6 text-right">
-                                <div class="flex justify-end gap-1">
-                                    <button
-                                        class="p-2.5 text-green-400 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
+                            <td class="px-6 py-5">
+                                <div class="flex items-center justify-end gap-2 text-(--text-muted)">
+                                    {% if not company.suspended %}
+                                    <a href="#{{ role.id }}"
+                                        class="p-2.5 text-green-400 hover:bg-green-400/5 rounded-xl transition-all cursor-pointer"
                                         title="Editar">
                                         <i class="fa-solid fa-eye"></i>
-                                    </button>
+                                    </a>
                                     <a href="/platform/roles/update/{{ role.id }}"
                                         class="p-2.5 text-yellow-500 hover:bg-yellow-500/10 rounded-xl transition-all cursor-pointer"
                                         title="Editar">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
+                                    {% else %}
                                     <button
+                                        class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold text-green-500 transition-all cursor-pointer">Re-Activar</button>
+                                    {% endif %}
+                                    <a href="#{{ role.id }}"
                                         class="p-2.5 text-red-500 hover:bg-red-500/10 rounded-xl transition-all cursor-pointer">
                                         <i class="fa-solid fa-trash"></i>
-                                    </button>
+                                    </a>
                                 </div>
                             </td>
                         </tr>

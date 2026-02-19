@@ -1,0 +1,218 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold  text-gray-500 flex-col md:flex-row gap-5" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/platform" class="hover:text-white transition-colors">Dashboard</a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/platform/plans" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Planes</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="#" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">{{ plan.name }}</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Actualizar</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+            <div class="lg:col-span-7 glass-card p-6">
+                <form class="space-y-8" action="/platform/plans/update/{{ plan.id }}" method="post">
+                    <input type="hidden" name="_method" value="put" />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Nombre del
+                                Plan</label>
+                            <input type="text" id="name" name="name" placeholder="Ej: Emprendedor"
+                                value="{{ plan.name }}" oninput="update_plan()"
+                                class="input-glass w-full p-4 text-sm font-bold" required>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Precio Base
+                                (S/)</label>
+                            <input type="number" id="price" name="price" placeholder="39.00" oninput="update_plan()"
+                                class="input-glass w-full p-4 text-sm font-bold" value="{{ plan.price }}" required>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Descripción del
+                            Servicio</label>
+                        <textarea id="description" name="description" rows="3"
+                            class="input-glass w-full p-4 text-sm font-medium" oninput="update_plan()"
+                            placeholder="Describe las ventajas de este plan..."
+                            required>{{ plan.description }}</textarea>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-black italic text-(--accent) uppercase">Highlight System</h3>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                                Activa visualización de resultado (Contenedor anaranjado / solo en el landing)
+                            </p>
+                        </div>
+                        <label class="nexo-switch">
+                            <input type="checkbox" name="highlight" oninput="toggle_highlight()" {% if plan.highlight %}
+                                checked {% endif %}>
+                            <div class="bg"></div>
+                            <div class="dot"></div>
+                        </label>
+                    </div>
+
+                    <div class="hidden grid-cols-1 md:grid-cols-2 gap-4" id="highlight_container">
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Highlight
+                                Title (Badge)</label>
+                            <input type="text" id="highlight_title" name="highlight_title" placeholder="RECOMENDADO"
+                                oninput="update_plan()" class="input-glass w-full p-3 text-xs font-bold uppercase"
+                                value="{{ plan.highlight_title }}">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Highlight
+                                Subtitle (Tag)</label>
+                            <input type="text" id="highlight_subtitle" name="highlight_subtitle" placeholder="SUGERIDO"
+                                oninput="update_plan()"
+                                class="input-glass w-full p-3 text-xs font-bold uppercase text-[#FF4D00]"
+                                value="{{ plan.highlight_subtitle }}">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Ciclo de
+                                Facturación</label>
+                            <select id="plan_cycle" name="cycle"
+                                class="input-glass w-full p-4 text-xs font-bold appearance-none"
+                                oninput="update_plan()">
+                                <option class="input-field" value="monthly" selected>Mensual</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Posición UI</label>
+                            <input type="number" id="position" name="position" value="{{ plan.position }}"
+                                oninput="update_plan()" class="input-glass w-full p-4 text-xs font-bold">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Role Asignado</label>
+                            <select id="role_id" name="role_id" oninput="update_plan()"
+                                class="input-glass w-full p-4 text-xs font-bold appearance-none">
+                                {% for role in roles %}
+                                <option class="input-field" value="{{ role.id }}" {% if role.id==plan.role_id %}
+                                    selected {% endif %}> {{ role.name }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <button
+                        class="bg-(--accent) hover:bg-[#ff5a26] text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer w-full">
+                        Actualizar
+                    </button>
+                </form>
+            </div>
+
+            <div class="lg:col-span-5 space-y-6">
+                <div class="plan-card plan-active glass-card p-10 rounded-[2.5rem] relative z-10">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase"
+                        id="lab_highlight_title">
+                        ---</div>
+                    <div class="text-xs font-bold uppercase mb-4 text-orange-500" id="lab_highlight_subtitle">---</div>
+                    <div class="text-4xl font-bold mb-2 italic" id="lab_name">---</div>
+                    <div class="flex items-baseline gap-1 mb-8">
+                        <span class="text-5xl font-black">S/ <span id="lab_price">---</span></span>
+                        <span class="text-zinc-500 text-xs font-bold uppercase">/ mes</span>
+                    </div>
+                    <div class="h-px bg-white/10 w-full mb-8"></div>
+                    <ul class="space-y-4 mb-10" id="plan_options">
+                        <li class="flex items-center gap-3 text-sm font-semibold">
+                            <span class="text-(--accent)"><i class="fa-sharp fa-solid fa-check"></i></span> ---
+                        </li>
+                    </ul>
+                    <a href="#"
+                        class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">Lo
+                        quiero!</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<script>
+    function toggle_highlight() {
+        // Variables
+        const highlight_container = document.getElementById("highlight_container");
+
+        // Toggle
+        highlight_container.classList.toggle("hidden");
+        highlight_container.classList.toggle("grid");
+    };
+
+    function update_plan() {
+        // Variables
+        const inp_name = document.getElementById("name");
+        const inp_price = document.getElementById("price");
+        const inp_description = document.getElementById("description");
+        const inp_highlight_title = document.getElementById("highlight_title");
+        const inp_highlight_subtitle = document.getElementById("highlight_subtitle");
+
+        const lab_highlight_title = document.getElementById("lab_highlight_title");
+        const lab_highlight_subtitle = document.getElementById("lab_highlight_subtitle");
+        const lab_name = document.getElementById("lab_name");
+        const lab_price = document.getElementById("lab_price");
+        const plan_options_container = document.getElementById("plan_options");
+
+        lab_highlight_title.innerHTML = inp_highlight_title.value || "---";
+        lab_highlight_subtitle.innerHTML = inp_highlight_subtitle.value || "---";
+        lab_name.innerHTML = inp_name.value || "---";
+        lab_price.innerHTML = inp_price.value || "---";
+
+        if (inp_description.value) {
+            const description = inp_description.value;
+            const description_values = description.split("\n");
+
+            plan_options_container.innerHTML = "";
+
+            description_values.forEach(e => {
+                plan_options_container.insertAdjacentHTML("beforeend", `
+                <li class="flex items-center gap-3 text-sm font-semibold">
+                    <span class="text-(--accent)"><i class="fa-sharp fa-solid fa-check"></i></span> ${e}
+                </li>
+                `);
+            });
+        }
+    };
+
+    update_plan();
+</script>
+
+{% if plan.highlight %}
+<script>toggle_highlight();</script>
+{% endif %}
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

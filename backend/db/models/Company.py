@@ -14,6 +14,11 @@ class Company_Subscription_Status(enum.Enum):
     SUSPENDED = "suspended"
     CANCELLED = "cancelled"
 
+class Company_Origin(enum.Enum):
+    ORGANIC = "organic"
+    STAFF = "staff"
+    REFERRAL = "referral"
+
 class Company(Base):
     __tablename__ = "companies"
 
@@ -32,6 +37,7 @@ class Company(Base):
     is_suspended = Column(Boolean, default=False)
     
     subscription_status = Column(Enum(Company_Subscription_Status), default=Company_Subscription_Status.TRIAL)
+    origin = Column(Enum(Company_Origin), default=Company_Origin.ORGANIC, nullable=False)
 
     max_users = Column(Integer, default=1)
 
@@ -48,10 +54,12 @@ class Company(Base):
 
     business_id = Column(String, ForeignKey("business.id"), nullable=True)
     plan_type_id = Column(String, ForeignKey("company_plans.id"), nullable=True)
+    referred_by_user_id = Column(String, ForeignKey("users.id"), nullable=True)
 
     ## Relationships ##
     business = relationship("Business")
     company_plan = relationship("Company_Plan")
+    referred_by_user = relationship("User", foreign_keys=[referred_by_user_id])
 
     sales = relationship("Sale", back_populates="company")
     products = relationship("Product", back_populates="company")
@@ -59,7 +67,6 @@ class Company(Base):
     suppliers = relationship("Supplier", back_populates="company")
     categories = relationship("Category", back_populates="company")
     billings = relationship("Company_Billing", back_populates="company")
-    invitations = relationship("Company_Invitation", back_populates="company")
     user_associations = relationship("User_Company_Association", back_populates="company")
 
 ##### Company Plan #####
@@ -111,11 +118,8 @@ class Company_Billing(Base):
     status = Column(Enum(Billing_Status), default=Billing_Status.PENDING, nullable=False) 
 
     payment_method = Column(String, nullable=True)  
-
     reference = Column(String, nullable=True)  
-
     paid_at = Column(DateTime(timezone=True), nullable=True)
-
     billing_cycle = Column(Enum(Plan_Cicle), nullable=False)
 
     date = Column(DateTime(timezone=True), default=func.now())
@@ -126,22 +130,3 @@ class Company_Billing(Base):
     ## Relationships ##
     plan = relationship("Company_Plan")
     company = relationship("Company", back_populates="billings")
-
-##### Company Invitation #####
-class Company_Invitation(Base):
-    __tablename__ = "company_invitations"
-
-    id = Column(String, primary_key=True, nullable=False)
-
-    email = Column(String, nullable=False)
-    expires_at = Column(DateTime(timezone=True), nullable=True)
-    date = Column(DateTime(timezone=True), default=func.now())
-
-    user_inviter = Column(String, ForeignKey("users.id"), nullable=False)
-
-    company_id = Column(String, ForeignKey("companies.id"), nullable=False)
-    role_id = Column(String, ForeignKey("user_roles.id"), nullable=False)
-
-    ## Relationships ##
-    role = relationship("User_Role")
-    company = relationship("Company", back_populates="invitations")

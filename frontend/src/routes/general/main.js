@@ -15,9 +15,19 @@ const __dirname = path.dirname(__filename);
 /*************** Main route ***************/
 router.get("/", async (req, res) => {
     // Variables
+    let plans = []
+
+    // Get Plans
+    const response = await get_data("/general/", {}, req);
+
+    if (response.error == false) {
+        plans = response.data.plans;
+    }
 
     // Render content
-    return res.render("general/main", {});
+    return res.render("general/main", {
+        plans
+    });
 });
 
 /*************** Dashboard ***************/
