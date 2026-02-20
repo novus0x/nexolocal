@@ -144,17 +144,6 @@
                             <p class="text-xs text-gray-600 italic">* Si selecciona producto a granel considere evaluar
                                 el precio de venta y costo por: kg / L</p>
                         </div>
-                        {% if company_information.taxes %}
-                        <div>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" name="tax_include" class="custom-checkbox" {% if tax_include
-                                    %}checked{% endif %}>
-                                <span
-                                    class="text-base text-gray-400 group-hover:text-gray-200 transition-colors">Impuesto
-                                    incluido en el precio de venta?</span>
-                            </label>
-                        </div>
-                        {% endif %}
                     </div>
                 </section>
 
@@ -246,7 +235,7 @@
                                 <p class="text-xs text-gray-500">Notificarme si queda poco stock</p>
                             </div>
                             <label class="nexo-switch">
-                                <input type="checkbox" id="serviceSwitch">
+                                <input type="checkbox" id="serviceSwitch" onchange="toggle_stock('low_stock_field', this.checked);">
                                 <div class="bg"></div>
                                 <div class="dot"></div>
                             </label>
