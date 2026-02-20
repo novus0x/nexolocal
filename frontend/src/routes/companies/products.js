@@ -249,7 +249,7 @@ router.get("/read/:product_id", require_auth, at_least_company, async (req, res)
     // Request
     const response = await get_data(`/company/products/get/${product_id}`, {}, req);
 
-    if (response.error) return res.redirect(`/company/${company_id}/products`);
+    if (response.error) return res.redirect(`/companies/${company_id}/products`);
 
     const data = response.data;
 

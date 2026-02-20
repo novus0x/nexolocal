@@ -690,7 +690,7 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         if not check_company_legal:
             return custom_response(status_code=400, message=translate(lang, "company.legal_profile_does_not_exist"))
         
-        await process()
+        # await process() BUG
         
         print("Tax Creation")
 
@@ -760,7 +760,7 @@ async def check_sale_item(request: Request, sale_id: str, db: Session = Depends(
         Company.id == sale.company_id
     ).first()
 
-    if not Company:
+    if not company:
         return custom_response(status_code=400, message=translate(lang, "company.sales.check.error"))
     
     seller = db.query(User).filter(

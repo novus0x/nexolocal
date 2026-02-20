@@ -352,7 +352,7 @@ async def update_company_information(request: Request, file: UploadFile = File(N
 
                 add_db(db, new_tax_series_invoice)
             
-            if check_receipt_series.series != tax_info["invoice_series"] or check_receipt_series.current_number != tax_info["invoice_number"]:
+            if check_receipt_series.series != tax_info["receipt_series"] or check_receipt_series.current_number != tax_info["receipt_number"]:
                 new_tax_series_receipt = Tax_Series(
                     id = get_uuid(db, Tax_Series),
                     doc_type = Tax_Document_Type.RECEIPT,

@@ -69,14 +69,14 @@ async def auth_middleware(request: Request, call_next):
 
     user_data = db.query(User).filter(User.id == user_session.user_id).first()
 
+    if not user_data:
+        request.state.user_error = "auth.token.invalid"
+        return await call_next(request)
+
     user_is_blocked = False
 
     if user_data.is_blocked and not user_data.is_platform_super_admin:
         user_is_blocked = True
-
-    if not user_data:
-        request.state.user_error = "auth.token.invalid"
-        return await call_next(request)
 
     request.state.user = {
         "id": user_data.id,

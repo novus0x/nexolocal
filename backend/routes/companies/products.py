@@ -687,7 +687,7 @@ async def get_product_by_id(request: Request, product_id: str, db: Session = Dep
     
     check_product = db.query(Product).filter(
         Product.id == product_id,
-        company_id == company_id
+        Product.company_id == company_id
     ).first()
 
     if not check_product:
@@ -762,7 +762,7 @@ async def get_product_by_id_to_create_batch(request: Request, product_id: str, d
 
     check_product = db.query(Product).filter(
         Product.id == product_id,
-        company_id == company_id
+        Product.company_id == company_id
     ).first()
 
     if not check_product:

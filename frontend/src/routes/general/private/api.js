@@ -27,7 +27,7 @@ router.post("/support/tickets/create", require_auth, async (req, res) => {
         else errors = [response.message];
 
         return res.json({
-            success: true,
+            success: false,
             errors: errors
         })
     }
