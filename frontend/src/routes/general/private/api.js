@@ -1,8 +1,8 @@
 /*************** Modules ***************/
 import express from 'express';
 
-import { send_data } from '../../utils/api.js';
-import { require_auth } from '../../middlewares/auth.js';
+import { send_data } from '../../../utils/api.js';
+import { require_auth } from '../../../middlewares/auth.js';
 
 /*************** Variables ***************/
 const router = express.Router({ mergeParams: true });

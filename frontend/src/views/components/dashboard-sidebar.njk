@@ -2,7 +2,7 @@
     class="shrink-0 w-72 bg-[#0D1117] border-r border-[#30363D] fixed inset-y-0 left-0 z-50 lg:relative lg:translate-x-0 -translate-x-full flex flex-col">
 
     <div class="h-20 flex items-center px-4 mb-2 shrink-0">
-        <a href="/platform" class="flex items-center gap-3">
+        <a href="/dashboard" class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl flex items-center justify-center bg-(--accent)/10">
                 <img src="/public/img/logo.svg" alt="logo" />
             </div>
@@ -82,7 +82,7 @@
         {% if permissions %}
 
         {% if scopes.platform %}
-        <h4 class="sidebar-text sidebar-section-title mt-4">Platform</h4>
+        <h4 class="sidebar-text sidebar-section-title">Platform</h4>
         <div class="space-y-1">
             {% if "platform.dashboard.read" in permissions %}
             <a href="/platform"
@@ -143,8 +143,27 @@
         </div>
         {% endif %}
 
+        <h4 class="sidebar-text sidebar-section-title">General</h4>
+        <div class="space-y-1">
+            <a href="/dashboard"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-home text-xl"></i>
+                <span class="sidebar-text">Home</span>
+            </a>
+            <a href="/dashboard/support"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-headset text-xl"></i>
+                <span class="sidebar-text">Soporte</span>
+            </a>
+            <a href="/dashboard/support/tickets"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                <i class="fa-regular fa-ticket text-xl"></i>
+                <span class="sidebar-text">Tickets</span>
+            </a>
+        </div>
+
         {% if scopes.company and company_information.id %}
-        <h4 class="sidebar-text sidebar-section-title mt-10">Company</h4>
+        <h4 class="sidebar-text sidebar-section-title">Company</h4>
         <div class="space-y-1">
             {% if "company.read" in permissions %}
             <a href="/companies/{{ company_information.id }}"
@@ -221,22 +240,7 @@
             </a>
             {% endif %}
         </div>
-        {% endif %}
-
-        <h4 class="sidebar-text sidebar-section-title mt-10">General</h4>
-        <div class="space-y-1">
-            <a href="/support"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
-                <i class="fa-regular fa-headset text-xl"></i>
-                <span class="sidebar-text">Soporte</span>
-            </a>
-            <a href="/support/tickets"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
-                <i class="fa-regular fa-ticket text-xl"></i>
-                <span class="sidebar-text">Tickets</span>
-            </a>
-        </div>
-        
+        {% endif %}        
         {% endif %}
     </nav>
 

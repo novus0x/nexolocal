@@ -36,22 +36,23 @@ router.get("/", require_auth, platform_mod, async (req, res) => {
 router.get("/create", require_auth, platform_mod, async (req, res) => {
     // Variables
     const permissions = req.permissions;
-    let roles = [];
+
+    let plans = [];
 
     // Check permissions
     if (!permissions.includes("platform.companies.create")) return res.redirect("/system-alert/403");
     
-    const response = await get_data("/platform/companies/get_roles", {}, req);
+    const response = await get_data("/platform/companies/get_plans", {}, req);
 
     if (response.error) {
         return res.redirect("/platform/companies");
     }
 
-    if (response.data.roles) roles = response.data.roles;
+    if (response.data.plans) plans = response.data.plans;
 
     // Render content
     return res.render("platform/companies/create", {
-        roles: roles
+        plans: plans
     });
 });
 
@@ -59,37 +60,38 @@ router.get("/create", require_auth, platform_mod, async (req, res) => {
 router.post("/create", require_auth, platform_mod, async (req, res) => {
     // Variables
     const permissions = req.permissions;
+    
     let notes_s = "Empty";
 
     // Check permissions
     if (!permissions.includes("platform.companies.create")) return res.redirect("/system-alert/403");
 
-    const { name, email, notes, role_id } = req.body;
+    const { name, email, notes, plan_id } = req.body;
 
     if (notes) notes_s = notes;
 
     const response = await send_data("/platform/companies/create", {}, {
-        name, email, role_id, notes: notes_s
+        name, email, plan_id, notes: notes_s
     }, req);
 
     if (response.error) {
         // Extra Variables
-        let roles = [];
+        let plans = [];
 
-        const response2 = await get_data("/platform/companies/get_roles", {}, req);
+        const response2 = await get_data("/platform/companies/get_plans", {}, req);
 
         if (response2.error) {
             return res.redirect("/platform/companies");
         }
 
-        if (response2.data.roles) roles = response2.data.roles;
+        if (response2.data.plans) plans = response2.data.plans;
 
         return res.render("platform/companies/create", {
             errors: [response.message],
-            roles: roles,
+            plans: plans,
             name, 
             email, 
-            role_id, 
+            plan_id, 
             notes: notes_s
         });
     }

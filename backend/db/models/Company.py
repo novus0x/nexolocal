@@ -28,7 +28,6 @@ class Company(Base):
 
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
-    code = Column(String, unique=True, nullable=False)
     email = Column(String, nullable=False)
     phone = Column(String, nullable=True)
     address = Column(Text, nullable=True)
@@ -110,7 +109,9 @@ class Company_Billing(Base):
     __tablename__ = "company_billings"
 
     id = Column(String, primary_key=True)
-    invoice_number = Column(String, nullable=True)
+
+    reference = Column(String, nullable=False)
+    description = Column(Text,nullable=True)
 
     amount = Column(Numeric(10,2), nullable=False)
     currency = Column(String(3), default="PEN")
@@ -118,7 +119,7 @@ class Company_Billing(Base):
     status = Column(Enum(Billing_Status), default=Billing_Status.PENDING, nullable=False) 
 
     payment_method = Column(String, nullable=True)  
-    reference = Column(String, nullable=True)  
+
     paid_at = Column(DateTime(timezone=True), nullable=True)
     billing_cycle = Column(Enum(Plan_Cicle), nullable=False)
 

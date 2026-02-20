@@ -1,11 +1,10 @@
 ########## Modules ##########
 from fastapi import APIRouter, Request, Depends
 
-from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import User, User_Role, Company_Origin, Company, User_Company_Invitation
+from db.model import User, Company_Plan, Company_Origin, Company, User_Company_Invitation
 
 from core.i18n import translate
 from core.generator import get_uuid
@@ -73,13 +72,13 @@ async def get_companies(request: Request, db: Session = Depends(get_db)):
         "companies": companies
     })
 
-########## Get roles to select - Create Company ########## Gonna be fix --> plans
-@router.get("/get_roles")
-async def roles_generate_company(request: Request, db: Session = Depends(get_db)):
+########## Get Plans to select - Create Company ##########
+@router.get("/get_plans")
+async def plans_generate_company(request: Request, db: Session = Depends(get_db)):
     ### Variables ###
     lang = request.state.lang
     user = request.state.user
-    roles = []
+    plans = []
 
     ### Validation ###
     if user == None:
@@ -92,35 +91,23 @@ async def roles_generate_company(request: Request, db: Session = Depends(get_db)
         return custom_response(status_code=400, message=message)
     
     ### Operations ###
-    filters = [
-        User_Role.platform_level == True,
-        User_Role.hidden == False
-    ]
+    plans_data = db.query(Company_Plan).filter(
+        Company_Plan.public == True
+    ).all()
 
-    role_access, _ = check_permissions(db, request, "platform.users.role")
-
-    if role_access:
-        filters = [
-            or_(
-                User_Role.platform_level.is_(True),
-                User_Role.hidden.is_(True)
-            )
-        ]
-
-    roles_data = db.query(User_Role).filter(*filters).all()
-
-    for role in roles_data:
-        roles.append({
-            "id": role.id,
-            "name": role.name,
-            "hidden": role.hidden
+    for plan in plans_data:
+        plans.append({
+            "id": plan.id,
+            "name": plan.name,
+            "price": plan.price,
+            "cycle": plan.plan_cycle
         })
         
-    return custom_response(status_code=200, message=translate(lang, "platform.companies.get_roles"), data={
-        "roles": roles
+    return custom_response(status_code=200, message=translate(lang, "platform.companies.get_plans"), data={
+        "plans": plans
     })
 
-########## Create Company and Generate Invitation ########## gonna be fix --> plans
+########## Create Company and Generate Invitation ##########
 @router.post("/create")
 async def generate_invitation(request: Request, db: Session = Depends(get_db)):
     ### Variables ###
@@ -139,7 +126,7 @@ async def generate_invitation(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=message)
     
     ### Validations ###
-    required_fields, error = validate_required_fields(new_company_values, ["name", "email", "role_id", "notes"], lang)
+    required_fields, error = validate_required_fields(new_company_values, ["name", "email", "plan_id", "notes"], lang)
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 
@@ -148,16 +135,16 @@ async def generate_invitation(request: Request, db: Session = Depends(get_db)):
     if not check_user_exist:
         return custom_response(status_code=400, message=translate(lang, "platform.companies.generate_invitation.user_not_exist"))
     
-    check_user_role = db.query(User_Role).filter(User_Role.id == new_company_values.role_id).first()
+    check_plan = db.query(Company_Plan).filter(Company_Plan.id == new_company_values.plan_id).first()
 
-    if not check_user_role:
-        return custom_response(status_code=400, message=translate(lang, "platform.companies.generate_invitation.invalid_role_id"))
+    if not check_plan:
+        return custom_response(status_code=400, message=translate(lang, "platform.companies.generate_invitation.invalid_plan_id"))
 
     new_company = Company(
         id = get_uuid(db, Company),
         name = new_company_values.name,
-        code = get_uuid(db, Company),
         email = new_company_values.email,
+        plan_type_id = check_plan.id,
         origin = Company_Origin.STAFF,
         referred_by_user_id = user.get("id")
     )
@@ -169,8 +156,9 @@ async def generate_invitation(request: Request, db: Session = Depends(get_db)):
         notes = new_company_values.notes,
         user_invited = check_user_exist.id,
         company_id = new_company.id,
-        role_id = check_user_role.id
+        role_id = check_plan.role_id
     )
+    
     add_db(db, new_user_invitation)
 
     ## To implement (send email)

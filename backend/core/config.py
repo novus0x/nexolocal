@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str
     GOOGLE_SECRET_ID: str
 
+    MERCADO_PAGO_PUBLIC_KEY: str
+    MERCADO_PAGO_ACCESS_TOKEN: str
+
     EMAIL_ENABLED: bool = True
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
 

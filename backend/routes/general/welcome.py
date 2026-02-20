@@ -22,9 +22,10 @@ UTZ_TZ = ZoneInfo("UTC")
 
 ########## Main Page ##########
 @router.get("/")
-async def welcome(request: Request, db: Session = Depends(get_db)):
+async def home(request: Request, db: Session = Depends(get_db)):
     ### Variables ###
     lang = request.state.lang
+    user =request.state.user
 
     plans = []
 

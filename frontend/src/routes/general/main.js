@@ -15,10 +15,10 @@ const __dirname = path.dirname(__filename);
 /*************** Main route ***************/
 router.get("/", async (req, res) => {
     // Variables
-    let plans = []
+    let plans = [];
 
     // Get Plans
-    const response = await get_data("/general/", {}, req);
+    const response = await get_data("/general", {}, req);
 
     if (response.error == false) {
         plans = response.data.plans;
@@ -28,14 +28,6 @@ router.get("/", async (req, res) => {
     return res.render("general/main", {
         plans
     });
-});
-
-/*************** Dashboard ***************/
-router.get("/dashboard", require_auth, async (req, res) => {
-    // Variables
-
-    // Render content
-    return res.render("general/dashboard", {});
 });
 
 /*************** Legal route ***************/

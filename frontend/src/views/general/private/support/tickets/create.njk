@@ -1,6 +1,6 @@
 {% extends "layouts/dashboard.njk" %}
 
-{% block title %}Platform Dashboard{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
 {% include "components/dashboard-sidebar.njk" %}
@@ -11,16 +11,23 @@
     <div class="w-full space-y-8">
 
         <div class="mb-8">
-            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 flex-col md:flex-row gap-5"
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 justify-between flex-col md:flex-row gap-5"
                 aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
                     <li class="inline-flex items-center">
-                        <a href="/support" class="hover:text-white transition-colors">Soporte</a>
+                        <a href="/dashboard" class="hover:text-white transition-colors">Dashboard</a>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="fa-solid fa-chevron-right text-gray-600"></i>
-                            <a href="/support/tickets" id="breadcrumb-workspace"
+                            <a href="/dashboard/support" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Soporte</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/dashboard/support/tickets" id="breadcrumb-workspace"
                                 class="hover:text-white ml-1 md:ml-2 transition-colors">Tickets</a>
                         </div>
                     </li>
@@ -146,7 +153,7 @@
             notify("Ticket generado satisfactoriamente", "success")
 
             setTimeout(() => {
-                window.location.href = `/support/tickets/${result.code}`;
+                window.location.href = `/dashboard/support/tickets/${result.code}`;
             }, 1500);
         } else {
             result.errors.forEach(e => notify(`${e}`, "error"));

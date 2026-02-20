@@ -41,20 +41,25 @@
 <main class="flex-1 overflow-y-auto p-6 lg:p-10">
     <div class="w-full space-y-8">
 
-        {# <div
-            class="flex items-center justify-between gap-4 animate-in fade-in duration-700 bg-(--accent) py-2 px-3 rounded-xl">
-            <div class="flex items-center gap-3">
+        {% if not user.email_verified %}
+        <form action="/auth/verify-account" method="post"
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-in fade-in duration-700 bg-(--accent) py-3 px-4 rounded-2xl">
+            <div class="flex items-start gap-3">
                 <div>
-                    <h4 class="text-base font-bold text-[#F0F6FC]">Verifica tu cuenta!</h4>
-                    <p class="text-sm text-white">Hay ciertas funciones que estaran bloqueadas hasta que verifique su
-                        cuenta de correo electrónico</p>
+                    <h4 class="text-sm font-semibold text-white">
+                        Verifica tu correo electrónico
+                    </h4>
+                    <p class="text-xs text-white/80 mt-0.5">
+                        Funciones importantes estarán bloqueadas hasta que completes la verificación.
+                    </p>
                 </div>
             </div>
             <button
-                class="text-xs font-bold uppercase text-white hover:text-gray-300 transition-colors whitespace-nowrap bg-(--bg-second) px-3 py-2 rounded-2xl cursor-pointer">
-                Verificar Cuenta!
+                class="text-xs font-semibold uppercase tracking-wide text-white hover:text-gray-300 transition-all whitespace-nowrap bg-(--bg-second) hover:bg-(--bg-second)/80 px-4 py-2 rounded-xl cursor-pointer">
+                Verificar ahora
             </button>
-        </div> #}
+        </form>
+        {% endif %}
 
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
@@ -172,7 +177,7 @@
                                     class="w-full py-2 bg-[#1C2128] border border-[#30363D] hover:border-red-500/50 hover:text-red-500 rounded-lg text-[10px] font-bold transition-all uppercase tracking-wider cursor-pointer">Desvincular</button>
                             </div>
 
-                             <!-- Discord -->
+                            <!-- Discord -->
                             <div class="oauth-card p-4 rounded-xl flex flex-col justify-between gap-4">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3">
@@ -210,7 +215,7 @@
                                 </div>
                                 <button
                                     class="w-full py-2 bg-[#1C2128] border border-[#30363D] hover:border-(--accent) rounded-lg text-[10px] font-bold transition-all uppercase tracking-wider hover:text-(--accent)">Conectar</button>
-                            </div> 
+                            </div>
 
                         </div>
                     </div>
@@ -380,7 +385,7 @@
             update_password();
         }
     });
-    
+
 </script>
 
 {% include "components/dashboard-footer.njk" %}

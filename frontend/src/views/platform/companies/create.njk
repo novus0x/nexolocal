@@ -68,10 +68,10 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="input-group">
-                        <label>Asignar Rol</label>
-                        <select class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold appearance-none" name="role_id" required>
-                            {% for role in roles %}
-                            <option class="input-field" value="{{ role.id }}" {% if role_id == role.id %} selected {% endif %} >{{ role.name }} {% if role.hidden %}- Oculto {% endif %}</option>
+                        <label>Asignar Plan</label>
+                        <select class="w-full input-glass px-5 py-3.5 rounded-xl text-sm font-bold appearance-none" name="plan_id" required>
+                            {% for plan in plans %}
+                            <option class="input-field" value="{{ plan.id }}" {% if plan_id == plan.id %} selected {% endif %}>{{ plan.name }}</option>
                             {% endfor %}
                         </select>
                     </div>

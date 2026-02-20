@@ -43,6 +43,11 @@
         "recovery": {
             "success": "Password updated successfully",
             "valid": "Recovery token is valid"
+        },
+        "verify_account": {
+            "sent": "Verification email sent successfully",
+            "error": "Invalid or expired verification token",
+            "success": "Account verified successfully"
         }
     },
     "platform": {
@@ -50,11 +55,13 @@
             "generate_invitation": {
                 "user_not_exist": "The user does not exist, the user must register in order to receive the invitation",
                 "invalid_role_id": "The role is invalid",
+                "invalid_plan_id": "The plan is invalid",
                 "success": "Invitation generated successfully",
                 "get_roles": "Roles successfully obtained"
             },
             "get": "Companies successfully obtained",
-            "get_roles": "Roles successfully obtained"
+            "get_roles": "Roles successfully obtained",
+            "get_plans": "Plans successfully obtained"
         },
         "roles": {
             "get": {
@@ -169,6 +176,28 @@
         },
         "plans": {
             "get": "Plans obtained successfully"
+        },
+        "billing": {
+            "plans": {
+                "get": {
+                    "unique": {
+                        "error": "Billing plan does not exist",
+                        "success": "Billing plan obtained successfully"
+                    },
+                    "success": "Billing plans obtained successfully"
+                },
+                "transaction": {
+                    "error": {
+                        "plan_does_not_exist": "The selected plan does not exist",
+                        "required_email_verification": "You must verify your email before continuing",
+                        "role_does_not_exist": "The selected plan role does not exist"
+                    },
+                    "success": "Transaction created successfully"
+                }
+            }
+        },
+        "dashboard": {
+            "get": "Dashboard data obtained successfully"
         }
     },
     "company": {

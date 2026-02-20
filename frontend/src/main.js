@@ -10,11 +10,17 @@ import oauth from './routes/auth/oauth.js';
 
 import users_settings from './routes/users/settings.js';
 
+// General - Public
 import general_main from './routes/general/main.js';
-import general_support from './routes/general/support.js';
-import general_invitations from './routes/general/invitations.js';
 import general_check_ticket from './routes/general/check_ticket.js';
 
+// General - Private
+import general_dashboard from './routes/general/private/dashboard.js';
+import general_billing from './routes/general/private/billing.js';
+import general_support from './routes/general/private/support.js';
+import general_invitations from './routes/general/private/invitations.js';
+
+// Platform
 import platform_main from './routes/platform/main.js';
 import platform_users from './routes/platform/users.js';
 import platform_roles from './routes/platform/roles.js';
@@ -23,6 +29,7 @@ import platform_companies from './routes/platform/companies.js';
 import platform_support from './routes/platform/support.js';
 import platform_analytics from './routes/platform/analytics.js';
 
+// Companies
 import companies_main from './routes/companies/main.js';
 import companies_cash from './routes/companies/cash.js';
 import companies_finance from './routes/companies/finance.js';
@@ -31,11 +38,13 @@ import companies_products from './routes/companies/products.js';
 import companies_sales from './routes/companies/sales.js'
 import companies_settings from './routes/companies/settings.js';
 
+// APIs
 import users_api from './routes/users/api.js';
-import general_api from './routes/general/api.js';
+import general_api from './routes/general/private/api.js';
 import companies_api from './routes/companies/api.js';
 import platform_api from './routes/platform/api.js';
 
+// System
 import system_alerts_main from './routes/system_alerts/main.js';
 
 import settings from './settings.js';
@@ -89,8 +98,11 @@ app.use((req, res, next) => {
 
 app.use("/", general_main);
 app.use("/", general_check_ticket);
-app.use("/support", general_support);
-app.use("/invitations", general_invitations);
+
+app.use("/dashboard", general_dashboard);
+app.use("/dashboard/billing", general_billing);
+app.use("/dashboard/support", general_support);
+app.use("/dashboard/invitations", general_invitations);
 
 app.use("/auth", auth);
 app.use("/oauth", oauth);

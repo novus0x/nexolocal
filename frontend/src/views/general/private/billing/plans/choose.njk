@@ -1,0 +1,117 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 justify-between flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/dashboard" class="hover:text-white transition-colors">Dashboard</a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/dashboard/billing" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Pagos</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/dashboard/billing/plans" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Planes</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">{{ plan.name }}</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <form class="lg:col-span-2 space-y-6" action="/dashboard/billing/plans/{{ plan.id }}" method="post">
+                <div class="glass-card rounded-3xl p-8">
+                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2 italic uppercase">
+                        <i class="fa-solid fa-building text-(--accent)"></i>
+                        Información General
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div class="group">
+                            <label
+                                class="block text-[10px] font-black uppercase text-slate-500 mb-2 ml-1 tracking-widest">Nombre
+                                de la Empresa</label>
+                            <input type="text" placeholder="Ej. Nexolocal" name="name" value="{{ name }}"
+                                class="input-field w-full px-5 py-4 rounded-xl text-sm" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-4">
+                    <a href="/dashboard/billing/plans"
+                        class="text-xs font-bold uppercase text-gray-500 hover:text-white transition-colors">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Volver a los planes
+                    </a>
+                    <button
+                        class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                        Confirmar y Finalizar <i class="fa-solid fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div class="space-y-6">
+                <div class="glass-card rounded-3xl p-6">
+                    <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6">Resumen del Pedido
+                    </h3>
+
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between items-end">
+                            <span class="text-xs text-gray-400">Plan Mensual</span>
+                            <span class="text-sm font-bold">S/ {{ plan.price }}</span>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <span class="text-xs text-gray-400">Comisión de procesamiento</span>
+                            <span class="text-sm font-bold">S/ {{ plan.fee }}</span>
+                        </div>
+                        {% if companies_q == 0 %}
+                        <div class="flex justify-between items-end">
+                            <span class="text-xs text-gray-400">Descuento: <span class="text-(--accent)">Mes de Prueba</span></span>
+                            <span class="text-sm font-bold text-red-500">S/ -{{ plan.fee + plan.price }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="border-t border-white/10 pt-4 mb-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-black uppercase italic">Total a pagar</span>
+                            <span class="text-2xl font-black text-(--accent)">S/ {% if companies_q == 0 %} 0.00 {% else %} {{ plan.price + plan.fee }} {% endif %}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/5 rounded-2xl p-4 space-y-3">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle-check text-(--accent) mt-1"></i>
+                            <p class="text-xs leading-relaxed text-slate-400">Acceso inmediato al panel de
+                                control tras realizarce el pago.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

@@ -1,0 +1,9 @@
+{
+    "mp": {
+        "name": "Mercado Pago - Pe",
+        "igv": 0.18,
+        "fixed": 1.18,
+        "percent": 0.0349,
+        "base_url": "https://api.mercadopago.com"
+    }
+}

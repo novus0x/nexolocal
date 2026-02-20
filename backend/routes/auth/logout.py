@@ -19,13 +19,13 @@ router = APIRouter()
 ########## Login ##########
 @router.post("/logout")
 async def logout(request: Request, db: Session = Depends(get_db)):
-    ### Get token ###
-    token = request.cookies.get(settings.TOKEN_NAME)
-    token_data, error = check_jwt(token)
-    
     ### Variables ###
     lang = request.state.lang
 
+    token = request.cookies.get(settings.TOKEN_NAME)
+    token_data, error = check_jwt(token)
+
+    ### Verify Token Data ###
     if token_data:
         user_session = db.query(User_Session).filter(User_Session.id == token_data["session_id"]).first()
 

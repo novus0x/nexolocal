@@ -1,8 +1,8 @@
 /*************** Modules ***************/
 import express, { response } from 'express';
 
-import { get_data, send_data } from '../../utils/api.js';
-import { require_auth } from '../../middlewares/auth.js';
+import { get_data, send_data } from '../../../utils/api.js';
+import { require_auth } from '../../../middlewares/auth.js';
 
 /*************** Variables ***************/
 const router = express.Router();
@@ -12,7 +12,7 @@ router.get("/", require_auth, async (req, res) => {
     // Variables
 
     // Render content
-    return res.render("general/support/main", {});
+    return res.render("general/private/support/main", {});
 });
 
 /*************** Tickets Support Create - GET ***************/
@@ -20,7 +20,7 @@ router.get("/tickets/create", require_auth, async (req, res) => {
     // Variables
 
     // Render content
-    return res.render("general/support/tickets/create", {});
+    return res.render("general/private/support/tickets/create", {});
 });
 
 /*************** Tickets ***************/
@@ -37,7 +37,7 @@ router.get("/tickets", require_auth, async (req, res) => {
     const tickets = data.tickets;
 
     // Render content
-    return res.render("general/support/tickets/main", {
+    return res.render("general/private/support/tickets/main", {
         tickets
     });
 });
@@ -54,7 +54,7 @@ router.get("/tickets/:ticket_id", require_auth, async (req, res) => {
     const ticket = data.ticket;
 
     // Render content
-    return res.render("general/support/tickets/read", {
+    return res.render("general/private/support/tickets/read", {
         ticket
     });
 });

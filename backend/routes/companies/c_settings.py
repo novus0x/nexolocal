@@ -193,7 +193,7 @@ async def update_company_information(request: Request, file: UploadFile = File(N
         ### Tax Info ###
         tax_info = vars(company_info).copy()
 
-        # Remove elements
+        ### Remove elements ###
         tax_info.pop("email")
         tax_info.pop("description")
         tax_info.pop("phone")

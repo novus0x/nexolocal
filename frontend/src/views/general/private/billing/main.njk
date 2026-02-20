@@ -1,0 +1,91 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 justify-between flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/dashboard" class="hover:text-white transition-colors">Dashboard</a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Pagos</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <a href="/dashboard/billing/plans"
+                class="glass-card rounded-2xl p-8 transition-all duration-300 group cursor-pointer">
+                <div
+                    class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center mb-8 group-hover:bg-orange-500/20 transition-colors border border-white/10 group-hover:border-orange-500/40">
+                    <i class="fa-solid fa-layer-group text-2xl text-slate-400 group-hover:text-orange-500"></i>
+                </div>
+                <h3 class="text-xs font-bold text-orange-500 uppercase tracking-widest mb-2">Infraestructura</h3>
+                <h2 class="text-2xl uppercase mb-4 leading-none">Planes</h2>
+                <p class="text-slate-400 text-xs leading-relaxed mb-8">
+                    Crea una nueva compañía desde cero adquiriendo un plan o gestiona las suscripciones de tus entidades
+                    actuales.
+                </p>
+                <div
+                    class="flex items-center text-[10px] font-bold uppercase tracking-tighter text-white/50 group-hover:text-white transition-colors">
+                    <span>Gestionar o Crear</span>
+                    <i class="fa-solid fa-chevron-right ml-2 text-orange-500"></i>
+                </div>
+            </a>
+
+            <a href="/dashboard/billing/add-ons"
+                class="glass-card rounded-2xl p-8 transition-all duration-300 group cursor-pointer">
+                <div
+                    class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center mb-8 group-hover:bg-orange-500/20 transition-colors border border-white/10 group-hover:border-orange-500/40">
+                    <i class="fa-solid fa-plus-minus text-2xl text-slate-400 group-hover:text-orange-500"></i>
+                </div>
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Expansión</h3>
+                <h2 class="text-2xl uppercase mb-4 leading-none">Add-ons</h2>
+                <p class="text-slate-400 text-xs leading-relaxed mb-8">
+                    Cada servicio adicional se vincula directamente a un plan activo. Potencia tus capacidades según tus
+                    necesidades.
+                </p>
+                <div
+                    class="flex items-center text-[10px] font-bold uppercase tracking-tighter text-white/50 group-hover:text-white transition-colors">
+                    <span>Añadir a un Plan</span>
+                    <i class="fa-solid fa-chevron-right ml-2 text-orange-500"></i>
+                </div>
+            </a>
+
+            <a href="/dashboard/billing/history"
+                class="glass-card rounded-2xl p-8 transition-all duration-300 group cursor-pointer">
+                <div
+                    class="w-14 h-14 bg-white/5 rounded-xl flex items-center justify-center mb-8 group-hover:bg-orange-500/20 transition-colors border border-white/10 group-hover:border-orange-500/40">
+                    <i class="fa-solid fa-receipt text-2xl text-slate-400 group-hover:text-orange-500"></i>
+                </div>
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Administración</h3>
+                <h2 class="text-2xl uppercase mb-4 leading-none">Pagos</h2>
+                <p class="text-slate-400 text-xs leading-relaxed mb-8">
+                    Historial de transacciones de todas tus compañías.
+                </p>
+                <div
+                    class="flex items-center text-[10px] font-bold uppercase tracking-tighter text-white/50 group-hover:text-white transition-colors">
+                    <span>Ver Historial</span>
+                    <i class="fa-solid fa-chevron-right ml-2 text-orange-500"></i>
+                </div>
+            </a>
+        </div>
+
+    </div>
+</main>
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

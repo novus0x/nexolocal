@@ -43,6 +43,11 @@
         "recovery": {
             "success": "Contraseña actualizada satisfactoriamente",
             "valid": "El token de recuperación es válido"
+        },
+        "verify_account": {
+            "sent": "Correo de verificación enviado satisfactoriamente",
+            "error": "Token de verificación inválido o expirado",
+            "success": "Cuenta verificada satisfactoriamente"
         }
     },
     "platform": {
@@ -50,11 +55,13 @@
             "generate_invitation": {
                 "user_not_exist": "El usuario no existe, el usuario debe registrarse para recibir la invitación",
                 "invalid_role_id": "El rol no es válido",
+                "invalid_plan_id": "El plan no es válido",
                 "success": "Invitacion generada satisfactoriamente",
                 "get_roles": "Roles obtenidos satisfactoriamente"
             },
             "get": "Negocios obtenidas satisfactoriamente",
-            "get_roles": "Roles obtenidos satisfactoriamente"
+            "get_roles": "Roles obtenidos satisfactoriamente",
+            "get_plans": "Planes obtenidos satisfactoriamente"
         },
         "roles": {
             "get": {
@@ -169,6 +176,28 @@
         },
         "plans": {
             "get": "Planes obtenidos satisfactoriamente"
+        },
+        "billing": {
+            "plans": {
+                "get": {
+                    "unique": {
+                        "error": "El plan de facturación no existe",
+                        "success": "Plan de facturación obtenido satisfactoriamente"
+                    },
+                    "success": "Planes de facturación obtenidos satisfactoriamente"
+                },
+                "transaction": {
+                    "error": {
+                        "plan_does_not_exist": "El plan seleccionado no existe",
+                        "required_email_verification": "Debes verificar tu correo electrónico antes de continuar",
+                        "role_does_not_exist": "El rol del plan seleccionado no existe"
+                    },
+                    "success": "Transacción creada satisfactoriamente"
+                }
+            }
+        },
+        "dashboard": {
+            "get": "Datos del dashboard obtenidos satisfactoriamente"
         }
     },
     "company": {

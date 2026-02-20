@@ -32,9 +32,6 @@ async def forgot_password(request: Request, db: Session = Depends(get_db)):
     if error: 
         return custom_response(status_code=400, message=error)
     
-    ### Variables ###
-    lang = request.state.lang
-    
     ### Validations ###
     required_fields, error = validate_required_fields(user, ["email"], lang)
     if error:
@@ -49,23 +46,30 @@ async def forgot_password(request: Request, db: Session = Depends(get_db)):
             User_Recover.user_id == user_data.id,
             User_Recover.used == False,
             User_Recover.expires > now
-        )
+        ).first()
 
         if active_recover:
+            new_recover = active_recover
+            new_recover.expires = datetime.now(timezone.utc) + timedelta(minutes=10)
+
+            update_db(db)
+        else:
             new_recover = User_Recover(
                 id = get_uuid(db, User_Recover),
-                expires = now + timedelta(minutes=10),
                 user_id = user_data.id
             )
 
+            new_recover.expires = datetime.now(timezone.utc) + timedelta(minutes=10)
+
             add_db(db, new_recover)
 
-            html_body = await get_html(template_routes.auth.reset_password, {
-                "username": user_data.username,
-                "recover_id": new_recover.id
-            })
+        ### Send Mail ###
+        html_body = await get_html(template_routes.auth.reset_password, {
+            "username": user_data.username,
+            "recover_id": new_recover.id
+        })
 
-            await send_mail("no-reply", "Solicitud de restablecimiento de contraseña", user_data.email, html_body)
+        await send_mail("no-reply", "Solicitud de restablecimiento de contraseña", user_data.email, html_body)
 
     return custom_response(status_code=200, message=translate(lang, "auth.forgot_password.success"))
 

@@ -13,7 +13,6 @@ from core.config import settings
 
 from core.i18n import translate
 from core.responses import custom_response
-from core.permissions import check_permissions
 from core.db_management import add_db, update_db
 from core.generator import get_uuid, generate_nxid
 from core.validators import read_json_body, validate_required_fields

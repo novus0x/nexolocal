@@ -46,7 +46,7 @@ class Audit_Log(Base):
 
     before_data = Column(JSONB, nullable=True)
     after_data = Column(JSONB, nullable=True)
-    extra_data = Column("metadata", JSONB, nullable=True)
+    extra_data = Column(JSONB, nullable=True)
 
     actor_user_id = Column(String, ForeignKey("users.id"), nullable=True)
     company_id = Column(String, ForeignKey("companies.id"), nullable=True)

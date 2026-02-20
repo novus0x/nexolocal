@@ -322,7 +322,7 @@ async def update_plan(request: Request, db: Session = Depends(get_db)):
     check_plan.name = edit_plan_data.name
     check_plan.price = edit_plan_data.price
     check_plan.description = edit_plan_data.description
-    check_plan.role_id = edit_plan_data.role_id
+    # check_plan.role_id = edit_plan_data.role_id # need to fix this later
 
     if edit_plan_data.highlight:
         check_plan.highlight = True

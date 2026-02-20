@@ -1,8 +1,8 @@
 /*************** Modules ***************/
 import express from 'express';
 
-import { get_data, send_data } from '../../utils/api.js';
-import { require_auth } from '../../middlewares/auth.js';
+import { get_data, send_data } from '../../../utils/api.js';
+import { require_auth } from '../../../middlewares/auth.js';
 
 /*************** Variables ***************/
 const router = express.Router();
@@ -15,7 +15,7 @@ router.get("/", require_auth, async (req, res) => {
     const invitations = response.data?.invitations;
 
     // Render content
-    return res.render("general/invitations/main", {
+    return res.render("general/private/invitations/main", {
         invitations: invitations
     });
 });
@@ -31,14 +31,14 @@ router.get("/accept/:invitation_id", require_auth, async (req, res) => {
 
         const invitations = response2.data?.invitations;
 
-        return res.render("general/invitations/main", {
+        return res.render("general/private/invitations/main", {
             errors: [response.message],
             invitations: invitations
         })
     }
 
     // Render content
-    return res.render("general/invitations/accepted", {})
+    return res.render("general/private/invitations/accepted", {})
 });
 
 router.get("/decline/:invitation_id", require_auth, async (req, res) => {

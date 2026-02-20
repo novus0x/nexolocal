@@ -164,6 +164,32 @@ router.post("/recover", async (req, res) => {
     return res.render("auth/recover_success");
 });
 
+/*************** Verify Account - Post ***************/
+router.post("/verify-account", require_auth, async (req, res) => {
+    // Response
+    const response = await send_data("/auth/verify-account", {}, {}, req);
+
+    if (response.error) return res.redirect("/dashboard");
+
+    // Response
+    return res.render("auth/verify_account");
+});
+
+/*************** Verify Account - Post ***************/
+router.get("/verify-account", async (req, res) => {
+    // Variables
+    const verify_account_id = req.query.id;
+
+    if (!verify_account_id) return res.redirect("/dashboard");
+
+    // Request
+    const response = await send_data(`/auth/verify-account/${verify_account_id}`, {}, {}, req);
+
+    if (response.error) return res.redirect("/dashboard");
+
+    return res.render("auth/verify_account_success");
+});
+
 /*************** Logout - GET ***************/
 router.get("/logout", require_auth, async (req, res) => {
     // Send logout request

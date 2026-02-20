@@ -68,7 +68,7 @@ async def user(request: Request, db: Session = Depends(get_db)):
                         if not permission in permisions_data:
                             permisions_data.append(permission)
 
-    ### ###
+    ### User Assiciations ###
     user_company_association = db.query(User_Company_Association).filter(
         User_Company_Association.user_id == user.get("id")
     ).all()
