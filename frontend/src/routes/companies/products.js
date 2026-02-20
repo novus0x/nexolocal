@@ -75,7 +75,6 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     const permissions = req.permissions;
     const company_id = req.company_id;
 
-    let tax_include_v = "0";
     let is_bulk_v = "0";
     let is_service_v = "0";
     let duration_v = "0";
@@ -99,7 +98,7 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     if (!permissions.includes("company.products.create")) return res.redirect("/system-alert/403");
 
     // Get POST data
-    const { name, sku, identifier, category, description, supplier_id, sale_price, sale_cost, tax_include, is_bulk, is_service, duration, duration_type, staff_id, stock, track_product, low_stock, bonus, expiration_date, weight, length, width, height } = req.body;
+    const { name, sku, identifier, category, description, supplier_id, sale_price, sale_cost, is_bulk, is_service, duration, duration_type, staff_id, stock, track_product, low_stock, bonus, expiration_date, weight, length, width, height } = req.body;
 
     if (stock) stock_v = stock;
     if (description) description_v = description;
@@ -117,8 +116,6 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
         if (!low_stock) low_stock_v = 5;
         else low_stock_v = low_stock;
     }
-
-    if (tax_include == "on") tax_include_v = "1";
 
     if (expiration_date) date_val = expiration_date;
 
@@ -141,7 +138,6 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
         stock: stock_v,
         description: description_v,
         supplier_id: supplier_id_v,
-        tax_include: tax_include_v,
         is_bulk: is_bulk_v,
         is_service: is_service_v,
         duration: duration_v,
@@ -167,8 +163,8 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
 
             suppliers,
             name, sku, identifier, supplier_id, category, description, sale_price, sale_cost,
-            tax_include, is_service, duration, duration_type, staff_id, stock, track_product,
-            low_stock, bonus, weight, length, width, height, date_val
+            is_service, duration, duration_type, staff_id, stock, track_product, low_stock, 
+            bonus, weight, length, width, height, date_val
         })
     }
 

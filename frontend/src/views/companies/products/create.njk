@@ -235,7 +235,7 @@
                                 <p class="text-xs text-gray-500">Notificarme si queda poco stock</p>
                             </div>
                             <label class="nexo-switch">
-                                <input type="checkbox" id="serviceSwitch" onchange="toggle_stock('low_stock_field', this.checked);">
+                                <input type="checkbox" name="track_product" onchange="toggle_stock('low_stock_field', this.checked);" {% if track_product %} checked {% endif %}>
                                 <div class="bg"></div>
                                 <div class="dot"></div>
                             </label>

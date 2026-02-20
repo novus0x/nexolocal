@@ -241,9 +241,9 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=error)
 
     required_fields, error = validate_required_fields(product_check, [
-        "name", "sku", "identifier", "category", "description", "supplier_id", "sale_price", "sale_cost", "tax_include", 
-        "is_bulk", "is_service", "duration", "duration_type", "staff_id", "track_product", "low_stock", "bonus", "weight",
-        "length", "width", "height", "expiration_date"
+        "name", "sku", "identifier", "category", "description", "supplier_id", "sale_price", "sale_cost", "is_bulk", 
+        "is_service", "duration", "duration_type", "staff_id", "track_product", "low_stock", "bonus", "weight", "length",
+        "width", "height", "expiration_date"
     ], lang)
 
     if error:
@@ -351,9 +351,6 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
     if check_company.is_formal:
         print("To-do: implement taxes part I")
 
-        if product_check.tax_include == "1":
-            new_product.tax_included = True
-
     add_db(db, new_product)
 
     ## Create Product Batch
@@ -395,8 +392,6 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
 
         if check_company.is_formal:
             print("To-do: implement taxes part II")
-            if product_check.tax_include == "1":
-                new_expense.tax_amount = 0
 
         add_db(db, new_expense)
         """
@@ -784,7 +779,6 @@ async def get_product_by_id_to_create_batch(request: Request, product_id: str, d
         "price": check_product.price,
         "cost": check_product.cost,
 
-        "tax_included": check_product.tax_included,
         "low_stock_alert": check_product.low_stock_alert,
         "track_inventory": check_product.track_inventory,
 
@@ -920,9 +914,7 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
 
         if company.is_formal:
             print("To-do: implement taxes part II")
-            if product_check.tax_include == "1":
-                new_expense.tax_amount = 0
-
+            
         new_batch.expense_id = new_expense.id
 
         """

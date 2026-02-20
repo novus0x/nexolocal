@@ -29,9 +29,6 @@ class Product(Base):
     price = Column(Numeric(10, 2), nullable=False)
     cost = Column(Numeric(10, 2), nullable=True)
     compare_price = Column(Numeric(10, 2), nullable=True)
-    
-    tax_included = Column(Boolean, default=False)
-    tax_affectation_code = Column(String(2), default="10") # 10 gravado, 20 exonerado, 30 inafecto
 
     stock = Column(Numeric(10, 3), default=0)
     low_stock_alert = Column(Numeric(10, 3), default=5)
