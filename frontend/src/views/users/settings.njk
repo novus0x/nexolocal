@@ -41,25 +41,7 @@
 <main class="flex-1 overflow-y-auto p-6 lg:p-10">
     <div class="w-full space-y-8">
 
-        {% if not user.email_verified %}
-        <form action="/auth/verify-account" method="post"
-            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-in fade-in duration-700 bg-(--accent) py-3 px-4 rounded-2xl">
-            <div class="flex items-start gap-3">
-                <div>
-                    <h4 class="text-sm font-semibold text-white">
-                        Verifica tu correo electrónico
-                    </h4>
-                    <p class="text-xs text-white/80 mt-0.5">
-                        Funciones importantes estarán bloqueadas hasta que completes la verificación.
-                    </p>
-                </div>
-            </div>
-            <button
-                class="text-xs font-semibold uppercase tracking-wide text-white hover:text-gray-300 transition-all whitespace-nowrap bg-(--bg-second) hover:bg-(--bg-second)/80 px-4 py-2 rounded-xl cursor-pointer">
-                Verificar ahora
-            </button>
-        </form>
-        {% endif %}
+        {% include "components/verify-account.njk" %}
 
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>

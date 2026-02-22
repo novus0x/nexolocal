@@ -66,12 +66,13 @@
     </div>
     {% endif %}
 
+    {% set sidebar_active_key = sidebar_active.key if sidebar_active else "" %}
     <nav class="flex-1 px-4 space-y-4 overflow-y-auto pt-2 overflow-x-hidden">
         {% if invitations_sidebar.exist %}
         <h4 class="sidebar-text sidebar-section-title mt-4">Invitations</h4>
         <div class="space-y-1">
             <a href="/invitations"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-amber-600 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-amber-600 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'general.invitations' else '' }}">
                 <i class="fa-regular fa-envelope text-xl"></i>
                 <span class="sidebar-text">Invitaciones {{ invitations_sidebar.quantity }}</span>
             </a>
@@ -86,49 +87,49 @@
         <div class="space-y-1">
             {% if "platform.dashboard.read" in permissions %}
             <a href="/platform"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'platform.dashboard' else '' }}">
                 <i class="fa-jelly fa-regular fa-grid text-xl"></i>
                 <span class="sidebar-text">Dashboard</span>
             </a>
             {% endif %}
             {% if "platform.roles.read" in permissions %}
             <a href="/platform/roles"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'platform.roles' else '' }}">
                 <i class="fa-regular fa-key text-xl"></i>
                 <span class="sidebar-text">Roles</span>
             </a>
             {% endif %}
             {% if "platform.plans.read" in permissions %}
             <a href="/platform/plans"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'platform.plans' else '' }}">
                 <i class="fa-regular fa-crown text-xl"></i>
                 <span class="sidebar-text">Planes</span>
             </a>
             {% endif %}
             {% if "platform.companies.read" in permissions %}
             <a href="/platform/companies"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'platform.companies' else '' }}">
                 <i class="fa-regular fa-store text-xl"></i>
                 <span class="sidebar-text">Negocios</span>
             </a>
             {% endif %}
             {% if "platform.users.read" in permissions %}
             <a href="/platform/users"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'platform.users' else '' }}">
                 <i class="fa-regular fa-users text-xl"></i>
                 <span class="sidebar-text">Usuarios</span>
             </a>
             {% endif %}
             {% if "platform.support.read" in permissions %}
             <a href="/platform/support"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'platform.support' else '' }}">
                 <i class="fa-regular fa-headset text-xl"></i>
                 <span class="sidebar-text">Soporte</span>
             </a>
             {% endif %}
             {% if "platform.analytics.read" in permissions %}
             <a href="/platform/analytics"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'platform.analytics' else '' }}">
                 <i class="fa-regular fa-chart-line text-xl"></i>
                 <span class="sidebar-text">Analiticas</span>
             </a>
@@ -146,17 +147,17 @@
         <h4 class="sidebar-text sidebar-section-title">General</h4>
         <div class="space-y-1">
             <a href="/dashboard"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'general.home' else '' }}">
                 <i class="fa-regular fa-home text-xl"></i>
                 <span class="sidebar-text">Home</span>
             </a>
             <a href="/dashboard/support"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'general.support' else '' }}">
                 <i class="fa-regular fa-headset text-xl"></i>
                 <span class="sidebar-text">Soporte</span>
             </a>
             <a href="/dashboard/support/tickets"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'general.tickets' else '' }}">
                 <i class="fa-regular fa-ticket text-xl"></i>
                 <span class="sidebar-text">Tickets</span>
             </a>
@@ -167,78 +168,78 @@
         <div class="space-y-1">
             {% if "company.read" in permissions %}
             <a href="/companies/{{ company_information.id }}"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'company.home' else '' }}">
                 <i class="fa-regular fa-store text-xl"></i>
                 <span class="sidebar-text">Negocio</span>
             </a>
             {% endif %}
             {% if "company.users.read" in permissions %}
             <a href="/companies/{{ company_information.id }}/team"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'company.team' else '' }}">
                 <i class="fa-regular fa-people-group text-xl"></i>
                 <span class="sidebar-text">Equipo</span>
             </a>
             {% endif %}
             {% if "company.suppliers.read" in permissions %}
             <a href="/companies/{{ company_information.id }}/suppliers"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'company.suppliers' else '' }}">
                 <i class="fa-regular fa-truck-field text-xl"></i>
                 <span class="sidebar-text">Provedores</span>
             </a>
             {% endif %}
             {% if "company.products.read" in permissions %}
             <a href="/companies/{{ company_information.id }}/products"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'company.products' else '' }}">
                 <i class="fa-regular fa-box text-xl"></i>
                 <span class="sidebar-text">Productos</span>
             </a>
             {% endif %}
             {% if "company.cash.read" in permissions %}
             <a href="/companies/{{ company_information.id }}/cash"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'company.cash' else '' }}">
                 <i class="fa-regular fa-cash-register text-xl"></i>
                 <span class="sidebar-text">Cajas</span>
             </a>
             {% endif %}
             {% if "company.sales.read" in permissions %}
             <a href="/companies/{{ company_information.id }}/sales"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'company.sales' else '' }}">
                 <i class="fa-regular fa-cart-shopping text-xl"></i>
                 <span class="sidebar-text">Ventas</span>
             </a>
             {% endif %}
             {% if "company.incomes.read" in permissions and "company.expenses.read" in permissions %}
             <a href="/companies/{{ company_information.id }}/finance"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'company.finance' else '' }}">
                 <i class="fa-regular fa-chart-mixed-up-circle-dollar text-xl"></i>
                 <span class="sidebar-text">Finanzas</span>
                 <span
-                    class="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-linear-to-r from-orange-500 to-red-500 text-white shadow-md shadow-orange-500/30 group-hover:scale-105 transition">Nuevo</span>
+                    class="sidebar-collapse-hidden text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-linear-to-r from-orange-500 to-red-500 text-white shadow-md shadow-orange-500/30 group-hover:scale-105 transition">Nuevo</span>
             </a>
             {% endif %}
             {% if "company.analytics.read" in permissions %}
             <a href="/companies/{{ company_information.id }}/analytics"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'company.analytics' else '' }}">
                 <i class="fa-regular fa-chart-line text-xl"></i>
                 <span class="sidebar-text">Analiticas</span>
             </a>
             {% endif %}
             {% if "company.taxes.read" in permissions %}
             <a href="/companies/{{ company_information.id }}/taxes"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'company.taxes' else '' }}">
                 <i class="fa-regular fa-sack-dollar text-xl"></i>
                 <span class="sidebar-text">Impuestos</span>
             </a>
             {% endif %}
             {% if "company.settings.read" in permissions %}
             <a href="/companies/{{ company_information.id }}/settings"
-                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group">
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'company.settings' else '' }}">
                 <i class="fa-regular fa-cog text-xl"></i>
                 <span class="sidebar-text">Configuracion</span>
             </a>
             {% endif %}
         </div>
-        {% endif %}        
+        {% endif %}
         {% endif %}
     </nav>
 
@@ -248,11 +249,7 @@
                 <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Mi Cuenta</p>
                 <p class="text-xs font-medium truncate text-white">{{user.email}}</p>
             </div>
-            {# <a href="#" class="dropdown-link"><span><i class="fa-utility-fill fa-semibold fa-user"></i></span>
-                Perfil</a> #}
-            <a href="/users/settings" class="dropdown-link"><span><i
-                        class="fa-utility-fill fa-semibold fa-cog"></i></span>
-                Ajustes</a>
+            <a href="/users/settings" class="dropdown-link">Ajustes</a>
             <a href="/auth/logout" class="dropdown-link logout-link"><span><i
                         class="fa-utility-fill fa-semibold fa-arrow-left-from-bracket"></i></span> Cerrar Sesión</a>
         </div>
@@ -270,7 +267,7 @@
                 <span class="text-[10px] text-orange-500 font-bold uppercase tracking-wider">ONLINE</span>
             </div>
             <div class="sidebar-text">
-                <i class="fa-regular fa-arrow-down-arrow-up text-gray-500 text-xl"></i>
+                <i class="fa-regular fa-cog text-gray-500 text-xl"></i>
             </div>
         </button>
     </div>

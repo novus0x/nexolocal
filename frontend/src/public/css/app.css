@@ -280,8 +280,24 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /*************** Sidebar ***************/
 .active-link {
-    background: linear-gradient(90deg, rgba(253, 66, 10, 0.15) 0%, rgba(253, 66, 10, 0) 100%);
-    border-left: 3px solid var(--accent);
+    color: var(--color-white) !important;
+    background: var(--accent);
+    font-weight: 700;
+}
+
+.active-link:hover {
+    color: var(--color-white) !important;
+    background: var(--accent) !important;
+}
+
+#sidebar.w-20 nav.flex-1 .space-y-1 > a {
+    justify-content: center;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+#sidebar.w-20 .sidebar-collapse-hidden {
+    display: none !important;
 }
 
 .stat-card:hover {

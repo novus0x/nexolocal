@@ -44,8 +44,13 @@ router.get("/create", require_auth, at_least_company, async (req, res) => {
     // Check permissions
     if (!permissions.includes("company.incomes.create") || !permissions.includes("company.expenses.create")) return res.redirect("/system-alert/403");
 
+    // Today
+    const today_inp = new Date().toISOString().split("T")[0];
+
     // Render content
-    return res.render("companies/finance/create", {});
+    return res.render("companies/finance/create", {
+        today_inp
+    });
 });
 
 /*************** New Entrance - POST ***************/

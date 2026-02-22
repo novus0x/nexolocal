@@ -86,6 +86,7 @@ function render_register() {
                                 <input type="password" name="confirm_password" required placeholder="••••••••" class="input-field w-full px-4 py-3 rounded-xl text-sm text-white">
                             </div>
                         </div>
+                        <p class="text-xs text-gray-500">Las contraseñas deben tener un mínimo de 12 caracteres.</p>
 
                         <button type="submit" class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer w-full">
                             Crear mi Cuenta

@@ -4,6 +4,7 @@ import express from 'express';
 import settings from '../../settings.js';
 
 import { send_data } from '../../utils/api.js';
+import { get_safe_return_path } from '../../utils/redirections.js';
 import { require_auth, already_login } from '../../middlewares/auth.js';
 
 /*************** Variables ***************/
@@ -15,7 +16,17 @@ const oauth_providers = {
 
 /*************** Render Authentication ***************/
 router.get("/", already_login, async (req, res) => {
+    const notifications = [];
+
+    if (req.query.registered === "1") {
+        notifications.push({
+            type: "success",
+            message: "Cuenta creada correctamente. Ya puedes iniciar sesion."
+        });
+    }
+
     return res.render("auth/login", {
+        notifications,
         oauth: oauth_providers
     });
 });
@@ -57,7 +68,7 @@ router.post("/login", async (req, res) => {
 
     const cookie_value = response.data.cookie_value;
     if (cookie_value) res.setHeader("Set-Cookie", cookie_value);
-    return res.redirect("/platform");
+    return res.redirect("/dashboard");
 });
 
 /*************** Register - POST ***************/
@@ -91,7 +102,7 @@ router.post("/register", async (req, res) => {
         })
     }
 
-    return res.redirect("/auth");
+    return res.redirect("/auth?registered=1");
 });
 
 /*************** Forgot Password - POST ***************/
@@ -168,11 +179,14 @@ router.post("/recover", async (req, res) => {
 router.post("/verify-account", require_auth, async (req, res) => {
     // Response
     const response = await send_data("/auth/verify-account", {}, {}, req);
+    const back_url = get_safe_return_path(req);
 
     if (response.error) return res.redirect("/dashboard");
 
     // Response
-    return res.render("auth/verify_account");
+    return res.render("auth/verify_account", {
+        back_url
+    });
 });
 
 /*************** Verify Account - Post ***************/

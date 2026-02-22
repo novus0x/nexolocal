@@ -8,25 +8,7 @@
 <main class="flex-1 overflow-y-auto p-6 lg:p-10">
     <div class="w-full space-y-8">
 
-        {% if not user.email_verified %}
-        <form action="/auth/verify-account" method="post"
-            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-in fade-in duration-700 bg-(--accent) py-3 px-4 rounded-2xl">
-            <div class="flex items-start gap-3">
-                <div>
-                    <h4 class="text-sm font-semibold text-white">
-                        Verifica tu correo electrónico
-                    </h4>
-                    <p class="text-xs text-white/80 mt-0.5">
-                        Funciones importantes estarán bloqueadas hasta que completes la verificación.
-                    </p>
-                </div>
-            </div>
-            <button
-                class="text-xs font-semibold uppercase tracking-wide text-white hover:text-gray-300 transition-all whitespace-nowrap bg-(--bg-second) hover:bg-(--bg-second)/80 px-4 py-2 rounded-xl cursor-pointer">
-                Verificar ahora
-            </button>
-        </form>
-        {% endif %}
+        {% include "components/verify-account.njk" %}
 
         {% if companies_q == 0 %}
         <section class="mb-12">
@@ -77,43 +59,44 @@
         {% endif %}
 
         <section class="mb-12">
-            <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6">Herramientas
+            <h3 class="text-xs font-bold text-slate-400 tracking-[0.08em] mb-6">Herramientas
             </h3>
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2">
 
                 <a href="/dashboard/support"
-                    class="glass-card flex justify-center items-center py-10 rounded-2xl group">
+                    class="glass-card flex items-center justify-center min-h-24 px-4 py-6 rounded-2xl group">
                     <div
                         class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-headset text-lg"></i>
                     </div>
-                    <span class="text-xs ml-3 font-bold uppercase tracking-widest">Soporte</span>
+                    <span class="text-xs ml-3 font-semibold tracking-wide">Soporte</span>
                 </a>
 
                 <a href="/dashboard/support/tickets"
-                    class="glass-card flex justify-center items-center py-8 rounded-2xl group">
+                    class="glass-card flex items-center justify-center min-h-24 px-4 py-6 rounded-2xl group">
                     <div
                         class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-ticket text-lg"></i>
                     </div>
-                    <span class="text-xs ml-3 font-bold uppercase tracking-widest">Mis Tickets</span>
+                    <span class="text-xs ml-3 font-semibold tracking-wide">Mis tickets</span>
                 </a>
 
-                <a href="/dashboard/billing" class="glass-card flex justify-center items-center py-8 rounded-2xl group">
+                <a href="/dashboard/billing"
+                    class="glass-card flex items-center justify-center min-h-24 px-4 py-6 rounded-2xl group">
                     <div
                         class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-credit-card text-lg"></i>
                     </div>
-                    <span class="text-xs ml-3 font-bold uppercase tracking-widest">Planes & Pagos</span>
+                    <span class="text-xs ml-3 font-semibold tracking-wide">Planes y pagos</span>
                 </a>
 
                 <a href="/users/settings"
-                    class="glass-card flex justify-center items-center py-8 rounded-2xl group lg:flex">
+                    class="glass-card flex items-center justify-center min-h-24 px-4 py-6 rounded-2xl group lg:flex">
                     <div
                         class="w-10 h-10 rounded-xl bg-slate-500/10 flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-gear text-lg"></i>
                     </div>
-                    <span class="text-xs ml-3 font-bold uppercase tracking-widest">Ajustes</span>
+                    <span class="text-xs ml-3 font-semibold tracking-wide">Ajustes</span>
                 </a>
 
             </div>
@@ -123,8 +106,8 @@
 
             <div class="lg:col-span-2 glass-card rounded-3xl p-8">
                 <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-lg text-(--accent) uppercase">Tus Compañías</h3>
-                    <button class="text-[10px] font-bold uppercase text-(--accent) hover:underline">Ver todas</button>
+                    <h3 class="text-lg font-semibold text-(--accent)">Tus compañías</h3>
+                    <button class="text-xs font-semibold text-(--accent) hover:underline">Ver todas</button>
                 </div>
 
                 <div class="flex flex-col items-center justify-center py-12 text-center">
@@ -133,17 +116,17 @@
                         <i class="fa-solid fa-folder-open text-slate-600 text-2xl"></i>
                     </div>
                     <p class="text-slate-400 text-sm">No tienes compañías activas todavía.</p>
-                    <p class="text-[10px] text-slate-600 mt-1 uppercase font-bold tracking-widest">Activa un plan para
+                    <p class="text-[10px] text-slate-600 mt-1 font-semibold tracking-wide">Activa un plan para
                         comenzar</p>
                 </div>
             </div>
 
             <div class="space-y-6">
                 <div class="glass-card rounded-3xl p-6">
-                    <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Próxima Renovación
+                    <h4 class="text-xs font-semibold text-slate-400 tracking-wide mb-2">Próxima renovación
                     </h4>
                     <p class="text-xl font-bold">N/A</p>
-                    <p class="text-[10px] text-slate-500 mt-2">No hay suscripciones activas vinculadas a este perfil.
+                    <p class="text-xs text-slate-500 mt-2">No hay suscripciones activas vinculadas a este perfil.
                     </p>
                 </div>
             </div>

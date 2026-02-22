@@ -2,6 +2,7 @@
 import setting from '../settings.js';
 
 import { get_data, send_data } from '../utils/api.js';
+import { get_sidebar_active } from '../utils/sidebar.js';
 import { get_scopes } from '../utils/permissions.js';
 
 /*************** Variables ***************/
@@ -67,16 +68,21 @@ export async function require_auth(req, res, next) {
 
     if (user.is_blocked) return res.redirect("/system-alert/403");
 
+    // Internal Variables
     req.user = user;
     req.permissions = permissions;
     req.company_id = company_value.id;
 
+    // Important Locals
     res.locals.user = user;
     res.locals.permissions = permissions;
     res.locals.scopes = get_scopes(permissions);
     res.locals.user_companies = user.user_companies;
     res.locals.invitations_sidebar = invitations;
     res.locals.company_information = company_value;
+
+    // Sidebar Locals
+    res.locals.sidebar_active = get_sidebar_active(req);
 
     return next();
 }
@@ -122,7 +128,7 @@ export async function already_login(req, res, next) {
     const token = req.cookies?.[token_name];
 
     if (token) {
-        return res.redirect("/platform")
+        return res.redirect("/dashboard")
     }
 
     return next();

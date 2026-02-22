@@ -1,10 +1,16 @@
 /*************** Modules ***************/
 import express from 'express';
 
+import settings from '../../settings.js';
+
 import { send_data } from '../../utils/api.js';
 
 /*************** Variables ***************/
 const router = express.Router();
+
+const oauth_providers = {
+    google: settings.google_client_id
+}
 
 /*************** Google Oauth ***************/
 router.get('/google', async (req, res) => {
