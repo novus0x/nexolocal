@@ -5,13 +5,13 @@ from dateutil.relativedelta import relativedelta
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
-from db.model import Company, Sale, Sale_Item, Tax_Emission_Status, Tax_Subscription_Plan, Tax_Subscription, Tax_Usage, Tax_Document_Type
+from db.model import Company, Sale, Sale_Item, Tax_Subscription, Tax_Usage, Tax_Document_Type
 
 from core.config import settings
 from core.generator import get_uuid
 from core.db_management import add_db, update_db
 
-from services.tax_engine.utils import get_plan_limit, get_engine, get_tax_engine_credintials
+from services.tax_engine.utils import get_plan_limit, get_engine
 
 ########## Create Company ##########
 async def create_company(db: Session, company_id, tax_profile, files):
@@ -120,8 +120,6 @@ async def receipt_invoice_usage(db: Session, company_id):
     
     remaining = limit - used
 
-    print(remaining)
-
     if remaining <= 0:
         return False, "tax_engine.error.plan_limit_reached", [{
             "code": "plan_limit_reached",
@@ -157,20 +155,6 @@ async def create_receipt(db: Session, company_id, sale: Sale, items: list[Sale_I
     if not tax_rate:
         return False, message, None
     
-    ### Validation ###
-    subscription = db.query(Tax_Subscription).filter(
-        Tax_Subscription.company_id == company_id
-    ).order_by(desc(Tax_Subscription.date)).first()
-
-
-    if subscription.emission_mode == Tax_Emission_Status.AUTO: #### RECEIPT
-        invoice_method = Tax_Document_Type.RECEIPT ### Verify
-
-        send_sale = True
-
-    else:
-        print("TO-DO")
-
     ### Check Usage availability ###
     usage, message, details = await receipt_invoice_usage(db, company_id)
 
@@ -179,12 +163,11 @@ async def create_receipt(db: Session, company_id, sale: Sale, items: list[Sale_I
 
     ### Call Specific Function ###
     if invoice_method == Tax_Document_Type.RECEIPT:
-        response, message, details = await engine.create_receipt(db, company, sale, items, tax_rate, send_sale)
-            
+        response, message, details = await engine.create_receipt(db, company, sale, items, tax_rate, send_sale)     
     else:
         print("TO-DO: INVOICE METHOD")
 
-    if not response:
+    if not response and send_sale:
         return False, message, details
     
     if response and send_sale:

@@ -9,7 +9,7 @@ from sqlalchemy import or_, desc, func, extract
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import Product, Product_Batch, Company, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Tax_Profile, Tax_Document, Tax_Document_Type, Tax_Document_Status, Tax_Series, Tax_Subscription
+from db.model import Product, Product_Batch, Company, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Tax_Profile, Tax_Document, Tax_Document_Type, Tax_Document_Status, Tax_Series, Tax_Subscription, Tax_Emission_Status
 
 from core.config import settings
 
@@ -732,13 +732,30 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         ### Check Send Sale ###
         send_sale = False
 
-        if check_sale.send_sale == "1":
+        ### Check Document Type ###
+        if check_sale.invoice_method == "3":
+            invoice_method = Tax_Document_Type.RECEIPT
+        else:
+            invoice_method = Tax_Document_Type.INVOICE
+
+        ### Validation ###
+        subscription = db.query(Tax_Subscription).filter(
+            Tax_Subscription.company_id == company_id
+        ).order_by(desc(Tax_Subscription.date)).first()
+
+        if subscription.emission_mode == Tax_Emission_Status.AUTO:
             send_sale = True
 
-        ### Engine decides manual/auto + send receipt/invoice ###
-        receipt, message, details = await create_receipt(db, company_id, new_sale, sale_items, send_sale, check_sale.invoice_method)
+            ### FOR NOW ###
+            invoice_method = Tax_Document_Type.RECEIPT
+        else:
+            if check_sale.send_sale == "1":
+                send_sale = True
 
-        if receipt.get("xml"):
+        ### Engine decides manual/auto + send receipt/invoice ###
+        receipt, message, details = await create_receipt(db, company_id, new_sale, sale_items, send_sale, invoice_method)
+
+        if send_sale:
             series_doc = db.query(Tax_Series).filter(
                 Tax_Series.doc_type == doc_type,
                 Tax_Series.company_id == company.id

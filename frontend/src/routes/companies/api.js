@@ -141,7 +141,7 @@ router.post("/sales/create", require_auth, at_least_company, async (req, res) =>
 
     const { client_id, payment_method, items, send_sale, invoice_method } = req.body;
 
-    if (send_sale) send_sale_v = "3";
+    if (send_sale) send_sale_v = "1";
 
     if (invoice_method == "receipt") invoice_method_v = "3";
     else invoice_method_v = "1";
