@@ -8,6 +8,26 @@
 <main class="flex-1 overflow-y-auto p-6 lg:p-10">
     <div class="w-full space-y-8">
 
+        {% if not user.email_verified %}
+        <form action="/auth/verify-account" method="post"
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-in fade-in duration-700 bg-(--accent) py-3 px-4 rounded-2xl">
+            <div class="flex items-start gap-3">
+                <div>
+                    <h4 class="text-sm font-semibold text-white">
+                        Verifica tu correo electrónico
+                    </h4>
+                    <p class="text-xs text-white/80 mt-0.5">
+                        Funciones importantes estarán bloqueadas hasta que completes la verificación.
+                    </p>
+                </div>
+            </div>
+            <button
+                class="text-xs font-semibold uppercase tracking-wide text-white hover:text-gray-300 transition-all whitespace-nowrap bg-(--bg-second) hover:bg-(--bg-second)/80 px-4 py-2 rounded-xl cursor-pointer">
+                Verificar ahora
+            </button>
+        </form>
+        {% endif %}
+
         <div class="mb-8">
             <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 justify-between flex-col md:flex-row gap-5"
                 aria-label="Breadcrumb">
@@ -86,7 +106,8 @@
                         </div>
                         {% if companies_q == 0 %}
                         <div class="flex justify-between items-end">
-                            <span class="text-xs text-gray-400">Descuento: <span class="text-(--accent)">Mes de Prueba</span></span>
+                            <span class="text-xs text-gray-400">Descuento: <span class="text-(--accent)">Mes de
+                                    Prueba</span></span>
                             <span class="text-sm font-bold text-red-500">S/ -{{ plan.fee + plan.price }}</span>
                         </div>
                         {% endif %}
@@ -95,7 +116,8 @@
                     <div class="border-t border-white/10 pt-4 mb-6">
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-black uppercase italic">Total a pagar</span>
-                            <span class="text-2xl font-black text-(--accent)">S/ {% if companies_q == 0 %} 0.00 {% else %} {{ plan.price + plan.fee }} {% endif %}</span>
+                            <span class="text-2xl font-black text-(--accent)">S/ {% if companies_q == 0 %} 0.00 {% else
+                                %} {{ plan.price + plan.fee }} {% endif %}</span>
                         </div>
                     </div>
 

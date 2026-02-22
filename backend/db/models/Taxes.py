@@ -4,7 +4,7 @@ import enum
 from db.database import Base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Integer, Numeric, JSON, Boolean, Enum
+from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Integer, Numeric, JSON, Boolean, Enum, LargeBinary
 
 ##### Tax Profile #####
 class Tax_Environment_Type(enum.Enum):
@@ -29,8 +29,8 @@ class Tax_Profile(Base):
     tax_id_type = Column(String, nullable=True) # RUC, DNI, VAT, ETC
 
     tax_id = Column(String, nullable=True) # RUC value
-    tax_regime = Column(String, nullable=True) # NRUS RER RMT RG
-
+    tax_enabled = Column(Boolean, default=True) # Fix or IGV
+    
     tax_user = Column(String, nullable=True)
     tax_password = Column(String, nullable=True)
 
@@ -85,11 +85,12 @@ class Tax_Document(Base):
     sent_at = Column(DateTime(timezone=True), nullable=True)
     accepted_at = Column(DateTime(timezone=True), nullable=True)
     hash = Column(String, nullable=True)
-
+    
     provider_document_id = Column(String, nullable=True)
     provider_payload = Column(JSON, nullable=True)
     provider_response = Column(JSON, nullable=True)
 
+    artifact_xml = Column(LargeBinary, nullable=True)
     artifact_pdf_url = Column(Text, nullable=True)
     
     date = Column(DateTime(timezone=True), default=func.now())
@@ -104,26 +105,6 @@ class Tax_Document(Base):
     ## Relationships ##
     sale = relationship("Sale")
     company = relationship("Company")
-    items = relationship("Tax_Document_Item", back_populates="document")
-
-##### Tax Document Item #####
-class Tax_Document_Item(Base):
-    __tablename__ = "tax_document_items"
-
-    id = Column(String, primary_key=True, nullable=False)
-    tax_document_id = Column(String, ForeignKey("tax_documents.id"))
-
-    description = Column(String, nullable=False)
-
-    qty = Column(Numeric(12, 2), nullable=False)
-    unit_price = Column(Numeric(12, 2), nullable=False)
-
-    line_subtotal = Column(Numeric(12, 2), nullable=False)
-    line_tax = Column(Numeric(12, 2), nullable=False)
-    line_total = Column(Numeric(12, 2), nullable=False)
-
-    ## Relationships ##
-    document = relationship("Tax_Document", back_populates="items")
 
 ##### Tax Period #####
 class Tax_Period_Status(enum.Enum):

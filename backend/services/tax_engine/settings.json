@@ -17,7 +17,10 @@
             "routes": {
                 "auth": "/auth/login",
                 "companies": {
-                    "create": "/companies"
+                    "create": "/companies",
+                    "invoice": {
+                        "send": "/invoice/send"
+                    }
                 }
             }
         }

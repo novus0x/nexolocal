@@ -75,9 +75,6 @@ class Sale_Item(Base):
 
     id = Column(String, primary_key=True, nullable=False)
 
-    sale_id = Column(String, ForeignKey("sales.id"), nullable=False)
-    product_id = Column(String, ForeignKey("products.id"), nullable=False)
-
     name = Column(String, nullable=False)
     quantity = Column(Numeric(10, 3), nullable=False)
     unit_price = Column(Numeric(10, 2), nullable=False)
@@ -90,7 +87,10 @@ class Sale_Item(Base):
     is_service = Column(Boolean, default=False)
 
     date = Column(DateTime(timezone=True), default=func.now())
-
+    
+    sale_id = Column(String, ForeignKey("sales.id"), nullable=False)
+    product_id = Column(String, ForeignKey("products.id"), nullable=False)
+    
     ## Relationships ##
     sale = relationship("Sale", back_populates="items")
     product = relationship("Product", back_populates="sale_items")

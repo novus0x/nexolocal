@@ -71,11 +71,20 @@ router.get("/create", require_auth, at_least_company, async (req, res) => {
     // Variables
     const permissions = req.permissions;
 
+    let tax_subscription = {};
+
     // Check permissions
     if (!permissions.includes("company.sales.create")) return res.redirect("/system-alert/403");
 
+    const response = await get_data("/company/sales/create", {}, req)
+
+    const data = response.data
+    console.log(data)
+
     // Render content
-    return res.render("companies/sales/create", {});
+    return res.render("companies/sales/create", {
+        tax_subscription: data.tax_subscription
+    });
 });
 
 /*************** Check Sale ***************/

@@ -132,6 +132,41 @@
                                         <input type="text" value="{{ company.phone }}" name="phone"
                                             class="w-full input-glass px-5 py-4 rounded-xl text-sm font-bold">
                                     </div>
+                                    {% if company.is_formal %}
+                                    <h2 class="text-sm font-black uppercase text-(--accent)">
+                                        Configuración de emisión de Comprobantes
+                                    </h2>
+
+                                    <div class="space-y-1 md:col-span-2">
+                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Modo de
+                                            Emisión de Comprobantes</label>
+                                        <select name="emission_status"
+                                            class="input-glass w-full p-4 text-xs font-bold appearance-none">
+                                            <option class="input-field" value="auto" {% if tax_subscription.mode=="auto"
+                                                %} selected {% endif %}>Automático</option>
+                                            <option class="input-field" value="manual" {% if
+                                                tax_subscription.mode=="manual" %} selected {% endif %}>Manualmente
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="space-y-1 md:col-span-2">
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input type="checkbox" name="tax_enabled" class="custom-checkbox" {% if
+                                                tax_profile.profile.tax_enabled %} checked {% endif %}>
+                                            <span
+                                                class="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">
+                                                Aplicar impuestos en ventas
+                                            </span>
+                                        </label>
+                                        <p class="text-xs text-gray-500 mt-3">
+                                            Desactívalo si tu empresa no aplica impuestos por cada venta y solo paga una
+                                            cuota fija. Si está activado, el sistema calculará los impuestos
+                                            automáticamente en los
+                                            productos.
+                                        </p>
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </section>
 
@@ -182,42 +217,41 @@
                                     <div class="md:col-span-8 space-y-1">
                                         <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Razón
                                             Social</label>
-                                        <input type="text" name="legal_name"
+                                        <input type="text" name="legal_name" value="{{ legal_name }}"
                                             class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm">
                                     </div>
                                     <div class="md:col-span-4 space-y-1">
                                         <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Identificación
                                             Fiscal (ID)</label>
-                                        <input type="text" name="tax_id"
+                                        <input type="text" name="tax_id" value="{{ tax_id }}"
                                             class="w-full input-glass px-5 py-4 rounded-xl font-mono text-sm tracking-widest">
                                     </div>
                                     <div class="md:col-span-6 space-y-1">
-                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Dirección
-                                            Fiscal (Copiar y Pegarla tal cual se encuentra en su proveedor)</label>
-                                        <input type="text" name="address_line"
+                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Dirección Fiscal</label>
+                                        <input type="text" name="address_line" value="{{ address_line }}"
+                                            placeholder="Formato: DIRECCIÓN, DISTRITO, PROVINCIA, DEPARTAMENTO, UBIGEO"
                                             class="w-full input-glass px-5 py-4 rounded-xl text-sm">
                                     </div>
                                     <div class="md:col-span-2 space-y-1">
                                         <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Región</label>
-                                        <input type="text" name="region"
+                                        <input type="text" name="region" value="{{ region }}"
                                             class="w-full input-glass px-5 py-4 rounded-xl text-sm">
                                     </div>
                                     <div class="md:col-span-2 space-y-1">
                                         <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Ciudad</label>
-                                        <input type="text" name="city"
+                                        <input type="text" name="city" value="{{ city }}"
                                             class="w-full input-glass px-5 py-4 rounded-xl text-sm">
                                     </div>
                                     <div class="md:col-span-2 space-y-1">
                                         <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Código
                                             Postal</label>
-                                        <input type="text" name="postal_code"
+                                        <input type="text" name="postal_code" value="{{ postal_code }}"
                                             class="w-full input-glass px-5 py-4 rounded-xl text-sm">
                                     </div>
                                     <div class="md:col-span-12">
                                         <div class="mb-4">
-
                                             <h2 class="text-sm font-black uppercase text-(--accent)">
-                                                Credenciales de Facturación Electrónica
+                                                Credenciales de Boletación Electrónica
                                             </h2>
                                             <p class="text-xs text-gray-500 mt-1">
                                                 Estas credenciales permiten emitir comprobantes electrónicos de forma
@@ -229,11 +263,11 @@
                                                 <label class="text-[9px] font-black uppercase text-gray-500 ml-2">
                                                     Usuario
                                                 </label>
-                                                <input type="text" name="tax_user"
+                                                <input type="text" name="tax_user" value="{{ tax_user }}"
                                                     class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm">
                                                 <p class="text-[10px] text-gray-500 ml-2 flex items-center gap-1">
                                                     <i class="fa-solid fa-circle-info text-(--accent)"></i>
-                                                    Usuario proporcionado por tu proveedor de facturación.
+                                                    Usuario proporcionado por tu proveedor de Boletación.
                                                     <a href="#" class="text-(--accent) hover:underline ml-1 font-bold">
                                                         Ver ayuda
                                                     </a>
@@ -262,7 +296,9 @@
                                                 <p class="text-[10px] text-gray-500 ml-2 flex items-center gap-1">
                                                     <i class="fa-solid fa-circle-info text-(--accent)"></i>
                                                     Archivo necesario para firmar electrónicamente tus comprobantes.
-                                                    <a href="#" class="text-(--accent) hover:underline ml-1 font-bold">
+                                                    <a href="https://cpe.sunat.gob.pe/certificado-digital"
+                                                        target="_blank"
+                                                        class="text-(--accent) hover:underline ml-1 font-bold">
                                                         Ver ayuda
                                                     </a>
                                                 </p>
@@ -311,9 +347,9 @@
                                             class="w-full input-glass px-5 py-4 rounded-xl font-mono text-sm tracking-widest">
                                     </div>
                                     <div class="md:col-span-6 space-y-1">
-                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Dirección
-                                            Fiscal (Copiar y Pegarla tal cual se encuentra en su proveedor)</label>
+                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Dirección Fiscal</label>
                                         <input type="text" name="address_line" value="{{ tax_profile.profile.address }}"
+                                            placeholder="Formato: DIRECCIÓN, DISTRITO, PROVINCIA, DEPARTAMENTO, UBIGEO"
                                             class="w-full input-glass px-5 py-4 rounded-xl text-sm">
                                     </div>
                                     <div class="md:col-span-2 space-y-1">
@@ -337,7 +373,7 @@
                                         <div class="mb-4">
 
                                             <h2 class="text-sm font-black uppercase text-(--accent)">
-                                                Credenciales de Facturación Electrónica
+                                                Credenciales de Boletación Electrónica
                                             </h2>
                                             <p class="text-xs text-gray-500 mt-1">
                                                 Estas credenciales permiten emitir comprobantes electrónicos de forma
@@ -354,7 +390,7 @@
                                                     class="w-full input-glass px-5 py-4 rounded-xl font-bold text-sm">
                                                 <p class="text-[10px] text-gray-500 ml-2 flex items-center gap-1">
                                                     <i class="fa-solid fa-circle-info text-(--accent)"></i>
-                                                    Usuario proporcionado por tu proveedor de facturación.
+                                                    Usuario proporcionado por tu proveedor de Boletación.
                                                     <a href="#" class="text-(--accent) hover:underline ml-1 font-bold">
                                                         Ver ayuda
                                                     </a>
@@ -383,7 +419,9 @@
                                                 <p class="text-[10px] text-gray-500 ml-2 flex items-center gap-1">
                                                     <i class="fa-solid fa-circle-info text-(--accent)"></i>
                                                     Archivo necesario para firmar electrónicamente tus comprobantes.
-                                                    <a href="#" class="text-(--accent) hover:underline ml-1 font-bold">
+                                                    <a href="https://cpe.sunat.gob.pe/certificado-digital"
+                                                        target="_blank"
+                                                        class="text-(--accent) hover:underline ml-1 font-bold">
                                                         Ver ayuda
                                                     </a>
                                                 </p>
@@ -425,13 +463,13 @@
                                 <div class="grid md:grid-cols-12 gap-6">
                                     <div class="md:col-span-6 space-y-3">
                                         <label class="text-[10px] font-black uppercase text-gray-500">
-                                            Factura
+                                            Boleta
                                         </label>
                                         <div class="space-y-1">
                                             <label class="text-[9px] text-gray-600 uppercase ml-2">
                                                 Serie
                                             </label>
-                                            <input name="receipt_series" placeholder="F001"
+                                            <input name="receipt_series" placeholder="B001"
                                                 value="{{ tax_profile.series.receipt.series }}"
                                                 class="w-full input-glass px-5 py-4 rounded-xl font-black text-lg tracking-widest uppercase">
                                         </div>
@@ -446,13 +484,13 @@
                                     </div>
                                     <div class="md:col-span-6 space-y-3">
                                         <label class="text-[10px] font-black uppercase text-gray-500">
-                                            Boleta
+                                            Factura
                                         </label>
                                         <div class="space-y-1">
                                             <label class="text-[9px] text-gray-600 uppercase ml-2">
                                                 Serie
                                             </label>
-                                            <input name="invoice_series" placeholder="B001"
+                                            <input name="invoice_series" placeholder="F001"
                                                 value="{{ tax_profile.series.invoice.series }}"
                                                 class="w-full input-glass px-5 py-4 rounded-xl font-black text-lg tracking-widest uppercase">
                                         </div>
@@ -523,13 +561,13 @@
                                 <div class="grid md:grid-cols-12 gap-6">
                                     <div class="md:col-span-6 space-y-3">
                                         <label class="text-[10px] font-black uppercase text-gray-500">
-                                            Factura
+                                            Boleta
                                         </label>
                                         <div class="space-y-1">
                                             <label class="text-[9px] text-gray-600 uppercase ml-2">
                                                 Serie
                                             </label>
-                                            <input name="receipt_series" placeholder="F001"
+                                            <input name="receipt_series" placeholder="B001"
                                                 class="w-full input-glass px-5 py-4 rounded-xl font-black text-lg tracking-widest uppercase">
                                         </div>
                                         <div class="space-y-1">
@@ -542,13 +580,13 @@
                                     </div>
                                     <div class="md:col-span-6 space-y-3">
                                         <label class="text-[10px] font-black uppercase text-gray-500">
-                                            Boleta
+                                            Factura
                                         </label>
                                         <div class="space-y-1">
                                             <label class="text-[9px] text-gray-600 uppercase ml-2">
                                                 Serie
                                             </label>
-                                            <input name="invoice_series" placeholder="B001"
+                                            <input name="invoice_series" placeholder="F001"
                                                 class="w-full input-glass px-5 py-4 rounded-xl font-black text-lg tracking-widest uppercase">
                                         </div>
                                         <div class="space-y-1">
@@ -576,7 +614,7 @@
                                         <div>
                                             <div class="flex items-center gap-2 mb-1">
                                                 <span
-                                                    class="text-[9px] font-black text-gray-500 uppercase italic">Factura</span>
+                                                    class="text-[9px] font-black text-gray-500 uppercase italic">Boleta</span>
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                             </div>
                                             <p class="text-2xl font-black italic text-(--accent)">{{
@@ -594,7 +632,7 @@
                                         <div>
                                             <div class="flex items-center gap-2 mb-1">
                                                 <span
-                                                    class="text-[9px] font-black text-gray-500 uppercase italic">Boleta</span>
+                                                    class="text-[9px] font-black text-gray-500 uppercase italic">Factura</span>
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                             </div>
                                             <p class="text-2xl font-black italic text-(--accent)">{{

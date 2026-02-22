@@ -308,7 +308,8 @@
             "tax_info_required": "All tax information fields are required",
             "update": {
                 "success": "Company settings updated successfully"
-            }
+            },
+            "emission_status_mode_not_allowed": "Emission mode is not allowed for the selected tax environment"
         }
     },
     "oauth": {
@@ -332,13 +333,12 @@
     "tax_engine": {
         "error": {
             "country_not_available": "Tax engine is not available for this country",
-            "creating_engine": "An error occurred while loading the tax engine"
+            "creating_engine": "An error occurred while loading the tax engine",
+            "incorrect_credentials": "Tax engine credentials are invalid",
+            "plan_limit_reached": "The tax plan emission limit has been reached"
         },
         "api": {
             "duplicated_company": "The company already exists in the tax provider"
-        },
-        "system": {
-            "incorrect_credentials": "Tax engine credentials are invalid"
         }
     }
 }

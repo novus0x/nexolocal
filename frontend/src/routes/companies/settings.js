@@ -32,6 +32,7 @@ router.get("/", require_auth, at_least_company, async (req, res) => {
         company: data.company,
         plan: data.plan,
         tax_profile: data.tax_profile,
+        tax_subscription: data.tax_subscription
     });
 });
 
@@ -62,14 +63,26 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
     let receipt_number_v = "none";
     let certificate_password_v = "none";
 
+    let emission_status_v = "auto";
+    let tax_enabled_v = "0";
+
     // Check permissions
     if (!permissions.includes("company.settings.update")) return res.redirect("/system-alert/403");
 
     // Get Body
-    const { commercial_name, description, email, phone, is_formal, legal_name, tax_id, address_line, region, city, postal_code, tax_user, tax_password, invoice_series, invoice_number, receipt_series, receipt_number, certificate_password } = req.body;
+    const { 
+        commercial_name, description, email, phone, is_formal, legal_name, tax_id, address_line, region, 
+        city, postal_code, tax_user, tax_password, invoice_series, invoice_number, receipt_series, 
+        receipt_number, certificate_password, emission_status, tax_enabled
+    } = req.body;
 
     if (description) description_v = description;
     if (phone) phone_v = phone;
+    
+    if (emission_status) emission_status_v = emission_status;
+
+    if (tax_enabled == "on") tax_enabled_v = "1";
+    else tax_enabled_v = "0";
 
     // Send Data
     const form = new FormData();
@@ -88,17 +101,19 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
             if (response2.error) return res.redirect("/platform");
 
             const data2 = response2.data.information;
+            const tax_subscription2 = data2.tax_subscription || {};
 
             return res.render("companies/settings/main", {
                 errors,
 
                 commercial_name, description, email, phone, is_formal, legal_name, tax_id, address_line, 
                 region, city, postal_code, tax_user, invoice_series, invoice_number, receipt_series, 
-                receipt_number,
+                receipt_number, emission_status, tax_enabled,
 
                 company: data2.company,
                 plan: data2.plan,
                 tax_profile: data2.tax_profile,
+                tax_subscription: tax_subscription2
             });
         }
 
@@ -151,6 +166,9 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
     form.append("receipt_number", receipt_number_v);
     form.append("certificate_password", certificate_password_v);
 
+    form.append("emission_status", emission_status_v);
+    form.append("tax_enabled", tax_enabled_v);
+
     const response = await send_form_data("/company/settings/update", {}, form, req);
 
     if (response.error) {
@@ -162,6 +180,7 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
         if (response2.error) return res.redirect("/platform");
 
         const data2 = response2.data.information;
+        const tax_subscription2 = data2.tax_subscription || {};
 
         return res.render("companies/settings/main", {
             errors,
@@ -173,11 +192,13 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
             company: data2.company,
             plan: data2.plan,
             tax_profile: data2.tax_profile,
+            tax_subscription: tax_subscription2
         });
     }
 
     const response3 = await get_data("/company/settings", {}, req);
     const data3 = response3.data.information;
+    const tax_subscription3 = data3.tax_subscription || {};
 
     notifications.push({
         message: "Negocio Actualizado",
@@ -191,6 +212,7 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
         company: data3.company,
         plan: data3.plan,
         tax_profile: data3.tax_profile,
+        tax_subscription: tax_subscription3
     });
 });
 

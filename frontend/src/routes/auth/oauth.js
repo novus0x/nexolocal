@@ -30,7 +30,7 @@ router.get('/google', async (req, res) => {
     const cookie_value = response.data.cookie_value;
     if (cookie_value) res.setHeader("Set-Cookie", cookie_value);
 
-    return res.redirect("/");
+    return res.redirect("/dashboard");
 });
 
 /*************** Export ***************/

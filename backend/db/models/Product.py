@@ -34,6 +34,8 @@ class Product(Base):
     low_stock_alert = Column(Numeric(10, 3), default=5)
     track_inventory = Column(Boolean, default=False)
 
+    exonerated = Column(Boolean, default=False)
+
     is_active = Column(Boolean, default=True)
     is_visible = Column(Boolean, default=True)
     weight = Column(Numeric(8, 2), default=0)

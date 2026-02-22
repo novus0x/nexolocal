@@ -308,7 +308,8 @@
             "tax_info_required": "Todos los campos de información tributaria son obligatorios",
             "update": {
                 "success": "Configuración de la empresa actualizada satisfactoriamente"
-            }
+            },
+            "emission_status_mode_not_allowed": "El modo de emisión no está permitido para el entorno tributario seleccionado"
         }
     },
     "oauth": {
@@ -332,13 +333,12 @@
     "tax_engine": {
         "error": {
             "country_not_available": "El motor tributario no está disponible para este país",
-            "creating_engine": "Ocurrió un error al cargar el motor tributario"
+            "creating_engine": "Ocurrió un error al cargar el motor tributario",
+            "incorrect_credentials": "Las credenciales del motor tributario son inválidas",
+            "plan_limit_reached": "Se alcanzó el límite de emisiones del plan tributario"
         },
         "api": {
             "duplicated_company": "La empresa ya existe en el proveedor tributario"
-        },
-        "system": {
-            "incorrect_credentials": "Las credenciales del motor tributario son inválidas"
         }
     }
 }

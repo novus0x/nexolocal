@@ -9,7 +9,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import Company, Company_Plan, Tax_Environment_Type, Tax_Profile, Tax_Document_Type, Tax_Series, Tax_Subscription, Tax_Usage
+from db.model import Company, Company_Plan, Tax_Environment_Type, Tax_Profile, Tax_Document_Type, Tax_Series, Tax_Emission_Status, Tax_Subscription, Tax_Usage
 
 from core.i18n import translate
 from core.responses import custom_response
@@ -39,7 +39,8 @@ async def get_company_information(request: Request, db: Session = Depends(get_db
         "plan": {
             "available": False
         },
-        "tax_profile": {}
+        "tax_profile": {},
+        "tax_subscription": {}
     }
 
     ### Validation ###
@@ -93,6 +94,10 @@ async def get_company_information(request: Request, db: Session = Depends(get_db
             Tax_Profile.company_id == company_id
         ).first()
 
+        tax_subscription = db.query(Tax_Subscription).filter(
+            Tax_Subscription.company_id == company_id
+        ).first()
+        
         invoice_series = db.query(Tax_Series).filter(
             Tax_Series.doc_type == Tax_Document_Type.INVOICE,
             Tax_Series.company_id == company_id
@@ -102,7 +107,6 @@ async def get_company_information(request: Request, db: Session = Depends(get_db
             Tax_Series.doc_type == Tax_Document_Type.RECEIPT,
             Tax_Series.company_id == company_id
         ).order_by(desc(Tax_Series.date)).first()
-        
 
         company_info["tax_profile"] = {
             "profile": {
@@ -112,7 +116,8 @@ async def get_company_information(request: Request, db: Session = Depends(get_db
                 "region": tax_profile.region,
                 "city": tax_profile.city,
                 "postal_code": tax_profile.postal_code,
-                "tax_user": decode_base_64(tax_profile.tax_user).decode("utf-8")
+                "tax_user": decode_base_64(tax_profile.tax_user).decode("utf-8"),
+                "tax_enabled": tax_profile.tax_enabled
             },
             "series": {
                 "invoice": {
@@ -124,6 +129,10 @@ async def get_company_information(request: Request, db: Session = Depends(get_db
                     "number": receipt_series.current_number
                 }
             }
+        }
+
+        company_info["tax_subscription"] = {
+            "mode": tax_subscription.emission_mode.value if tax_subscription else Tax_Emission_Status.AUTO.value
         }
 
     return custom_response(status_code=200, message=translate(lang, "company.settings.get.success"), data={
@@ -158,11 +167,14 @@ async def update_company_information(request: Request, file: UploadFile = File(N
         "commercial_name", "description", "email", "phone", "is_formal",
         "legal_name", "tax_id", "address_line", "region", "city", "postal_code",
         "tax_user", "tax_password", "invoice_series", "invoice_number", "receipt_series",
-        "receipt_number", "certificate_password"
+        "receipt_number", "certificate_password", "emission_status", "tax_enabled"
     ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)    
+
+    if company_info.emission_status not in Tax_Emission_Status._value2member_map_:
+        return custom_response(status_code=400, message=translate(lang, "company.settings.emission_status_mode_not_allowed"))
 
     ### Operations ###
     company = db.query(Company).filter(
@@ -185,6 +197,24 @@ async def update_company_information(request: Request, file: UploadFile = File(N
     else:
         company.phone = None
 
+    ### Update Emission Status & IGV Company ###
+    if company.is_formal:
+        tax_subscription_update = db.query(Tax_Subscription).filter(
+            Tax_Subscription.company_id == company_id
+        ).first()
+        
+        tax_profile_update = db.query(Tax_Profile).filter(
+            Tax_Profile.company_id == company_id
+        ).first()
+
+        ### Change Values ###
+        tax_subscription_update.emission_mode = Tax_Emission_Status(company_info.emission_status)
+
+        if company_info.tax_enabled == "1":
+            tax_profile_update.tax_enabled = True
+        else:
+            tax_profile_update.tax_enabled = False
+        
     ### Simple Update ###
     update_db(db)
 

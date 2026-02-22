@@ -3,6 +3,7 @@ import express from 'express';
 
 import { get_data, send_data } from '../../utils/api.js';
 import { require_auth, at_least_company } from '../../middlewares/auth.js';
+import e from 'express';
 
 /*************** Variables ***************/
 const router = express.Router({ mergeParams: true });
@@ -132,17 +133,28 @@ router.post("/sales/create", require_auth, at_least_company, async (req, res) =>
 
     let client_id_value = "null";
 
+    let send_sale_v = "0";
+    let invoice_method_v = "3";
+
     // Check permissions
     if (!permissions.includes("company.sales.create")) return res.redirect("/");
 
-    const { client_id, payment_method, items } = req.body;
+    const { client_id, payment_method, items, send_sale, invoice_method } = req.body;
+
+    if (send_sale) send_sale_v = "3";
+
+    if (invoice_method == "receipt") invoice_method_v = "3";
+    else invoice_method_v = "1";
 
     if (client_id) client_id_value = client_id;    
 
     const response = await send_data("/company/sales/create", {}, {
-        client_id: client_id_value,
         payment_method,
-        items
+        items,
+        
+        client_id: client_id_value,
+        send_sale: send_sale_v,
+        invoice_method: invoice_method_v
     }, req);
 
     if (response.error) {

@@ -12,10 +12,10 @@ from db.model import Cash_Session_Status, Cash_Session, Cash_Movement, Cash_Move
 from core.i18n import translate
 from core.generator import get_uuid
 from core.responses import custom_response
-from core.db_management import add_db, update_db
-from core.validators import read_json_body, validate_required_fields
 from core.permissions import check_permissions
-from core.utils import is_float
+from core.db_management import add_db, update_db
+from core.utils import to_decimal, to_decimal_or_zero
+from core.validators import read_json_body, validate_required_fields
 
 ########## Variables ##########
 router = APIRouter()
@@ -58,7 +58,7 @@ async def open(request: Request, db: Session = Depends(get_db)):
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 
-    initial_cash = is_float(check_cash.initial_cash)
+    initial_cash = to_decimal(check_cash.initial_cash)
 
     if initial_cash == None:
         return custom_response(status_code=400, message=translate(lang, "company.cash.error.initial_cash"))
@@ -127,9 +127,9 @@ async def open(request: Request, db: Session = Depends(get_db)):
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 
-    amount = is_float(check_cash.amount)
+    amount = to_decimal(check_cash.amount)
 
-    if not amount and amount != 0:
+    if amount is None:
         return custom_response(status_code=400, message=translate(lang, "company.cash.close.error.incorrect_amount"), details=required_fields)
 
     rows = db.query(
@@ -145,7 +145,7 @@ async def open(request: Request, db: Session = Depends(get_db)):
     ).group_by(Cash_Movement.payment_method).all()
 
     for method, total in rows:
-        payments_summary[method.value] = round(float(total), 2)
+        payments_summary[method.value] = to_decimal_or_zero(total)
 
     rows_out = db.query(
         Cash_Movement.payment_method,
@@ -160,7 +160,7 @@ async def open(request: Request, db: Session = Depends(get_db)):
     ).group_by(Cash_Movement.payment_method).all()
 
     for method, total in rows_out:
-        payment_metrics[f"{method.value}"] = round(float(total), 2)
+        payment_metrics[f"{method.value}"] = to_decimal_or_zero(total)
 
     cash_out = db.query(
         func.coalesce(func.sum(Cash_Movement.amount), 0)
@@ -173,10 +173,10 @@ async def open(request: Request, db: Session = Depends(get_db)):
         Cash_Movement.payment_method == Payment_Method.CASH
     ).scalar()
     
-    expected_cash = is_float(payments_summary.get("cash")) + is_float(cash_session.initial_cash) - is_float(payment_metrics.get("cash"))
+    expected_cash = (to_decimal_or_zero(payments_summary.get("cash")) + to_decimal_or_zero(cash_session.initial_cash) - to_decimal_or_zero(payment_metrics.get("cash")))
 
     if expected_cash != amount:
-        difference = (expected_cash - amount) * - 1
+        difference = (expected_cash - amount) * -1
 
         if check_cash.description == "No description":
             return custom_response(status_code=200, message=translate(lang, "company.cash.close.error.require_description"), data={

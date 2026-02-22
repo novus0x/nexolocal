@@ -49,8 +49,6 @@ router.get("/create", require_auth, at_least_company, async (req, res) => {
     // Variables
     const permissions = req.permissions;
 
-    let suppliers = [];
-
     // Check permissions
     if (!permissions.includes("company.products.create")) return res.redirect("/system-alert/403");
 
@@ -61,11 +59,14 @@ router.get("/create", require_auth, at_least_company, async (req, res) => {
 
     const data = response.data;
 
-    suppliers = data.suppliers;
+    console.log(data);
+
+    const suppliers = data.suppliers;
+    const tax_profile = data.tax_profile;
 
     // Render content
     return res.render("companies/products/create", {
-        suppliers
+        suppliers, tax_profile
     });
 });
 
@@ -91,6 +92,8 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     let width_v = "0";
     let length_v = "0";
 
+    let exonerated_v = "0";
+
     let errors = [];
     let suppliers = [];
 
@@ -98,7 +101,11 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     if (!permissions.includes("company.products.create")) return res.redirect("/system-alert/403");
 
     // Get POST data
-    const { name, sku, identifier, category, description, supplier_id, sale_price, sale_cost, is_bulk, is_service, duration, duration_type, staff_id, stock, track_product, low_stock, bonus, expiration_date, weight, length, width, height } = req.body;
+    const { 
+        name, sku, identifier, category, description, supplier_id, sale_price, sale_cost, is_bulk, is_service,
+        duration, duration_type, staff_id, stock, track_product, low_stock, bonus, expiration_date, weight, 
+        length, width, height, exonerated
+    } = req.body;
 
     if (stock) stock_v = stock;
     if (description) description_v = description;
@@ -117,6 +124,8 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
         else low_stock_v = low_stock;
     }
 
+    if (exonerated == "on") exonerated_v = "1";
+
     if (expiration_date) date_val = expiration_date;
 
     if (weight) weight_v = weight;
@@ -128,6 +137,8 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
     const response = await send_data("/company/products/create", {}, {
         name, sku, identifier, category, sale_price, sale_cost, staff_id,
         duration_type,
+
+        exonerated: exonerated_v,
 
         weight: weight_v,
         length: length_v,
@@ -161,10 +172,9 @@ router.post("/create", require_auth, at_least_company, async (req, res) => {
         return res.render("companies/products/create", {
             errors: response.details,
 
-            suppliers,
-            name, sku, identifier, supplier_id, category, description, sale_price, sale_cost,
-            is_service, duration, duration_type, staff_id, stock, track_product, low_stock, 
-            bonus, weight, length, width, height, date_val
+            suppliers, name, sku, identifier, supplier_id, category, description, sale_price,
+            sale_cost, is_service, duration, duration_type, staff_id, stock, track_product,
+            low_stock, bonus, weight, length, width, height, date_val, exonerated
         })
     }
 

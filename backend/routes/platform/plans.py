@@ -12,7 +12,7 @@ from core.config import settings
 
 from core.i18n import translate
 from core.generator import get_uuid
-from core.utils import is_float, is_int
+from core.utils import to_decimal, is_int
 from core.responses import custom_response
 from core.permissions import check_permissions
 from core.db_management import add_db, update_db
@@ -131,7 +131,7 @@ async def create_plan(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
     
     ### Validate Price & Position ###
-    price = is_float(new_plan_data.price)
+    price = to_decimal(new_plan_data.price)
     position = is_int(new_plan_data.position)
 
     if not price:
@@ -267,7 +267,7 @@ async def update_plan(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "platform.plans.update.error.general"))
 
     ### Validate Price & Position ###
-    price = is_float(edit_plan_data.price)
+    price = to_decimal(edit_plan_data.price)
     position = is_int(edit_plan_data.position)
 
     if not price:
@@ -320,7 +320,7 @@ async def update_plan(request: Request, db: Session = Depends(get_db)):
 
     ### Update Plan ###
     check_plan.name = edit_plan_data.name
-    check_plan.price = edit_plan_data.price
+    check_plan.price = price
     check_plan.description = edit_plan_data.description
     # check_plan.role_id = edit_plan_data.role_id # need to fix this later
 

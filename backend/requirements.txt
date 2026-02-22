@@ -6,6 +6,7 @@ jinja2
 pymysql
 fastapi
 uvicorn
+zstandard
 aiosmtplib
 sqlalchemy
 cryptography

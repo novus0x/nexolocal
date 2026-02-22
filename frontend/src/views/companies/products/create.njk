@@ -80,7 +80,7 @@
                         <div class="space-y-2 hidden">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Categoría</label>
                             <select
-                                class="w-full input-glass mt-2 px-5 py-3.5 mt-2 rounded-xl text-sm font-bold appearance-none"
+                                class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold appearance-none"
                                 name="category" required>
                                 <option class="input-field" value="no_category">Sin categoría</option>
                             </select>
@@ -133,7 +133,7 @@
                                     placeholder="0.00" name="sale_cost" value="{{ sale_cost }}" required>
                             </div>
                         </div>
-                        <div class="col-span-1 md:col-span-2" id="product_type_container">
+                        <div class="col-span-1" id="product_type_container">
                             <label class="flex items-center mb-3 gap-3 cursor-pointer">
                                 <input type="checkbox" name="is_bulk" class="custom-checkbox"
                                     onchange="toggle_bulk(this.checked)">
@@ -141,9 +141,21 @@
                                     Producto a granel (kg / L)
                                 </span>
                             </label>
-                            <p class="text-xs text-gray-600 italic">* Si selecciona producto a granel considere evaluar
+                            <p class="text-xs text-gray-500 italic">* Si selecciona producto a granel considere evaluar
                                 el precio de venta y costo por: kg / L</p>
                         </div>
+                        {% if tax_profile.enabled %}
+                        <div class="col-span-1">
+                            <label class="flex items-center mb-3 gap-3 cursor-pointer">
+                                <input type="checkbox" name="exonerated" class="custom-checkbox" {% if exonerated %} checked {% endif %}>
+                                <span class="text-sm text-yellow-500">
+                                    Producto Exonerado
+                                </span>
+                            </label>
+                            <p class="text-xs text-gray-500 italic">Activa esta opción si el producto no debe pagar
+                                impuestos. El sistema no aplicará impuestos en su venta.</p>
+                        </div>
+                        {% endif %}
                     </div>
                 </section>
 
@@ -172,7 +184,6 @@
 
                     <div id="serviceOptions"
                         class="{% if not is_service %} hidden {% else %} grid {% endif %} grid-cols-1 gap-6 pt-4 border-t border-white/5 transition-all-custom">
-                        {# md:grid-cols-2 #}
                         <div class="space-y-2 col-span-2">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Tipo de Duración</label>
                             <select
@@ -235,7 +246,9 @@
                                 <p class="text-xs text-gray-500">Notificarme si queda poco stock</p>
                             </div>
                             <label class="nexo-switch">
-                                <input type="checkbox" name="track_product" onchange="toggle_stock('low_stock_field', this.checked);" {% if track_product %} checked {% endif %}>
+                                <input type="checkbox" name="track_product"
+                                    onchange="toggle_stock('low_stock_field', this.checked);" {% if track_product %}
+                                    checked {% endif %}>
                                 <div class="bg"></div>
                                 <div class="dot"></div>
                             </label>
@@ -323,16 +336,6 @@
                         </button>
                     </div>
                 </div>
-
-                {# <section class="glass-card p-6">
-                    <div
-                        class="w-full aspect-square rounded-2xl bg-white/5 border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-center p-4 hover:border-(--accent)/50 transition-all cursor-pointer group">
-                        <i
-                            class="fas fa-image text-2xl text-gray-600 mb-2 group-hover:text-(--accent) group-hover:scale-110 transition-all"></i>
-                        <p class="text-xs font-bold text-gray-500 uppercase">Subir Imagen</p>
-                        <p class="text-[8px] text-gray-700 mt-1">PNG, JPG hasta 5MB</p>
-                    </div>
-                </section> #}
             </div>
         </form>
     </div>

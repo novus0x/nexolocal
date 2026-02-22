@@ -5,10 +5,10 @@ def detect_accept_language(header_value: str):
     try:
         return header_value.split(",")[0].split("-")[0]
     except:
-        return "en"
+        return "es"
 
 async def i18n_middleware(request: Request, call_next):
-    lang = "en"
+    lang = "es"
 
     user = getattr(request.state, "user", None)
     if user and "preferred_language" in user:

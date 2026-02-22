@@ -9,7 +9,7 @@ from sqlalchemy import func, desc, or_, case, asc
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import Company, Product, Product_Batch, Product_Service_Duration, Expense, Expense_Category, Expense_Status, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Payment_Method, Supplier
+from db.model import Company, Product, Product_Batch, Product_Service_Duration, Expense, Expense_Category, Expense_Status, Cash_Movement, Supplier, Tax_Profile
 
 from core.i18n import translate
 from core.generator import get_uuid, get_uuid_value
@@ -17,7 +17,7 @@ from core.responses import custom_response
 from core.permissions import check_permissions
 from core.db_management import add_db, add_multiple_db, update_db
 from core.validators import read_json_body, validate_required_fields
-from core.utils import is_int, is_float, validate_not_same_day, pagination, normalize_search
+from core.utils import is_int, to_decimal, to_decimal_or_zero, validate_not_same_day, pagination, normalize_search
 
 ########## Variables ##########
 router = APIRouter()
@@ -179,7 +179,10 @@ async def create_product_data(request: Request, db: Session = Depends(get_db)):
     company_id = request.state.company_id
 
     suppliers = []
-        
+    tax_profile = {
+        "enabled": False
+    }
+
     ### Validation ###
     if user == None:
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
@@ -203,8 +206,23 @@ async def create_product_data(request: Request, db: Session = Depends(get_db)):
             "name": supplier.name
         })
 
+    ### Tax Profile ###
+    company = db.query(Company).filter(
+        Company.id == company_id
+    ).first()
+
+    if company.is_formal:
+        tax_profile = db.query(Tax_Profile).filter(
+            Tax_Profile.company_id == company_id
+        ).first()
+
+        tax_profile = {
+            "enabled": tax_profile.tax_enabled
+        }
+
     return custom_response(status_code=200, message=translate(lang, "company.products.get.success"), data={
-        "suppliers": suppliers
+        "suppliers": suppliers,
+        "tax_profile": tax_profile
     })
 
 ########## Create Product - POST ##########
@@ -225,16 +243,6 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
     if not access:
         return custom_response(status_code=400, message=message)
     
-    ### Check Cash Session --> OPEN ###
-    """cash_session = db.query(Cash_Session).filter(
-        Cash_Session.status == Cash_Session_Status.OPEN,
-        Cash_Session.company_id == company_id,
-    ).first()
-
-    if not cash_session:
-        return custom_response(status_code=400, message=translate(lang, "validation.no_open_cash_session"))
-    """
-
     ### Get Body ###
     product_check, error = await read_json_body(request)
     if error: 
@@ -243,16 +251,16 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
     required_fields, error = validate_required_fields(product_check, [
         "name", "sku", "identifier", "category", "description", "supplier_id", "sale_price", "sale_cost", "is_bulk", 
         "is_service", "duration", "duration_type", "staff_id", "track_product", "low_stock", "bonus", "weight", "length",
-        "width", "height", "expiration_date"
+        "width", "height", "expiration_date", "exonerated"
     ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 
-    bonus = is_float(product_check.bonus)
-    stock = is_float(product_check.stock)
-    cost = is_float(product_check.sale_cost)
-    price = is_float(product_check.sale_price)
+    bonus = to_decimal(product_check.bonus)
+    stock = to_decimal(product_check.stock)
+    cost = to_decimal(product_check.sale_cost)
+    price = to_decimal(product_check.sale_price)
 
     if price is None or cost is None or stock is None:
         return custom_response(status_code=400, message=translate(lang, "company.products.create.error.incorrect_price"))
@@ -280,7 +288,7 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
             stock = is_int(stock)
 
     if bonus is None:
-        bonus = 0
+        bonus = to_decimal_or_zero(0)
     
     if bonus < 0:
         return custom_response(status_code=400, message=translate(lang, "company.products.create.error.incorrect_quantity"))
@@ -321,7 +329,7 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
 
     ## Track Inventory ##
     if product_check.track_product == "1":
-        low_stock = is_float(product_check.low_stock)
+        low_stock = to_decimal(product_check.low_stock)
 
         if low_stock is None or low_stock < 0:
             return custom_response(status_code=400, message=translate(lang, "company.products.create.error.incorrect_quantity"))
@@ -349,7 +357,15 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
     check_company = db.query(Company).filter(Company.id == company_id).first()
 
     if check_company.is_formal:
-        print("To-do: implement taxes part I")
+        tax_profile = db.query(Tax_Profile).filter(
+            Tax_Profile.company_id == company_id
+        ).first()
+
+        if tax_profile.tax_enabled:
+            if product_check.exonerated == "1":
+                new_product.exonerated = True
+            else:
+                new_product.exonerated = False
 
     add_db(db, new_product)
 
@@ -391,24 +407,9 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         )
 
         if check_company.is_formal:
-            print("To-do: implement taxes part II")
+            print("To-do: implement taxes part II - Expenses IDK")
 
         add_db(db, new_expense)
-        """
-        new_cash_movement = Cash_Movement(
-            id = get_uuid(db, Cash_Movement),
-            type = Cash_Movement_Type.EXPENSE,
-            amount = new_expense.total_amount,
-            payment_method = Payment_Method.CASH,
-
-            related_expense_id = new_expense.id,
-
-            cash_session_id = cash_session.id,
-            company_id = company_id
-        )
-
-        add_db(db, new_cash_movement)
-        """
 
         new_product_batch.expense_id = new_expense.id
     
@@ -436,17 +437,6 @@ async def import_products(request: Request, file: UploadFile = File(...), db: Se
     
     if not access:
         return custom_response(status_code=400, message=message)
-    
-    ### Check Cash Session --> OPEN ###
-    """
-    cash_session = db.query(Cash_Session).filter(
-        Cash_Session.status == Cash_Session_Status.OPEN,
-        Cash_Session.company_id == company_id,
-    ).first()
-
-    if not cash_session:
-        return custom_response(status_code=400, message=translate(lang, "validation.no_open_cash_session"))
-    """
 
     ### Check Valid File ###
     if not file.filename.lower().endswith(".csv"):
@@ -494,9 +484,9 @@ async def import_products(request: Request, file: UploadFile = File(...), db: Se
             continue
         
         ## Parse Numbers ##
-        price = is_float(row.get("price"))
-        cost = is_float(row.get("cost"))
-        stock = is_float(row.get("stock"))
+        price = to_decimal(row.get("price"))
+        cost = to_decimal(row.get("cost"))
+        stock = to_decimal(row.get("stock"))
 
         if price is None or cost is None or stock is None:
             products_no_created += 1
@@ -549,14 +539,14 @@ async def import_products(request: Request, file: UploadFile = File(...), db: Se
             product.description = row.get("description")
 
         if row.get("track_inventory") == "1":
-            low_stock = is_float(row.get("low_stock_alert"))
+            low_stock = to_decimal(row.get("low_stock_alert"))
 
             if low_stock is not None and low_stock >= 0:
                 product.track_inventory = True
                 product.low_stock_alert = low_stock
 
         if row.get("weight"):
-            w = is_float(row.get("weight"))
+            w = to_decimal(row.get("weight"))
             if w is not None and w >= 0:
                 product.weight = w
 
@@ -600,7 +590,6 @@ async def import_products(request: Request, file: UploadFile = File(...), db: Se
             price = product.price,
             cost = product.cost,
             product_id = product.id,
-            # expense_id = new_expense.id,
             expiration_active = False
         )
 
@@ -631,31 +620,15 @@ async def import_products(request: Request, file: UploadFile = File(...), db: Se
                 company_id = company_id
             )
 
-            """
-            new_cash_movement = Cash_Movement(
-                id = new_cash_movement_id,
-                type = Cash_Movement_Type.EXPENSE,
-                amount = new_expense.total_amount,
-                payment_method = Payment_Method.CASH,
-
-                related_expense_id = new_expense.id,
-
-                cash_session_id = cash_session.id,
-                company_id = company_id
-            )
-            """
-
             product_batch.expense_id = new_expense.id
 
             expenses.append(new_expense)
-            # new_cash_movements.append(new_cash_movement)
         
         product_batchs.append(product_batch)
 
     add_multiple_db(db, products)
     add_multiple_db(db, expenses)
     add_multiple_db(db, product_batchs)
-    # add_multiple_db(db, new_cash_movements)
 
     return custom_response(status_code=200, message=translate(lang, "company.products.import.success"), data={
         "products_no_created": products_no_created
@@ -812,17 +785,6 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
     
     if not access:
         return custom_response(status_code=400, message=message)
-    
-    ### Check Cash Session --> OPEN ###
-    """
-    cash_session = db.query(Cash_Session).filter(
-        Cash_Session.status == Cash_Session_Status.OPEN,
-        Cash_Session.company_id == company_id,
-    ).first()
-
-    if not cash_session:
-        return custom_response(status_code=400, message=translate(lang, "validation.no_open_cash_session"))
-    """
 
     ### Get Body ###
     product_check, error = await read_json_body(request)
@@ -837,10 +799,10 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 
     ## Parse Numbers ##
-    price = is_float(product_check.price)
-    cost = is_float(product_check.cost)
-    stock = is_float(product_check.quantity)
-    bonus = is_float(product_check.bonus) or 0
+    price = to_decimal(product_check.price)
+    cost = to_decimal(product_check.cost)
+    stock = to_decimal(product_check.quantity)
+    bonus = to_decimal_or_zero(product_check.bonus)
 
     if stock is None or bonus is None or price is None or cost is None:
         return custom_response(status_code=400, message=translate(lang, "company.products.create.batch.error"))
@@ -917,22 +879,7 @@ async def add_new_batch(request: Request, product_id: str, db: Session = Depends
             
         new_batch.expense_id = new_expense.id
 
-        """
-        new_cash_movement = Cash_Movement(
-            id = get_uuid(db, Cash_Movement),
-            type = Cash_Movement_Type.EXPENSE,
-            amount = new_expense.total_amount,
-            payment_method = Payment_Method.CASH,
-
-            related_expense_id = new_expense.id,
-            
-            company_id = company_id,
-            cash_session_id = cash_session.id
-        )
-        """
-
         add_db(db, new_expense)
-        # add_db(db, new_cash_movement)
 
     update_db(db)
     add_db(db, new_batch)

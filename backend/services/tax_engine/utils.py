@@ -6,6 +6,21 @@ from core.http_requests import api_post
 ########## Variables ##########
 _settings = json.load(open("services/tax_engine/settings.json"))
 
+TAX_PLAN_LIMITS = {
+    "FREE": 200,
+    "STARTER": 1000,
+    "BUSINESS": 2500,
+    "SCALE": 5000,
+    "ENTERPRISE": 10000,
+    "PREMIUM": None # unlimited
+}
+
+########## Get Plan Limite ##########
+def get_plan_limit(plan_type):
+    key = plan_type.name if hasattr(plan_type, "name") else str(plan_type)
+
+    return TAX_PLAN_LIMITS.get(key, 200)
+
 ########## Get Available Countries ##########
 def get_countries():
     countries = list(_settings.keys())
@@ -42,7 +57,7 @@ async def get_tax_engine_credintials(url: str, data):
     return response
 
 ########## Get Tax Rate ##########
-async def get_tax_rate_util(country_code: str):
+def get_tax_rate_util(country_code: str):
     tax_rate = _settings[country_code]["percentage"]
 
     return tax_rate

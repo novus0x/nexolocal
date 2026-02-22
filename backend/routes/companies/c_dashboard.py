@@ -14,6 +14,7 @@ from db.model import Product, Cash_Session_Status, Cash_Session, Cash_Movement, 
 from core.config import settings
 
 from core.i18n import translate
+from core.utils import to_decimal_or_zero, to_money
 from core.responses import custom_response
 from core.permissions import check_permissions
 
@@ -96,7 +97,7 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
     cash_month_list = []
 
     frequency = 0
-    total_cash_month = 0
+    total_cash_month = to_decimal_or_zero(0)
     total_days_closed = 0
     
     weekly_performance = []
@@ -186,7 +187,7 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
         net_yesterday = sales_yesterday - expenses_yesterday
 
         if tickets_today > 0:
-            tickets_average_val = round(sales_today / tickets_today, 2)
+            tickets_average_val = to_money(sales_today / tickets_today)
         else:
             tickets_average_val = 0
 
@@ -195,7 +196,7 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
         else:
             sales_change_percent = 100 if sales_today > 0 else 0
 
-        sales_change_percent = round(sales_change_percent, 2)
+        sales_change_percent = to_money(sales_change_percent)
 
         cash_in_today = db.query(func.coalesce(func.sum(Cash_Movement.amount), 0)).filter(
             Cash_Movement.cash_session_id == cash_session.id,
@@ -226,7 +227,7 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
         ).all()
 
         for method, total in rows_in:
-            payments_summary[method.value] = round(float(total), 2)
+            payments_summary[method.value] = to_decimal_or_zero(total)
 
         cash_initial = cash_session.initial_cash
 
@@ -245,7 +246,7 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
         ).all()
 
         for method, total in rows_out:
-            payment_metrics[f"{method.value}"] = round(float(total), 2)
+            payment_metrics[f"{method.value}"] = to_decimal_or_zero(total)
 
         ### Top Products ###
         raw_top_today = db.query(
@@ -264,7 +265,7 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
             percent = 0
 
             if max_qty > 0:
-                percent = round((p.total_qty / max_qty) * 100, 2)
+                percent = to_money((p.total_qty / max_qty) * 100)
 
             top_products_today.append({
                 "rank": i,
@@ -290,7 +291,7 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
     ).order_by(desc(Cash_Session.closed_at)).all()
 
     for session in month_cash_sessions:
-        final_amount = float(session.counted_cash or session.expected_cash or 0)
+        final_amount = to_decimal_or_zero(session.counted_cash or session.expected_cash or 0)
         total_cash_month += final_amount
         total_days_closed += 1
 
@@ -299,8 +300,8 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
             "date": session.closed_at.date().strftime("%B %d, %Y").upper(),
             "opened_at": session.opened_at,
             "closed_at": session.closed_at,
-            "final_amount": round(final_amount, 2),
-            "difference": float(session.difference or 0),
+            "final_amount": to_money(final_amount),
+            "difference": to_money(session.difference or 0),
             "has_difference": session.difference_exists
         }
 
@@ -309,12 +310,12 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
         days_passed = today.day
 
         if days_passed > 0:
-            frequency = round((total_days_closed / days_passed) * 100, 2)
+            frequency = to_money((total_days_closed / days_passed) * 100)
         else:
             frequency = 0
 
     month_cash_sessions_data["cash_month_list"] = cash_month_list
-    month_cash_sessions_data["total_cash_month"] = round(total_cash_month, 2)
+    month_cash_sessions_data["total_cash_month"] = to_money(total_cash_month)
     month_cash_sessions_data["frequency"] = frequency
 
     ###  ###
@@ -338,8 +339,8 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
         Expense.date < end_dt
     ).group_by(func.date(Expense.date)).all()
 
-    sales_map = {row.day: float(row.total) for row in sales_rows}
-    expenses_map = {row.day: float(row.total) for row in expenses_rows}
+    sales_map = {row.day: to_decimal_or_zero(row.total) for row in sales_rows}
+    expenses_map = {row.day: to_decimal_or_zero(row.total) for row in expenses_rows}
     
     week_labels = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
 
@@ -349,8 +350,8 @@ async def c_dashboard(request: Request, db: Session = Depends(get_db)):
         weekly_performance.append({
             "day": week_labels[d.weekday()],
             "date": d.isoformat(),
-            "sales": round(sales_map.get(d, 0), 2),
-            "expenses": round(expenses_map.get(d, 0), 2)
+            "sales": to_money(sales_map.get(d, 0)),
+            "expenses": to_money(expenses_map.get(d, 0))
         })
         
     return custom_response(status_code=200, message=translate(lang, "company.companies.dashboard.get"), data={

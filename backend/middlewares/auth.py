@@ -87,7 +87,7 @@ async def auth_middleware(request: Request, call_next):
         "is_blocked": user_is_blocked,
 
         "date": user_data.date,
-        "lang": getattr(user_data, "preferred_language", "en")
+        "lang": getattr(user_data, "preferred_language", "es")
     }
 
     request.state.user_is_admin = user_data.is_platform_super_admin

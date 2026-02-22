@@ -1,6 +1,12 @@
 ########## Modules ##########
-from decimal import Decimal, InvalidOperation
+import zstandard
+
+from math import isfinite
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from datetime import datetime, timezone, timedelta, date, time
+
+########## Variables ##########
+ZSTD_LEVEL = 3
 
 ########## Time Ago ##########
 def time_ago(dt):
@@ -92,3 +98,76 @@ def validate_not_same_day(reception_date: str):
     custom_dt = datetime.combine(rec_date, time.min, tzinfo=timezone.utc)
     
     return custom_dt
+
+########## To Decimal - Fix: floating point error ##########
+def to_decimal(value, default = None):
+    if value is None:
+        return default
+
+    if isinstance(value, Decimal):
+        return value
+
+    if isinstance(value, bool):
+        return default
+
+    if isinstance(value, int):
+        return Decimal(value)
+
+    if isinstance(value, float):
+        if not isfinite(value):
+            return default
+
+        return Decimal(str(value))
+
+    if isinstance(value, str):
+        raw = value.strip().replace(",", ".")
+        if raw == "":
+            return default
+
+        try:
+            return Decimal(raw)
+        except InvalidOperation:
+            return default
+
+    try:
+        return Decimal(str(value))
+    except (InvalidOperation, TypeError, ValueError):
+        return default
+
+########## To Decimal Or Zero ##########
+def to_decimal_or_zero(value):
+    return to_decimal(value, Decimal("0"))
+
+########## To Money ##########
+def to_money(value, default = Decimal("0.00")):
+    dec = to_decimal(value, default)
+
+    if dec is None:
+        return None
+
+    return dec.quantize(Decimal("0.01"), ROUND_HALF_UP)
+
+########## ZSTD Compression ##########
+def zstd_compression(data) -> bytes:
+    ### Validation ###
+    if data is None:
+        return None
+    
+    if isinstance(data, str):
+        data = data.encode("utf-8")
+
+    ### Compression ###
+    compressor = zstandard.ZstdCompressor(level=ZSTD_LEVEL)
+
+    return compressor.compress(data)
+
+########## ZSTD Decompression ##########
+def zstd_decompress(data: bytes) -> str:
+    ### Validation ###
+    if data is None:
+        return None
+
+    ### Decompression ##
+    decompressor = zstandard.ZstdDecompressor()
+
+    return decompressor.decompress(data).decode("utf-8")

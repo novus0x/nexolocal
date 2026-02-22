@@ -31,7 +31,7 @@ async def read_json_body(request: Request):
         return None, "Invalid Json"
 
 ########## Validate required fields  ##########
-def validate_required_fields(data: dict, fields: list, lang="en"):
+def validate_required_fields(data: dict, fields: list, lang="es"):
     required_fields = []
 
     for field in fields:

@@ -153,8 +153,7 @@
                         <!-- DESCUENTOS -->
                         <div class="hidden border-b border-white/5">
                             <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-4">
-                                Promociones y
-                                Cupones
+                                Promociones y Cupones
                             </h3>
                             <div class="flex gap-2">
                                 <input type="text" id="couponCode" placeholder="Ingresar código..."
@@ -215,6 +214,33 @@
                                 </button>
                             </div>
                         </div>
+
+                        {% if company_information.taxes and tax_subscription.available and tax_subscription.mode == "manual" %}
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-[11px] font-bold text-gray-300">Reportar Venta - SUNAT</p>
+                                </div>
+                                <label class="nexo-switch">
+                                    <input type="checkbox" id="send_sale" onchange="toggle_send_sale()">
+                                    <div class="bg"></div>
+                                    <div class="dot"></div>
+                                </label>
+                            </div>
+                        </div>
+                        <div id="invoice-methods" class="opacity-50 pointer-events-none">
+                            <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Método de
+                                Emisión a SUNAT</h4>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="set_invoice_method('receipt')"
+                                    class="invoice-opt p-4 border border-white/5 bg-white/2 rounded-2xl flex flex-col items-center gap-2 hover:border-brand transition-all cursor-pointer">
+                                    <i class="fa-solid fa-money-bill-1-wave"></i>
+                                    <span class="text-[8px] font-black uppercase">Boleta</span>
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %}
+
                     </div>
 
                     <div class="pt-6 border-t border-white/5">
@@ -252,12 +278,14 @@
 
     let currentClient = null;
     let selected_payment = null;
+    let selected_invoice_method = null;
 
     let html5QrCode = null;
     let scanLocked = false;
 
     window.onload = () => {
         render_cart();
+        toggle_send_sale();
     };
 
     function get_step(item) {
@@ -655,6 +683,37 @@
         event.currentTarget.classList.add('active-payment');
     }
 
+    function set_invoice_method(method) {
+        const send_sale_input = document.getElementById('send_sale');
+
+        if (!send_sale_input || !send_sale_input.checked) return;
+
+        selected_invoice_method = method;
+        document.querySelectorAll('.invoice-opt').forEach(b => b.classList.remove('active-payment'));
+        event.currentTarget.classList.add('active-payment');
+    }
+
+    function toggle_send_sale() {
+        const send_sale_input = document.getElementById('send_sale');
+        const methods = document.getElementById('invoice-methods');
+
+        if (!send_sale_input || !methods) return;
+
+        if (send_sale_input.checked) {
+            methods.classList.remove('opacity-50', 'pointer-events-none');
+            if (!selected_invoice_method) {
+                selected_invoice_method = "receipt";
+                const first_method = document.querySelector('.invoice-opt');
+                if (first_method) first_method.classList.add('active-payment');
+            }
+        } else {
+            methods.classList.add('opacity-50', 'pointer-events-none');
+            selected_invoice_method = null;
+            document.querySelectorAll('.invoice-opt').forEach(b => b.classList.remove('active-payment'));
+        }
+
+    }
+
     async function toggle_scanner() {
         const modal = document.getElementById('scanner-modal');
         const isHidden = modal.classList.contains('hidden');
@@ -721,6 +780,15 @@
                 subtotal: item.price * item.qty
             }))
         };
+
+        const send_sale_input = document.getElementById('send_sale');
+        
+        if (send_sale_input) {
+            payload.send_sale = !!send_sale_input.checked;
+            if (payload.send_sale) {
+                payload.invoice_method = selected_invoice_method || "receipt";
+            }
+        }
 
         const response = await fetch(
             `/companies/${company_id}/api/sales/create`,

@@ -16,10 +16,9 @@ from core.i18n import translate
 from core.generator import get_uuid
 from core.db_management import add_db
 from core.responses import custom_response
-from core.utils import date_label, is_float
+from core.utils import date_label, to_decimal, to_decimal_or_zero
 from core.validators import read_json_body, validate_required_fields
 from core.permissions import check_permissions
-
 
 ########## Variables ##########
 router = APIRouter()
@@ -100,8 +99,8 @@ async def main(request: Request, db: Session = Depends(get_db)):
         for i in range(7)
     ]
 
-    income_map = {row.day: float(row.total) for row in income_by_day}
-    expense_map = {row.day: float(row.total) for row in expense_by_day}
+    income_map = {row.day: to_decimal_or_zero(row.total) for row in income_by_day}
+    expense_map = {row.day: to_decimal_or_zero(row.total) for row in expense_by_day}
 
     chart_days = []
 
@@ -215,9 +214,9 @@ async def create_finance(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 
     ### Operations ###
-    amount = is_float(finance_check.amount)
+    amount = to_decimal(finance_check.amount)
 
-    if not amount:
+    if amount is None:
         return custom_response(status_code=400, message=translate(lang, "company.finances.create.error_amount"), details=required_fields)
     elif amount == 0:
         return custom_response(status_code=400, message=translate(lang, "company.finances.create.error_amount"), details=required_fields)
@@ -247,7 +246,7 @@ async def create_finance(request: Request, db: Session = Depends(get_db)):
             new_finance.subcategory = finance_check.subcategory
     
     new_finance.name = finance_check.title
-    new_finance.amount = finance_check.amount
+    new_finance.amount = amount
     new_finance.description = finance_check.description 
     new_finance.company_id = company_id
     new_finance.payment_date = finance_check.date

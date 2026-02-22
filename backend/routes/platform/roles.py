@@ -215,7 +215,6 @@ async def get_roles(request: Request, role_id: str, db: Session = Depends(get_db
         return custom_response(status_code=400, message=translate(lang, "platform.roles.get.single.error"))
     
     permissions = filter_existing_permissions(update_role.permissions)
-    print(permissions)
 
     check_role.name = update_role.role_name
     check_role.permissions = permissions

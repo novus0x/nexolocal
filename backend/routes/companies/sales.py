@@ -1,7 +1,7 @@
 ########## Modules ##########
 from zoneinfo import ZoneInfo
-from datetime import datetime, timedelta, date, time
 from dateutil.relativedelta import relativedelta
+from datetime import datetime, timedelta, date, time, timezone
 
 from fastapi import APIRouter, Request, Depends
 
@@ -9,7 +9,7 @@ from sqlalchemy import or_, desc, func, extract
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import Product, Product_Batch, Company, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Tax_Profile
+from db.model import Product, Product_Batch, Company, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Tax_Profile, Tax_Document, Tax_Document_Type, Tax_Document_Status, Tax_Series, Tax_Subscription
 
 from core.config import settings
 
@@ -19,9 +19,9 @@ from core.permissions import check_permissions
 from core.generator import get_uuid, generate_nxid
 from core.db_management import add_db, update_db, add_multiple_db
 from core.validators import read_json_body, validate_required_fields
-from core.utils import is_int, is_float, pagination, normalize_search
+from core.utils import is_int, to_decimal, to_decimal_or_zero, to_money, pagination, normalize_search, zstd_compression
 
-from services.tax_engine.main import process
+from services.tax_engine.main import create_receipt
 
 ########## Variables ##########
 router = APIRouter()
@@ -202,7 +202,7 @@ async def cash_flow_api(request: Request, db: Session = Depends(get_db)):
 
         for h, total in rows:
             key = f"{int(h):02d}:00"
-            income_map[key] = float(total)
+            income_map[key] = to_decimal_or_zero(total)
 
     elif mode == "day":
         rows = db.query(
@@ -220,7 +220,7 @@ async def cash_flow_api(request: Request, db: Session = Depends(get_db)):
 
         for d, total in rows:
             key = d.strftime("%d %b")
-            income_map[key] = float(total)
+            income_map[key] = to_decimal_or_zero(total)
 
     elif mode == "month":
         rows = db.query(
@@ -242,7 +242,7 @@ async def cash_flow_api(request: Request, db: Session = Depends(get_db)):
 
         for y, m, total in rows:
             key = datetime(int(y), int(m), 1).strftime("%b %Y")
-            income_map[key] = float(total)
+            income_map[key] = to_decimal_or_zero(total)
 
     ## Expenses ##
     if mode == "hour":
@@ -261,7 +261,7 @@ async def cash_flow_api(request: Request, db: Session = Depends(get_db)):
 
         for h, total in rows:
             key = f"{int(h):02d}:00"
-            expense_map[key] = float(total)
+            expense_map[key] = to_decimal_or_zero(total)
 
     elif mode == "day":
         rows = db.query(
@@ -279,7 +279,7 @@ async def cash_flow_api(request: Request, db: Session = Depends(get_db)):
 
         for d, total in rows:
             key = d.strftime("%d %b")
-            expense_map[key] = float(total)
+            expense_map[key] = to_decimal_or_zero(total)
 
     elif mode == "month":
         rows = db.query(
@@ -301,10 +301,10 @@ async def cash_flow_api(request: Request, db: Session = Depends(get_db)):
 
         for y, m, total in rows:
             key = datetime(int(y), int(m), 1).strftime("%b %Y")
-            expense_map[key] = float(total)
+            expense_map[key] = to_decimal_or_zero(total)
 
-    income_data = [round(income_map[l], 2) for l in labels]
-    expense_data = [round(expense_map[l], 2) for l in labels]
+    income_data = [to_money(income_map.get(l, 0)) for l in labels]
+    expense_data = [to_money(expense_map.get(l, 0)) for l in labels]
 
     return custom_response(status_code=200, message=translate(lang, "company.sales.flow.success"), data={
         "labels": labels,
@@ -506,6 +506,43 @@ async def check_product_search(request: Request, db: Session = Depends(get_db)):
         "products": products_data
     })
 
+########## Create New Sale - GET - Company ##########
+@router.get("/create")
+async def get_create_new_sale(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+    user = request.state.user
+    company_id = request.state.company_id
+
+    tax_subscription = {
+        "available": False
+    }
+
+    ### Validation ###
+    if user == None:
+        return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
+    
+    ### Check permissions ###
+    access, message = check_permissions(db, request, "company.sales.create", company_id)
+
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
+    subscription = db.query(Tax_Subscription).filter(
+        Tax_Subscription.is_active == True,
+        Tax_Subscription.company_id == company_id
+    ).order_by(desc(Tax_Subscription.date)).first()
+
+    if subscription:
+        tax_subscription = {
+            "available": True,
+            "mode": subscription.emission_mode
+        }
+
+    return custom_response(status_code=200, message=translate(lang, "company.sales.get.success"), data={
+        "tax_subscription": tax_subscription
+    })
+
 ########## Create New Sale - Company ##########
 @router.post("/create")
 async def create_new_sale(request: Request, db: Session = Depends(get_db)):
@@ -541,11 +578,12 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=error)
 
     required_fields, error = validate_required_fields(check_sale, [
-        "client_id", "payment_method", "items"
+        "client_id", "payment_method", "items", "send_sale", "invoice_method"
     ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
+
 
     client_id_data = check_sale.client_id # To-Do
     products_data = check_sale.items
@@ -562,7 +600,7 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=translate(lang, "company.error.does_not_exist"))
 
     ### Create Sale ###
-    amount = 0
+    amount = to_decimal_or_zero(0)
 
     sale_items = []
     sale_items_ids = []
@@ -584,13 +622,10 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
     for product in products_data:
         raw_qty = product.get("qty")
 
-        qty_int = is_int(raw_qty)
-        qty_float = is_float(raw_qty)
+        quantity = to_decimal(raw_qty)
 
-        if qty_int is False and qty_float is False:
+        if quantity is None:
             return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.incorrect_product_quantity"))
-
-        quantity = qty_float
 
         if quantity <= 0:
             return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.incorrect_product_quantity"))
@@ -675,24 +710,83 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
 
         sale_items.append(new_sale_item)
 
+    new_tax_document = None
+
+    new_sale.subtotal = amount
+    new_sale.taxable_amount = 0
+    new_sale.tax_amount = 0
+    new_sale.total = amount
+    new_sale.total_amount = amount
+
     ### Tax Creation ###
-    if not company.is_formal:
-        new_sale.subtotal = amount
-        new_sale.taxable_amount = 0
-        new_sale.tax_amount = 0
-        new_sale.total = amount
-        new_sale.total_amount = amount
-    else:
+    if company.is_formal:
         check_company_legal = db.query(Tax_Profile).filter(
             Tax_Profile.company_id == company_id
         ).first()
 
         if not check_company_legal:
             return custom_response(status_code=400, message=translate(lang, "company.legal_profile_does_not_exist"))
-        
-        # await process() BUG
-        
-        print("Tax Creation")
+
+        doc_type = Tax_Document_Type.RECEIPT
+
+        ### Check Send Sale ###
+        send_sale = False
+
+        if check_sale.send_sale == "1":
+            send_sale = True
+
+        ### Engine decides manual/auto + send receipt/invoice ###
+        receipt, message, details = await create_receipt(db, company_id, new_sale, sale_items, send_sale, check_sale.invoice_method)
+
+        if receipt.get("xml"):
+            series_doc = db.query(Tax_Series).filter(
+                Tax_Series.doc_type == doc_type,
+                Tax_Series.company_id == company.id
+            ).order_by(desc(Tax_Series.date)).first()
+
+            if not series_doc:
+                return custom_response(status_code=400, message=translate(lang, "tax_engine.error.creating_engine"))
+
+            emission_dt = datetime.now(UTZ_TZ).astimezone(LOCAL_TZ).replace(hour=0, minute=0, second=0, microsecond=0)
+
+            new_tax_document = Tax_Document(
+                id = get_uuid(db, Tax_Document),
+                doc_type = doc_type.value,
+
+                series = series_doc.series,
+                number = series_doc.current_number + 1,
+
+                issue_date = emission_dt,
+
+                customer_name = "VARIOS",
+                customer_tax_id_type = "1",
+                customer_tax_id = "99999999",
+
+                subtotal = to_decimal_or_zero(new_sale.subtotal),
+                tax_total = to_decimal_or_zero(new_sale.tax_amount),
+                total = to_decimal_or_zero(new_sale.total),
+
+                sale_id = new_sale.id,
+                company_id = company_id,
+
+                status = Tax_Document_Status.PENDING
+            )
+
+            if not receipt:
+                print("Tax document failed", message, details)
+                new_tax_document.status = Tax_Document_Status.ERROR
+                new_tax_document.error_message = str(details)
+            else:
+                new_tax_document.subtotal = to_decimal_or_zero(new_sale.subtotal)
+                new_tax_document.tax_total = to_decimal_or_zero(new_sale.tax_amount)
+                new_tax_document.total = to_decimal_or_zero(new_sale.total)
+                new_tax_document.status = Tax_Document_Status.ACCEPTED
+
+                new_tax_document.hash = receipt.get("hash")
+                new_tax_document.accepted_at = datetime.now(timezone.utc)
+
+                xml = zstd_compression(receipt.get("xml"))
+                new_tax_document.artifact_xml = xml
 
     ### Create Income ###
     new_income = Income(
@@ -718,11 +812,18 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         cash_session_id = cash_session.id
     )
 
+    ### Update DB ###
     update_db(db)
+
+    ### Save to DB ###
     add_db(db, new_income)
     add_db(db, new_sale)
     add_db(db, new_cash_movement)
     add_multiple_db(db, sale_items)
+
+    ### Save Tax Document ###
+    if new_tax_document:
+        add_db(db, new_tax_document)
 
     return custom_response(status_code=200, message=translate(lang, "company.sales.create.success"), data={
         "sale_id": new_sale.id
@@ -751,6 +852,7 @@ async def check_sale_item(request: Request, sale_id: str, db: Session = Depends(
     
     sale = db.query(Sale).filter(
         Sale.id == sale_id,
+        Sale.company_id == company_id
     ).first()
 
     if not sale:
