@@ -47,6 +47,18 @@
     .animate-status {
         transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
+
+    .mode-toggle-btn {
+        border: 1px solid var(--border);
+        background: #0D1117;
+        color: #9CA3AF;
+        transition: all 0.2s ease;
+    }
+
+    .mode-toggle-btn:hover {
+        color: white;
+        border-color: rgba(255, 255, 255, 0.12);
+    }
 </style>
 
 <main class="overflow-y-auto p-6 lg:p-10">
@@ -78,27 +90,43 @@
         </div>
 
         <div class="flex justify-center">
-            <div id="form-wrapper" class="w-full max-w-xl transition-all duration-500">
+            <div id="form_wrapper" class="w-full max-w-xl transition-all duration-500">
                 <div class="flex justify-center mb-6">
-                    <div id="type-pill"
+                    <div id="type_pill"
                         class="status-pill bg-(--accent)/10 text-(--accent) border border-(--accent)/20 animate-status">
                         <i class="fa-solid fa-arrow-up mr-2"></i>Nueva Entrada de Dinero
                     </div>
                 </div>
 
                 <div class="premium-card p-8 md:p-10 relative overflow-hidden">
-                    <div id="glow-effect"
+                    <div id="glow_effect"
                         class="absolute -top-24 -right-24 w-48 h-48 bg-(--accent) opacity-10 blur-[100px] transition-all duration-700">
                     </div>
 
                     <header class="mb-10">
                         <h1 id="main-heading" class="text-3xl font-extrabold tracking-tight mb-2">Registrar Monto</h1>
-                        <p class="text-gray-500 text-sm font-medium">Ingresa un valor negativo para registrar un gasto
-                            automáticamente.</p>
+                        <p class="text-gray-500 text-sm font-medium">Selecciona el tipo de movimiento y registra el
+                            monto.</p>
                     </header>
 
                     <form id="transaction-form" class="space-y-8"
                         action="/companies/{{ company_information.id }}/finance/create" method="post">
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-400 ml-1 mb-2 block">Tipo de Movimiento</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button type="button" id="btn_income"
+                                    class="mode-toggle-btn rounded-2xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer">
+                                    <i class="fa-solid fa-arrow-up"></i>
+                                    Ingreso
+                                </button>
+                                <button type="button" id="btn_expense"
+                                    class="mode-toggle-btn rounded-2xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                    Gasto
+                                </button>
+                            </div>
+                        </div>
 
                         <div class="space-y-3">
                             <div class="relative group">
@@ -115,7 +143,7 @@
                             <div id="feedback" class="flex justify-between items-center px-2">
                                 <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Valor
                                     Neto</span>
-                                <span id="type-desc"
+                                <span id="type_desc"
                                     class="text-[10px] font-bold text-(--accent) uppercase tracking-widest transition-colors duration-500">
                                     Ingreso Ordinario
                                 </span>
@@ -137,9 +165,9 @@
 
                             <div class="grid grid-cols-1 gap-4">
 
-                                <div id="expense-category-wrapper" class="space-y-2 hidden">
+                                <div id="expense_category_wrapper" class="space-y-2 hidden">
                                     <label class="text-xs font-bold text-gray-400 ml-1">Categoria (GASTO)</label>
-                                    <select id="expense-category" name="expense_category"
+                                    <select id="expense_category" name="expense_category"
                                         class="input-premium w-full px-5 py-4 text-sm font-medium appearance-none cursor-pointer">
                                         <option value="">Seleccionar...</option>
                                         <option value="OFFICE_SUPPLIES" {% if expense_category=="OFFICE_SUPPLIES"
@@ -186,8 +214,8 @@
                                     </select>
                                 </div>
 
-                                <div id="subcategory-wrapper" class="space-y-2 hidden">
-                                    <label id="subcategory-label"
+                                <div id="subcategory_wrapper" class="space-y-2 hidden">
+                                    <label id="subcategory_label"
                                         class="text-xs font-bold text-gray-400 ml-1">Subcategoria</label>
                                     <input id="subcategory" type="text" name="subcategory"
                                         placeholder="Ej: Venta TikTok / Cliente Juan"
@@ -199,10 +227,11 @@
                             <div class="space-y-2">
                                 <label class="text-xs font-bold text-gray-400 ml-1">Fecha</label>
                                 <input type="date" name="date" required
-                                    class="input-premium w-full px-5 py-4 text-sm font-medium" value="{{ today_inp or date }}">
+                                    class="input-premium w-full px-5 py-4 text-sm font-medium"
+                                    value="{{ today_inp or date }}">
                             </div>
 
-                            <div id="extra-fields"
+                            <div id="extra_fields"
                                 class="max-h-0 opacity-0 overflow-hidden transition-all duration-500 space-y-4">
                                 <div class="p-5 rounded-2xl bg-blue-500/5 border border-blue-500/10 space-y-4">
                                     <div class="space-y-2">
@@ -223,7 +252,7 @@
                         </div>
 
                         <div class="flex flex-col gap-4 pt-4">
-                            <button type="submit" id="btn-submit"
+                            <button type="submit" id="btn_submit"
                                 class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
                                 Confirmar Transacción
                             </button>
@@ -241,43 +270,63 @@
 </main>
 
 <script>
-    const amount = document.getElementById('amount');
-    const wrapper = document.getElementById('form-wrapper');
-    const pill = document.getElementById('type-pill');
-    const symbol = document.getElementById('symbol');
-    const desc = document.getElementById('type-desc');
-    const btn = document.getElementById('btn-submit');
-    const extraFields = document.getElementById('extra-fields');
-    const glow = document.getElementById('glow-effect');
+    const amount = document.getElementById("amount");
+    const form_wrapper = document.getElementById("form_wrapper");
+    const type_pill = document.getElementById("type_pill");
+    const symbol = document.getElementById("symbol");
+    const type_desc = document.getElementById("type_desc");
+    const btn_submit = document.getElementById("btn_submit");
+    const extra_fields = document.getElementById("extra_fields");
+    const glow_effect = document.getElementById("glow_effect");
+    const transaction_form = document.getElementById("transaction-form");
+    const btn_income = document.getElementById("btn_income");
+    const btn_expense = document.getElementById("btn_expense");
 
-    const expense_category_wrapper = document.getElementById("expense-category-wrapper");
-    const expense_category = document.getElementById("expense-category");
-    const subcategory_wrapper = document.getElementById("subcategory-wrapper");
+    const expense_category_wrapper = document.getElementById("expense_category_wrapper");
+    const expense_category = document.getElementById("expense_category");
+    const subcategory_wrapper = document.getElementById("subcategory_wrapper");
     const subcategory_input = document.getElementById("subcategory");
-    const subcategory_label = document.getElementById("subcategory-label");
+    const subcategory_label = document.getElementById("subcategory_label");
+    let transaction_type = "income";
+
+    function set_type_buttons(type) {
+        const is_expense = type === "expense";
+
+        btn_income.className = is_expense
+            ? "mode-toggle-btn rounded-2xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer"
+            : "rounded-2xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer bg-(--accent) text-white border border-(--accent)/30";
+
+        btn_expense.className = is_expense
+            ? "rounded-2xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer bg-blue-600 text-white border border-blue-500/30"
+            : "mode-toggle-btn rounded-2xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer";
+    }
 
     function set_expense_mode() {
-        wrapper.classList.add('expense-mode');
+        transaction_type = "expense";
+        form_wrapper.classList.add("expense-mode");
+        set_type_buttons("expense");
 
         expense_category_wrapper.classList.remove("hidden");
         subcategory_wrapper.classList.add("hidden");
-        subcategory_input.value = "";
+        if (expense_category.value !== "OTHER") subcategory_input.value = "";
 
-        pill.innerHTML = '<i class="fa-solid fa-arrow-down mr-2"></i>Registro de Salida';
-        pill.className = "status-pill bg-blue-500/10 text-blue-400 border border-blue-500/20 animate-status";
+        type_pill.innerHTML = '<i class="fa-solid fa-arrow-down mr-2"></i>Registro de Salida';
+        type_pill.className = "status-pill bg-blue-500/10 text-blue-400 border border-blue-500/20 animate-status";
         symbol.className = "text-4xl font-black text-blue-500 transition-colors duration-500";
-        desc.innerText = "Gasto / Egreso Detallado";
-        desc.className = "text-[10px] font-bold text-blue-500 uppercase tracking-widest";
+        type_desc.innerText = "Gasto / Egreso Detallado";
+        type_desc.className = "text-[10px] font-bold text-blue-500 uppercase tracking-widest";
         amount.style.borderColor = "#3b82f6";
-        btn.className = "w-full py-5 rounded-2xl bg-blue-600 text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer";
+        btn_submit.className = "w-full py-5 rounded-2xl bg-blue-600 text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer";
 
-        extraFields.style.maxHeight = "200px";
-        extraFields.style.opacity = "1";
-        glow.style.backgroundColor = "#3b82f6";
+        extra_fields.style.maxHeight = "200px";
+        extra_fields.style.opacity = "1";
+        glow_effect.style.backgroundColor = "#3b82f6";
     }
 
     function set_income_mode() {
-        wrapper.classList.remove('expense-mode');
+        transaction_type = "income";
+        form_wrapper.classList.remove("expense-mode");
+        set_type_buttons("income");
 
         expense_category_wrapper.classList.add("hidden");
         expense_category.value = "";
@@ -286,28 +335,21 @@
         subcategory_label.innerText = "Concepto / Subcategoria";
         subcategory_input.placeholder = "Ej: Ingreso X";
 
-        pill.innerHTML = '<i class="fa-solid fa-arrow-up mr-2"></i>Nueva Entrada de Dinero';
-        pill.className = "status-pill bg-(--accent)/10 text-(--accent) border border-(--accent)/20 animate-status";
+        type_pill.innerHTML = '<i class="fa-solid fa-arrow-up mr-2"></i>Nueva Entrada de Dinero';
+        type_pill.className = "status-pill bg-(--accent)/10 text-(--accent) border border-(--accent)/20 animate-status";
         symbol.className = "text-4xl font-black text-(--accent) transition-colors duration-500";
-        desc.innerText = "Ingreso Ordinario";
-        desc.className = "text-[10px] font-bold text-(--accent) uppercase tracking-widest";
+        type_desc.innerText = "Ingreso Ordinario";
+        type_desc.className = "text-[10px] font-bold text-(--accent) uppercase tracking-widest";
         amount.style.borderColor = "#FD420A";
-        btn.className = "w-full py-5 rounded-2xl bg-(--accent) text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-(--accent)/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer";
+        btn_submit.className = "w-full py-5 rounded-2xl bg-(--accent) text-white font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-(--accent)/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer";
 
-        extraFields.style.maxHeight = "0";
-        extraFields.style.opacity = "0";
-        glow.style.backgroundColor = "#FD420A";
+        extra_fields.style.maxHeight = "0";
+        extra_fields.style.opacity = "0";
+        glow_effect.style.backgroundColor = "#FD420A";
     }
 
-    amount.addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-
-        if (!isNaN(val) && val < 0) {
-            set_expense_mode();
-        } else {
-            set_income_mode();
-        }
-    });
+    btn_income.addEventListener("click", set_income_mode);
+    btn_expense.addEventListener("click", set_expense_mode);
 
     expense_category.addEventListener("change", () => {
         if (expense_category.value === "OTHER") {
@@ -321,17 +363,30 @@
     });
 
     document.getElementById("amount").addEventListener("input", (e) => {
-        let v = e.target.value;
-
-        // solo un -
-        if (v.indexOf("-") > 0) {
-            e.target.value = v.replace(/-/g, "");
-            return;
-        }
-
-        // normalizar coma a punto
+        let v = e.target.value.replace(/-/g, "");
         e.target.value = v.replace(",", ".");
     });
+
+    transaction_form.addEventListener("submit", () => {
+        const raw = (amount.value || "").replace(",", ".").replace(/-/g, "");
+        if (!raw) return;
+
+        amount.value = transaction_type === "expense" ? `-${raw}` : raw;
+    });
+
+    const initialAmount = Number.parseFloat(String(amount.value || "").replace(",", "."));
+    if (!Number.isNaN(initialAmount) && initialAmount < 0) {
+        amount.value = String(amount.value).replace("-", "");
+        set_expense_mode();
+    } else {
+        set_income_mode();
+    }
+
+    if (transaction_type === "expense" && expense_category.value === "OTHER") {
+        subcategory_wrapper.classList.remove("hidden");
+        subcategory_label.innerText = "Subcategoria";
+        subcategory_input.placeholder = "Ej: Pago X";
+    }
 </script>
 
 
