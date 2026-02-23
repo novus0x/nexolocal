@@ -1,8 +1,8 @@
 <aside id="sidebar"
     class="shrink-0 w-72 bg-[#0D1117] border-r border-[#30363D] fixed inset-y-0 left-0 z-50 lg:relative lg:translate-x-0 -translate-x-full flex flex-col">
 
-    <div class="h-20 flex items-center px-4 mb-2 shrink-0">
-        <a href="/dashboard" class="flex items-center gap-3">
+    <div class="sidebar_brand_wrap h-20 flex items-center px-4 mb-2 shrink-0">
+        <a href="/dashboard" class="sidebar_brand_link flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl flex items-center justify-center bg-(--accent)/10">
                 <img src="/public/img/logo.svg" alt="logo" />
             </div>
@@ -12,10 +12,10 @@
     </div>
 
     {% if user_companies | length > 0 %}
-    <div class="px-4 pb-4 relative">
+    <div class="sidebar_company_block px-4 pb-4 relative">
         <button onclick="toggle_company_dropdown(event)"
-            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#161B23] hover:bg-[#28303c] transition-all group cursor-pointer">
-            <div class="flex items-center gap-3">
+            class="sidebar_company_trigger w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#161B23] hover:bg-[#28303c] transition-all group cursor-pointer">
+            <div class="sidebar_company_inner flex items-center gap-3">
                 {% if company_information.id %}
                 <div id="current-company-icon"
                     class="w-6 h-6 rounded flex items-center justify-center shrink-0 font-bold text-[10px] text-white">
@@ -243,7 +243,7 @@
         {% endif %}
     </nav>
 
-    <div class="p-4 border-t border-[#30363D] relative">
+    <div class="sidebar_user_block p-4 border-t border-[#30363D] relative">
         <div id="user-dropdown" class="dropdown-menu bottom-full left-4 right-4 mb-2">
             <div class="p-4 border-b border-[#30363D]">
                 <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Mi Cuenta</p>
@@ -255,7 +255,7 @@
         </div>
 
         <button onclick="toggle_user_dropdown(event)"
-            class="w-full flex items-center gap-3 p-1.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
+            class="sidebar_user_trigger w-full flex items-center gap-3 p-1.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
             <div class="relative shrink-0">
                 <img src="https://ui-avatars.com/api/?name={{user.fullname}}&background=FD420A&color=fff"
                     class="w-9 h-9 rounded-xl" alt="Avatar">
