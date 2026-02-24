@@ -20,7 +20,8 @@ router.get("/", require_auth, async (req, res) => {
 
     // Render content
     return res.render("general/private/dashboard", {
-        companies_q: data.companies_q
+        companies_q: data.companies_q,
+        companies: data.companies
     });
 });
 
