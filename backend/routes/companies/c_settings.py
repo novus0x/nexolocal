@@ -334,8 +334,10 @@ async def update_company_information(request: Request, file: UploadFile = File(N
             if not result:
                 return custom_response(status_code=400, message=translate(lang, message))
             
+            sub_id = result["id"]
             token = result["token"]["code"]
 
+            new_tax_profile.sub_id = sub_id
             new_tax_profile.tax_token = token
 
             add_db(db, new_tax_profile)
