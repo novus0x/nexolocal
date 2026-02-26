@@ -23,7 +23,7 @@ router.get("/", require_auth, at_least_company, async (req, res) => {
     // Request Data
     const response = await get_data("/company/settings", {}, req);
 
-    if (response.error) return res.redirect("/platform");
+    if (response.error) return res.redirect(`/companies/${company_id}/settings`);
 
     const data = response.data.information;
 
@@ -41,6 +41,7 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
     // Variables
     const file = req.file;
     const permissions = req.permissions;
+    const company_id = req.company_id;
 
     let errors = [];
     const notifications = [];
@@ -98,7 +99,7 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
         if (errors.length > 0) {
             const response2 = await get_data("/company/settings", {}, req);
 
-            if (response2.error) return res.redirect("/platform");
+            if (response2.error) return res.redirect(`/companies/${company_id}/settings`);
 
             const data2 = response2.data.information;
             const tax_subscription2 = data2.tax_subscription || {};
@@ -215,6 +216,60 @@ router.post("/", require_auth, at_least_company, upload.single("file"), async (r
         tax_subscription: tax_subscription3
     });
 });
+
+/*************** Production Tax System - POST ***************/
+router.post("/production-tax-system", require_auth, at_least_company, async (req, res) => {
+    // Variables
+    const permissions = req.permissions;
+    const company_id = req.company_id;
+
+    let errors = [];
+    const notifications = [];
+
+    // Check permissions
+    if (!permissions.includes("company.settings.update")) return res.redirect("/system-alert/403");
+
+    // Send Data
+    const response = await send_data("/company/settings/production-tax-system", {}, {}, req);
+
+    // Request Data
+    const response2 = await get_data("/company/settings", {}, req);
+
+    if (response.error) {
+        if (response2.error) return res.redirect(`/companies/${company_id}/settings`);
+
+        if (response.details.length > 0) errors = response.details;
+        else errors = [response.message];
+
+        const data2 = response2.data.information;
+
+        return res.render("companies/settings/main", {
+            errors,
+
+            company: data2.company,
+            plan: data2.plan,
+            tax_profile: data2.tax_profile,
+            tax_subscription: data2.tax_subscription
+        })
+    }
+
+    // Set Data
+    const data = response2.data.information;
+
+    notifications.push({
+        type: "success",
+        message: response.message
+    })
+
+    return res.render("companies/settings/main", {
+        notifications,
+
+        company: data.company,
+        plan: data.plan,
+        tax_profile: data.tax_profile,
+        tax_subscription: data.tax_subscription
+    });
+})
 
 /*************** Export ***************/
 export default router

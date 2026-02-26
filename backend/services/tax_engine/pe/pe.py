@@ -12,8 +12,8 @@ from core.config import settings
 
 from core.generator import get_uuid
 from core.db_management import add_db
-from core.http_requests import api_post
 from core.utils import to_decimal, to_decimal_or_zero
+from core.http_requests import api_post, api_get, api_put
 
 from services.tax_engine.utils import get_endpoint, get_tax_engine_credintials, get_tax_rate_util
 
@@ -24,34 +24,41 @@ tax_rate = get_tax_rate_util("pe")
 LOCAL_TZ = ZoneInfo("America/Lima")
 UTZ_TZ = ZoneInfo("UTC")
 
+AUTH_URL = endpoint + routes["auth"]
+ACCOUNT = {
+    "username": settings.TAX_ENGINE_USER,
+    "password": settings.TAX_ENGINE_PASSWORD
+}
+
 ########## Aux Functions ##########
 def to_payload_number(value):
     return float(to_decimal_or_zero(value))
 
-########## Create Company ##########
-async def create_company(company: Company, tax_profile, files):
+async def get_credentials():
     ### Variables ###
     token = None
-    url = endpoint + routes["auth"]
-    account = {
-        "username": settings.TAX_ENGINE_USER,
-        "password": settings.TAX_ENGINE_PASSWORD
-    }
-
-    response = await get_tax_engine_credintials(url, account)
+    
+    response = await get_tax_engine_credintials(AUTH_URL, ACCOUNT)
 
     if response.get("error"):
-        if response.get("error") == "Empresa duplicada.":
-            return False, "tax_engine.api.duplicated_company" # Se debe dontactar con soporte@apisperu.com
-
         return False, "tax_engine.error.incorrect_credentials"
     else:
         token = response.get("token")
 
     if not token:
-        return False, "tax_engine.error.incorrect_credentials"
+        return False, "tax_engine.error.incorrect_credentials"  
 
-    url2 = endpoint + routes["companies"]["create"]
+    return token.strip(), ""
+
+########## Create Company ##########
+async def create_company(company: Company, tax_profile, files):
+    ### Credentials ###
+    token, message = await get_credentials()
+
+    if not token:
+        return False, message
+
+    url = endpoint + routes["companies"]["create"]
 
     company_info = {
         "plan": "free",
@@ -65,15 +72,63 @@ async def create_company(company: Company, tax_profile, files):
         "logo": files.get("logo").decode("utf-8")
     }
 
-    response = await api_post(url2, company_info, {
+    response = await api_post(url, company_info, {
         "Authorization": f"Bearer {token}"
     })
+
+    if response.get("error") == "Empresa duplicada.":
+        return False, "tax_engine.api.duplicated_company" # Se debe contactar con soporte@apisperu.com
 
     return response, ""
 
 ########## Get Tax Rate ##########
 async def get_tax_rate():
     return Decimal(f"{tax_rate}"), ""
+
+########## Switch Company Mode ##########
+async def switch_company_mode(company: Company, tax_profile: Tax_Profile):
+    ### Variables ###
+    url = endpoint + routes["companies"]["get"] + f"/{tax_profile.sub_id}"
+
+    ### Credentials ###
+    token, message = await get_credentials()
+
+    if not token:
+        return False, message
+    
+    response = await api_get(url, {}, {
+        "Authorization": f"Bearer {token}"
+    })
+
+    if response.get("error"):
+        return False, "tax_engine.api.switch_mode.error"
+
+    data = response
+
+    result = {
+        "plan": data["plan"]["nombre"],
+        "environment": "produccion",
+        "sol_user": data["sol_user"],
+        "sol_pass": data["sol_pass"],
+        "ruc": data["ruc"],
+        "razon_social": data["razon_social"],
+        "direccion": data["direccion"],
+        "certificado": data["certificado"],
+        "logo": data["logo"],
+        "client_id": None if data["client_id"] == "None" else data["client_id"],
+        "client_secret": None if data["client_secret"] == "None" else data["client_secret"]
+    }
+
+    response = await api_put(url, result, {
+        "Authorization": f"Bearer {token}"
+    })
+
+    print(response) # idk why only works when print is here...
+
+    if response.get("error"):
+        return False, "tax_engine.api.switch_mode.error"
+
+    return True, ""
 
 ########## Get Legend ##########
 def get_legend(num: Decimal):

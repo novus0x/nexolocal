@@ -9,7 +9,7 @@ from sqlalchemy import or_, desc, func, extract
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import Product, Product_Batch, Company, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Tax_Profile, Tax_Document, Tax_Document_Type, Tax_Document_Status, Tax_Series, Tax_Subscription, Tax_Emission_Status
+from db.model import Product, Product_Batch, Company, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Tax_Profile, Tax_Document, Tax_Document_Type, Tax_Document_Status, Tax_Series, Tax_Subscription, Tax_Emission_Status, Tax_Environment_Type
 
 from core.config import settings
 
@@ -518,6 +518,10 @@ async def get_create_new_sale(request: Request, db: Session = Depends(get_db)):
         "available": False
     }
 
+    tax_profile = {
+        "available": False
+    }
+
     ### Validation ###
     if user == None:
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
@@ -533,14 +537,25 @@ async def get_create_new_sale(request: Request, db: Session = Depends(get_db)):
         Tax_Subscription.company_id == company_id
     ).order_by(desc(Tax_Subscription.date)).first()
 
+    tax_profile_data = db.query(Tax_Profile).filter(
+        Tax_Profile.company_id == company_id
+    ).first()
+
     if subscription:
         tax_subscription = {
             "available": True,
             "mode": subscription.emission_mode
         }
 
+    if tax_profile_data:
+        tax_profile = {
+            "available": True,
+            "env": tax_profile_data.environment
+        }
+
     return custom_response(status_code=200, message=translate(lang, "company.sales.get.success"), data={
-        "tax_subscription": tax_subscription
+        "tax_subscription": tax_subscription,
+        "tax_profile": tax_profile
     })
 
 ########## Create New Sale - Company ##########
@@ -738,7 +753,7 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         else:
             invoice_method = Tax_Document_Type.INVOICE
 
-        ### Validation ###
+        ### Subscription Validation ###
         subscription = db.query(Tax_Subscription).filter(
             Tax_Subscription.company_id == company_id
         ).order_by(desc(Tax_Subscription.date)).first()
@@ -751,6 +766,14 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         else:
             if check_sale.send_sale == "1":
                 send_sale = True
+
+        ### Tax Profile Validation ###
+        tax_profile = db.query(Tax_Profile).filter(
+            Tax_Profile.company_id == company_id
+        ).first()
+
+        if tax_profile.environment == Tax_Environment_Type.SANDBOX:
+            send_sale = False
 
         ### Engine decides manual/auto + send receipt/invoice ###
         receipt, message, details = await create_receipt(db, company_id, new_sale, sale_items, send_sale, invoice_method)

@@ -19,7 +19,7 @@ from core.validators import validate_required_fields
 from core.security import generate_base_64, decode_base_64
 from core.generator import get_uuid, generate_pem_certificate
 
-from services.tax_engine.main import create_company
+from services.tax_engine.main import create_company, switch_company_mode
 
 ########## Variables ##########
 router = APIRouter()
@@ -121,7 +121,8 @@ async def get_company_information(request: Request, db: Session = Depends(get_db
                 "city": tax_profile.city,
                 "postal_code": tax_profile.postal_code,
                 "tax_user": decode_base_64(tax_profile.tax_user).decode("utf-8"),
-                "tax_enabled": tax_profile.tax_enabled
+                "tax_enabled": tax_profile.tax_enabled,
+                "env": tax_profile.environment
             },
             "series": {
                 "invoice": {
@@ -400,3 +401,49 @@ async def update_company_information(request: Request, file: UploadFile = File(N
                 add_db(db, new_tax_series_receipt)
 
     return custom_response(status_code=200, message=translate(lang, "company.settings.update.success"))
+
+########## Production Tax System - POST ##########
+@router.post("/production-tax-system")
+async def production_tax_system(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+    user = request.state.user
+    company_id = request.state.company_id
+
+    ### Validation ###
+    if user == None:
+        return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
+
+    ### Check permissions ###
+    access, message = check_permissions(db, request, "company.settings.update", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
+    ### Verify Company ###
+    company = db.query(Company).filter(
+        Company.id == company_id
+    ).first()
+
+    if not company:
+        return custom_response(status_code=400, message=translate(lang, "validation.settings.production_tax_system.error"))
+    
+    ### Verify Tax Profile ###
+    tax_profile = db.query(Tax_Profile).filter(
+        Tax_Profile.company_id == company.id
+    ).first()
+
+    if not tax_profile:
+        return custom_response(status_code=400, message=translate(lang, "validation.settings.production_tax_system.error"))
+    
+    if tax_profile.environment == Tax_Environment_Type.SANDBOX:
+        tax_profile.environment = Tax_Environment_Type.PRODUCTION
+        
+        response, message = await switch_company_mode(db, company_id, tax_profile)
+
+        if not response:
+            return custom_response(status_code=400, message=translate(lang, "validation.settings.production_tax_system.error"))
+            
+        update_db(db)
+
+    return custom_response(status_code=200, message=translate(lang, "company.settings.production_tax_system.success"))

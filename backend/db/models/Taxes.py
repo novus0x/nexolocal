@@ -37,6 +37,7 @@ class Tax_Profile(Base):
     tax_provider = Column(String, default="none")
     environment = Column(Enum(Tax_Environment_Type), default=Tax_Environment_Type.SANDBOX)
 
+    sub_id = Column(String, nullable=True)
     tax_token = Column(String, nullable=False)
 
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())

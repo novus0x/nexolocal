@@ -17,6 +17,8 @@
             "routes": {
                 "auth": "/auth/login",
                 "companies": {
+                    "all": "/companies",
+                    "get": "/companies",
                     "create": "/companies",
                     "invoice": {
                         "send": "/invoice/send"

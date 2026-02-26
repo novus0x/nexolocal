@@ -66,7 +66,7 @@ router.get("/check/:sale_id", require_auth, at_least_company, async (req, res) =
     });
 });
 
-/*************** New Sale Route ***************/
+/*************** New Sale Route - GET ***************/
 router.get("/create", require_auth, at_least_company, async (req, res) => {
     // Variables
     const permissions = req.permissions;
@@ -79,11 +79,11 @@ router.get("/create", require_auth, at_least_company, async (req, res) => {
     const response = await get_data("/company/sales/create", {}, req)
 
     const data = response.data
-    console.log(data)
 
     // Render content
     return res.render("companies/sales/create", {
-        tax_subscription: data.tax_subscription
+        tax_subscription: data.tax_subscription,
+        tax_profile: data.tax_profile
     });
 });
 

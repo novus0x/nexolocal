@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
-from db.model import Company, Sale, Sale_Item, Tax_Subscription, Tax_Usage, Tax_Document_Type
+from db.model import Company, Sale, Sale_Item, Tax_Subscription, Tax_Usage, Tax_Document_Type, Tax_Profile
 
 from core.config import settings
 from core.generator import get_uuid
@@ -51,6 +51,28 @@ async def get_tax_rate(db: Session, company_id):
     
     ### Get Tax Function ###
     response, _ = await engine.get_tax_rate()
+
+    return response, ""
+
+########## Switch Company Mode ##########
+async def switch_company_mode(db: Session, company_id, tax_profile: Tax_Profile):
+    ### Get Engine ###
+    company = db.query(Company).filter(
+        Company.id == company_id
+    ).first()
+
+    country_code = company.country_code.lower()
+
+    engine, message = get_engine(country_code)
+
+    if not engine:
+        return False, message
+    
+    ### Swtich Company Mode ###
+    response, message = await engine.switch_company_mode(company, tax_profile)
+
+    if not response:
+        return False, message
 
     return response, ""
 

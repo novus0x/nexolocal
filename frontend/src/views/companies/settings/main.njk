@@ -75,11 +75,30 @@
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                         <div class="space-y-2">
                             <h1 class="text-4xl font-black italic uppercase tracking-tighter leading-[0.9]">
-                                <span class="text-outline-white">Panel</span> de <span class="text-[#FF4D00]"
+                                <span class="text-outline-white">Panel</span> de <span class="text-(--accent)"
                                     id="display-tab-name">Configuración</span>
                             </h1>
                         </div>
                     </div>
+
+                    {% if tax_profile.profile.env == "sandbox" %}
+                    <form class="glass-card rounded-2xl p-4 mb-8 flex items-center justify-between" action="/companies/{{ company_information.id }}/settings/production-tax-system" method="post">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center text-(--accent) shrink-0">
+                                <i class="fa-solid fa-flask-vial"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Modo de Prueba (Sandbox) Activo</h4>
+                                <p class="text-xs text-white/70">Las transacciones y cambios realizados no
+                                    afectarán a tu negocio real.</p>
+                            </div>
+                        </div>
+                        <button class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-base font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                            Empezar a usar el sistema fiscal
+                        </button>
+                    </form>
+                    {% endif %}
 
                     <form class="grid grid-cols-12 gap-8" action="/companies/{{ company_information.id }}/settings"
                         enctype="multipart/form-data" method="post">
@@ -323,6 +342,61 @@
                                     </div>
                                 </div>
                             </section>
+                            <section class="hidden glass-card rounded-[3rem] p-10" id="tax_profile_series_container">
+                                <div class="mb-6">
+                                    <h3 class="text-xl font-black italic uppercase">
+                                        Series de Comprobantes
+                                    </h3>
+                                    <p class="text-[10px] text-gray-500 mt-1 flex items-center gap-1">
+                                        <i class="fa-solid fa-circle-info text-(--accent)"></i>
+                                        Define la serie y el número inicial para tus comprobantes.
+                                        <a href="#" class="text-(--accent) hover:underline font-bold ml-1">
+                                            Ver ayuda
+                                        </a>
+                                    </p>
+                                </div>
+
+                                <div class="grid md:grid-cols-12 gap-6">
+                                    <div class="md:col-span-6 space-y-3">
+                                        <label class="text-[10px] font-black uppercase text-gray-500">
+                                            Boleta
+                                        </label>
+                                        <div class="space-y-1">
+                                            <label class="text-[9px] text-gray-600 uppercase ml-2">
+                                                Serie
+                                            </label>
+                                            <input name="receipt_series" placeholder="B001"
+                                                class="w-full input-glass px-5 py-4 rounded-xl font-black text-lg tracking-widest uppercase">
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label class="text-[9px] text-gray-600 uppercase ml-2">
+                                                Número Actual
+                                            </label>
+                                            <input type="number" name="receipt_number" placeholder="0" min="0"
+                                                class="w-full input-glass px-5 py-4 rounded-xl font-bold text-lg font-mono">
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-6 space-y-3">
+                                        <label class="text-[10px] font-black uppercase text-gray-500">
+                                            Factura
+                                        </label>
+                                        <div class="space-y-1">
+                                            <label class="text-[9px] text-gray-600 uppercase ml-2">
+                                                Serie
+                                            </label>
+                                            <input name="invoice_series" placeholder="F001"
+                                                class="w-full input-glass px-5 py-4 rounded-xl font-black text-lg tracking-widest uppercase">
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label class="text-[9px] text-gray-600 uppercase ml-2">
+                                                Número Actual
+                                            </label>
+                                            <input type="number" name="invoice_number" placeholder="0" min="0"
+                                                class="w-full input-glass px-5 py-4 rounded-xl font-bold text-lg font-mono">
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
                             {% else %}
                             <section class="glass-card rounded-[2.5rem] p-10 hidden" id="creation_tax_profile">
                                 <div class="flex items-center gap-4 mb-10">
@@ -551,63 +625,7 @@
                             </section>
                             {% endif %}
 
-                            {% if not company.is_formal %}
-                            <section class="hidden glass-card rounded-[3rem] p-10" id="tax_profile_series_container">
-                                <div class="mb-6">
-                                    <h3 class="text-xl font-black italic uppercase">
-                                        Series de Comprobantes
-                                    </h3>
-                                    <p class="text-[10px] text-gray-500 mt-1 flex items-center gap-1">
-                                        <i class="fa-solid fa-circle-info text-(--accent)"></i>
-                                        Define la serie y el número inicial para tus comprobantes.
-                                        <a href="#" class="text-(--accent) hover:underline font-bold ml-1">
-                                            Ver ayuda
-                                        </a>
-                                    </p>
-                                </div>
-
-                                <div class="grid md:grid-cols-12 gap-6">
-                                    <div class="md:col-span-6 space-y-3">
-                                        <label class="text-[10px] font-black uppercase text-gray-500">
-                                            Boleta
-                                        </label>
-                                        <div class="space-y-1">
-                                            <label class="text-[9px] text-gray-600 uppercase ml-2">
-                                                Serie
-                                            </label>
-                                            <input name="receipt_series" placeholder="B001"
-                                                class="w-full input-glass px-5 py-4 rounded-xl font-black text-lg tracking-widest uppercase">
-                                        </div>
-                                        <div class="space-y-1">
-                                            <label class="text-[9px] text-gray-600 uppercase ml-2">
-                                                Número Actual
-                                            </label>
-                                            <input type="number" name="receipt_number" placeholder="0" min="0"
-                                                class="w-full input-glass px-5 py-4 rounded-xl font-bold text-lg font-mono">
-                                        </div>
-                                    </div>
-                                    <div class="md:col-span-6 space-y-3">
-                                        <label class="text-[10px] font-black uppercase text-gray-500">
-                                            Factura
-                                        </label>
-                                        <div class="space-y-1">
-                                            <label class="text-[9px] text-gray-600 uppercase ml-2">
-                                                Serie
-                                            </label>
-                                            <input name="invoice_series" placeholder="F001"
-                                                class="w-full input-glass px-5 py-4 rounded-xl font-black text-lg tracking-widest uppercase">
-                                        </div>
-                                        <div class="space-y-1">
-                                            <label class="text-[9px] text-gray-600 uppercase ml-2">
-                                                Número Actual
-                                            </label>
-                                            <input type="number" name="invoice_number" placeholder="0" min="0"
-                                                class="w-full input-glass px-5 py-4 rounded-xl font-bold text-lg font-mono">
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                            {% else %}
+                            {% if company.is_formal %}
                             <section class="glass-card rounded-[3rem] p-10 overflow-hidden relative">
                                 <div class="flex items-center justify-between mb-8">
                                     <h3 class="text-xl font-black italic uppercase">Series Fiscales</h3>
@@ -618,7 +636,7 @@
 
                                 <div class="space-y-4">
                                     <div
-                                        class="bg-[#050608] border border-[#1A1F26] p-6 rounded-2xl flex justify-between items-center group hover:border-[#FF4D00]/50 transition-colors">
+                                        class="bg-[#050608] border border-[#1A1F26] p-6 rounded-2xl flex justify-between items-center group hover:border-(--accent)/50 transition-colors">
                                         <div>
                                             <div class="flex items-center gap-2 mb-1">
                                                 <span
@@ -636,7 +654,7 @@
                                         </div>
                                     </div>
                                     <div
-                                        class="bg-[#050608] border border-[#1A1F26] p-6 rounded-2xl flex justify-between items-center group hover:border-[#FF4D00]/50 transition-colors">
+                                        class="bg-[#050608] border border-[#1A1F26] p-6 rounded-2xl flex justify-between items-center group hover:border-(--accent)/50 transition-colors">
                                         <div>
                                             <div class="flex items-center gap-2 mb-1">
                                                 <span
@@ -671,25 +689,25 @@
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="network-stats">
                     <!-- Content inserted via JS if needed or static -->
                     <div class="bg-[#10141B] border border-[#1A1F26] p-8 rounded-3xl text-center">
-                        <div class="text-[#FF4D00] mb-4 flex justify-center"><i data-lucide="server"
+                        <div class="text-(--accent) mb-4 flex justify-center"><i data-lucide="server"
                                 class="w-8 h-8"></i></div>
                         <p class="text-[9px] font-black uppercase text-gray-500 mb-1">Servidores</p>
                         <p class="text-2xl font-black italic text-white">24</p>
                     </div>
                     <div class="bg-[#10141B] border border-[#1A1F26] p-8 rounded-3xl text-center">
-                        <div class="text-[#FF4D00] mb-4 flex justify-center"><i data-lucide="database"
+                        <div class="text-(--accent) mb-4 flex justify-center"><i data-lucide="database"
                                 class="w-8 h-8"></i></div>
                         <p class="text-[9px] font-black uppercase text-gray-500 mb-1">Storage</p>
                         <p class="text-2xl font-black italic text-white">1.2 PB</p>
                     </div>
                     <div class="bg-[#10141B] border border-[#1A1F26] p-8 rounded-3xl text-center">
-                        <div class="text-[#FF4D00] mb-4 flex justify-center"><i data-lucide="wifi" class="w-8 h-8"></i>
+                        <div class="text-(--accent) mb-4 flex justify-center"><i data-lucide="wifi" class="w-8 h-8"></i>
                         </div>
                         <p class="text-[9px] font-black uppercase text-gray-500 mb-1">Nodos</p>
                         <p class="text-2xl font-black italic text-white">842</p>
                     </div>
                     <div class="bg-[#10141B] border border-[#1A1F26] p-8 rounded-3xl text-center">
-                        <div class="text-[#FF4D00] mb-4 flex justify-center"><i data-lucide="layers"
+                        <div class="text-(--accent) mb-4 flex justify-center"><i data-lucide="layers"
                                 class="w-8 h-8"></i></div>
                         <p class="text-[9px] font-black uppercase text-gray-500 mb-1">Uptime</p>
                         <p class="text-2xl font-black italic text-white">99.9%</p>
@@ -709,7 +727,7 @@
                     <div class="h-80 bg-[#050608] relative flex items-center justify-center overflow-hidden">
                         <div class="absolute inset-0 bg-grid opacity-10"></div>
                         <div class="z-10 text-center">
-                            <i data-lucide="globe" class="mx-auto text-[#FF4D00] mb-6 animate-spin-slow w-16 h-16"></i>
+                            <i data-lucide="globe" class="mx-auto text-(--accent) mb-6 animate-spin-slow w-16 h-16"></i>
                             <p class="text-[11px] font-black uppercase tracking-[0.4em] text-gray-500 animate-pulse">
                                 Escaneando Tráfico en tiempo real...</p>
                         </div>
@@ -722,10 +740,10 @@
                     class="bg-[#10141B] border border-[#1A1F26] p-12 rounded-[3rem] flex flex-col md:flex-row items-center gap-12">
                     <div class="relative shrink-0">
                         <div
-                            class="w-48 h-48 rounded-full border-10 border-[#1A1F26] border-t-[#FF4D00] animate-spin-slow">
+                            class="w-48 h-48 rounded-full border-10 border-[#1A1F26] border-t-(--accent) animate-spin-slow">
                         </div>
                         <div class="absolute inset-0 flex items-center justify-center">
-                            <i data-lucide="lock" class="text-[#FF4D00] w-12 h-12"></i>
+                            <i data-lucide="lock" class="text-(--accent) w-12 h-12"></i>
                         </div>
                     </div>
                     <div class="flex-1 space-y-6">
@@ -736,7 +754,7 @@
                         </p>
                         <div class="flex flex-wrap gap-4">
                             <button
-                                class="px-8 py-4 bg-[#FF4D00] text-black font-black uppercase text-[10px] rounded-xl hover:bg-white transition-colors flex items-center gap-2">
+                                class="px-8 py-4 bg-(--accent) text-black font-black uppercase text-[10px] rounded-xl hover:bg-white transition-colors flex items-center gap-2">
                                 <i data-lucide="shield-alert" class="w-4 h-4"></i> Reforzar Firewall
                             </button>
                             <button
@@ -750,10 +768,10 @@
 
             <div id="view-social" class="tab-content space-y-8">
                 <div
-                    class="min-h-125 flex flex-col items-center justify-center border-4 border-dashed border-[#1A1F26] rounded-[4rem] bg-[#050608] group hover:border-[#FF4D00]/30 transition-colors">
+                    class="min-h-125 flex flex-col items-center justify-center border-4 border-dashed border-[#1A1F26] rounded-[4rem] bg-[#050608] group hover:border-(--accent)/30 transition-colors">
                     <div class="relative mb-8">
                         <i data-lucide="users" class="text-gray-800 w-24 h-24"></i>
-                        <div class="absolute -top-2 -right-2 bg-[#FF4D00] w-6 h-6 rounded-full animate-ping"></div>
+                        <div class="absolute -top-2 -right-2 bg-(--accent) w-6 h-6 rounded-full animate-ping"></div>
                     </div>
                     <h3 class="text-3xl font-black italic uppercase tracking-tighter text-white">Consenso Social
                         Activo</h3>
@@ -766,7 +784,7 @@
                             <div class="w-14 h-14 rounded-full border-4 border-[#050608] bg-[#2A2F36]"></div>
                             <div class="w-14 h-14 rounded-full border-4 border-[#050608] bg-[#10141B]"></div>
                             <div
-                                class="w-14 h-14 rounded-full border-4 border-[#050608] bg-[#FF4D00] flex items-center justify-center text-[10px] font-black text-black">
+                                class="w-14 h-14 rounded-full border-4 border-[#050608] bg-(--accent) flex items-center justify-center text-[10px] font-black text-black">
                                 +2k</div>
                         </div>
                         <button
@@ -795,7 +813,7 @@
             btn.classList.add('bg-transparent', 'border-transparent');
 
             const iconBox = btn.querySelector('.icon-box');
-            iconBox.classList.remove('bg-[#FF4D00]', 'text-white', 'rotate-6');
+            iconBox.classList.remove('bg-(--accent)', 'text-white', 'rotate-6');
             iconBox.classList.add('bg-[#10141B]', 'text-gray-600');
 
             const title = btn.querySelector('.tab-title');
@@ -804,7 +822,7 @@
         });
 
         nav_links.forEach(link => {
-            link.classList.remove('text-[#FF4D00]');
+            link.classList.remove('text-(--accent)');
             link.classList.add('text-gray-500');
         });
 
@@ -819,7 +837,7 @@
             active_btn.classList.remove('bg-transparent', 'border-transparent');
 
             const iconBox = active_btn.querySelector('.icon-box');
-            iconBox.classList.add('bg-[#FF4D00]', 'text-white', 'rotate-6');
+            iconBox.classList.add('bg-(--accent)', 'text-white', 'rotate-6');
             iconBox.classList.remove('bg-[#10141B]', 'text-gray-600');
 
             const title = active_btn.querySelector('.tab-title');
@@ -828,7 +846,7 @@
         }
 
         if (active_nav_link) {
-            active_nav_link.classList.add('text-[#FF4D00]');
+            active_nav_link.classList.add('text-(--accent)');
             active_nav_link.classList.remove('text-gray-500');
         }
     }

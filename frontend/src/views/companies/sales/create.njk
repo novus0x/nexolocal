@@ -215,7 +215,21 @@
                             </div>
                         </div>
 
-                        {% if company_information.taxes and tax_subscription.available and tax_subscription.mode == "manual" %}
+                        {% if tax_profile.available and tax_profile.env == "sandbox" %}
+                        <div class="mb-4 p-4 rounded-2xl border border-yellow-500/30 bg-yellow-500/10">
+                            <div class="flex items-start gap-3">
+                                <i class="fa-solid fa-triangle-exclamation text-yellow-400 mt-0.5"></i>
+                                <p class="text-[11px] text-yellow-300 leading-relaxed">
+                                    La facturación electrónica está en <span class="font-bold">modo SANDBOX</span>.
+                                    Cambia a <span class="font-bold">PRODUCCIÓN</span> para comenzar a emitir
+                                    comprobantes válidos. (Esto se puede hacer en configuración.)
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if company_information.taxes and tax_subscription.available and tax_subscription.mode ==
+                        "manual" %}
                         <div>
                             <div class="flex items-center justify-between">
                                 <div>
@@ -782,7 +796,7 @@
         };
 
         const send_sale_input = document.getElementById('send_sale');
-        
+
         if (send_sale_input) {
             payload.send_sale = !!send_sale_input.checked;
             if (payload.send_sale) {
