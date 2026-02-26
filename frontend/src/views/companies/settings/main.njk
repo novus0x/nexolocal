@@ -227,7 +227,8 @@
                                             class="w-full input-glass px-5 py-4 rounded-xl font-mono text-sm tracking-widest">
                                     </div>
                                     <div class="md:col-span-6 space-y-1">
-                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Dirección Fiscal</label>
+                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Dirección
+                                            Fiscal</label>
                                         <input type="text" name="address_line" value="{{ address_line }}"
                                             placeholder="Formato: DIRECCIÓN, DISTRITO, PROVINCIA, DEPARTAMENTO, UBIGEO"
                                             class="w-full input-glass px-5 py-4 rounded-xl text-sm">
@@ -347,7 +348,8 @@
                                             class="w-full input-glass px-5 py-4 rounded-xl font-mono text-sm tracking-widest">
                                     </div>
                                     <div class="md:col-span-6 space-y-1">
-                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Dirección Fiscal</label>
+                                        <label class="text-[9px] font-black uppercase text-gray-500 ml-2">Dirección
+                                            Fiscal</label>
                                         <input type="text" name="address_line" value="{{ tax_profile.profile.address }}"
                                             placeholder="Formato: DIRECCIÓN, DISTRITO, PROVINCIA, DEPARTAMENTO, UBIGEO"
                                             class="w-full input-glass px-5 py-4 rounded-xl text-sm">
@@ -521,6 +523,12 @@
                                         <span
                                             class="text-xs text-white font-bold bg-(--accent)/20 uppercase border-2 border-(--accent) px-4 py-1.5 rounded-full italic">Plan
                                             Actual</span>
+                                        {% if plan.is_trial %}
+                                        <span
+                                            class="text-xs text-orange-400 font-bold bg-orange-500/10 uppercase border-2 border-orange-500 px-4 py-1.5 rounded-full italic animate-pulse">
+                                            Periodo de prueba
+                                        </span>
+                                        {% endif %}
                                     </div>
                                     <h3 class="text-4xl text-(--accent) font-bold italic uppercase mb-2">{{ plan.name }}
                                     </h3>

@@ -36,7 +36,7 @@ router.get("/", require_auth, at_least_company, async (req, res) => {
     });
 });
 
-/*************** Settings Route - PUT ***************/
+/*************** Settings Route - POST ***************/
 router.post("/", require_auth, at_least_company, upload.single("file"), async (req, res) => {
     // Variables
     const file = req.file;

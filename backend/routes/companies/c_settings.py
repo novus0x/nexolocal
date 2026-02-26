@@ -9,7 +9,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import Company, Company_Plan, Tax_Environment_Type, Tax_Profile, Tax_Document_Type, Tax_Series, Tax_Emission_Status, Tax_Subscription, Tax_Usage
+from db.model import Company, Company_Plan, Tax_Environment_Type, Tax_Profile, Tax_Document_Type, Tax_Series, Tax_Emission_Status, Tax_Subscription, Tax_Usage, Company_Subscription_Status
 
 from core.i18n import translate
 from core.responses import custom_response
@@ -86,8 +86,12 @@ async def get_company_information(request: Request, db: Session = Depends(get_db
 
             "name": company_plan.name,
             "price": company_plan.price,
-            "cicle": company_plan.plan_cycle
+            "cicle": company_plan.plan_cycle,
+            "is_trial": False
         }
+
+        if company.subscription_status == Company_Subscription_Status.TRIAL:
+            company_info["plan"]["is_trial"] = True
 
     if company.is_formal:
         tax_profile = db.query(Tax_Profile).filter(
