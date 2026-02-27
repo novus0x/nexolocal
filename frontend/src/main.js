@@ -84,15 +84,21 @@ app.locals.update_query = (query, updates) => {
     }
 
     const qs = params.toString();
-    
+
     return qs ? `?${qs}` : "";
 };
 
 app.set("view engine", "njk");
 
 /*************** Routes ***************/
+app.set('trust proxy', 'loopback'); // They tried to attack while I was developing, so I added this to keep a log in case of future attacks.
 app.use((req, res, next) => {
-    console.log("METHOD:", req.method, "URL:", req.url);
+    const ip = req.ip;
+    const ua = req.headers['user-agent'];
+    const time = new Date().toISOString();
+
+    console.log(`[${time}] ${ip} ${req.method} ${req.url} ${ua}`);
+
     next();
 });
 

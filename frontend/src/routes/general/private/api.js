@@ -7,7 +7,7 @@ import { require_auth } from '../../../middlewares/auth.js';
 /*************** Variables ***************/
 const router = express.Router({ mergeParams: true });
 
-/*************** Open Ticket ***************/
+/*************** Open Ticket - Support ***************/
 router.post("/support/tickets/create", require_auth, async (req, res) => {
     // Variables
     const permissions = req.permissions;
@@ -40,7 +40,7 @@ router.post("/support/tickets/create", require_auth, async (req, res) => {
     })
 });
 
-/*************** Create new Response ***************/
+/*************** Create new Response - Support ***************/
 router.post("/support/tickets/response/create", require_auth, async (req, res) => {
     // Body
     const { ticket_id, description } = req.body;
