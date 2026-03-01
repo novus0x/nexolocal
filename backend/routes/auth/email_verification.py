@@ -89,8 +89,6 @@ async def verify_account(request: Request, verification_id: str, db: Session = D
         User.id == check_verification.user_id
     ).first()
 
-    print(user_data.email)
-
     ### Update Data
     user_data.email_verified = True
     check_verification.used = True

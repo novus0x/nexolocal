@@ -12,7 +12,6 @@ TRANSLATIONS = {
 
 ########## Choose Lang ##########
 def translate(lang: str, key: str):
-    print(lang)
     parts = key.split(".")
     d = TRANSLATIONS.get(lang, _es)
 

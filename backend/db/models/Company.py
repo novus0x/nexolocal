@@ -125,6 +125,8 @@ class Company_Billing(Base):
 
     date = Column(DateTime(timezone=True), default=func.now())
 
+    token_id = Column(String, nullable=True)
+
     company_id = Column(String, ForeignKey("companies.id"), nullable=False)
     plan_id = Column(String, ForeignKey("company_plans.id"), nullable=False)
 

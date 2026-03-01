@@ -59,8 +59,6 @@ router.get("/create", require_auth, at_least_company, async (req, res) => {
 
     const data = response.data;
 
-    console.log(data);
-
     const suppliers = data.suppliers;
     const tax_profile = data.tax_profile;
 

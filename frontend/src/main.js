@@ -47,6 +47,9 @@ import platform_api from './routes/platform/api.js';
 // System
 import system_alerts_main from './routes/system_alerts/main.js';
 
+// Hooks
+import hooks from './routes/general/public/hooks.js';
+
 import settings from './settings.js';
 
 /*************** Variables ***************/
@@ -137,6 +140,8 @@ app.use("/companies/:company_id/api", companies_api);
 app.use("/platform/api", platform_api);
 
 app.use("/system-alert/", system_alerts_main);
+
+app.use("/hooks", hooks);
 
 app.use((req, res) => {
     return res.redirect("/system-alert/404")

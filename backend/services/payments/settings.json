@@ -4,6 +4,8 @@
         "igv": 0.18,
         "fixed": 0.80,
         "percent": 0.035,
-        "base_url": "https://www.flow.cl/api"
+        "base_url": "https://sandbox.flow.cl/api",
+        "confirmation_url_path": "/hooks/flow",
+        "redirection_url_path": "/dashboard/billing"
     }
 }

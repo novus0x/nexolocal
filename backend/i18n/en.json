@@ -7,7 +7,12 @@
         "not_necessary_permission": "You do not have the necessary permissions",
         "account_suspended": "Your account is suspended",
         "invalid_file_type": "Invalid file type",
-        "no_open_cash_session": "You must have an open cash session"
+        "no_open_cash_session": "You must have an open cash session",
+        "settings": {
+            "production_tax_system": {
+                "error": "Could not activate the production tax system"
+            }
+        }
     },
     "auth": {
         "login": {
@@ -194,6 +199,13 @@
                     },
                     "success": "Transaction created successfully"
                 }
+            },
+            "validate": {
+                "invalid_billing": "Billing record is invalid",
+                "invalid_company": "Company is invalid",
+                "invalid_payment": "Payment could not be validated",
+                "no_method": "No payment method was provided",
+                "success": "Payment validated successfully"
             }
         },
         "dashboard": {
@@ -309,7 +321,10 @@
             "update": {
                 "success": "Company settings updated successfully"
             },
-            "emission_status_mode_not_allowed": "Emission mode is not allowed for the selected tax environment"
+            "emission_status_mode_not_allowed": "Emission mode is not allowed for the selected tax environment",
+            "production_tax_system": {
+                "success": "Production tax system activated successfully"
+            }
         }
     },
     "oauth": {
@@ -335,10 +350,24 @@
             "country_not_available": "Tax engine is not available for this country",
             "creating_engine": "An error occurred while loading the tax engine",
             "incorrect_credentials": "Tax engine credentials are invalid",
-            "plan_limit_reached": "The tax plan emission limit has been reached"
+            "plan_limit_reached": "The tax plan emission limit has been reached",
+            "creating_subscription": "Could not create the subscription payment",
+            "getting_payment": "Could not retrieve payment status",
+            "incorrect_address_line": "The tax address is incomplete or invalid",
+            "invalid_item_values": "One or more sale items have invalid values",
+            "sunat_error": "SUNAT returned an error while processing the document"
         },
         "api": {
-            "duplicated_company": "The company already exists in the tax provider"
+            "duplicated_company": "The company already exists in the tax provider",
+            "switch_mode": {
+                "error": "Could not switch the company to production mode in the tax provider"
+            }
+        }
+    },
+    "payments": {
+        "error": {
+            "creating_engine": "An error occurred while loading the payment engine",
+            "payment_provider_not_available": "The payment provider is not available"
         }
     }
 }

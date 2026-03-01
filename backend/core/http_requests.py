@@ -28,3 +28,10 @@ async def api_delete(url: str, headers: dict = None):
         res = await client.delete(url, headers=headers)
 
         return res.json()
+    
+########## POST - FORM ##########
+async def api_post_form(url: str, data: dict = None, headers: dict = None):
+    async with httpx.AsyncClient() as client:
+        res = await client.post(url, data=data, headers=headers)
+
+        return res.json()

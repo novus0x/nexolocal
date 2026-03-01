@@ -7,7 +7,12 @@
         "not_necessary_permission": "No tienes los permisos necesarios",
         "account_suspended": "Tu cuenta está suspendida",
         "invalid_file_type": "Tipo de archivo inválido",
-        "no_open_cash_session": "Debes tener una caja abierta"
+        "no_open_cash_session": "Debes tener una caja abierta",
+        "settings": {
+            "production_tax_system": {
+                "error": "No se pudo activar el sistema tributario de producción"
+            }
+        }
     },
     "auth": {
         "login": {
@@ -194,6 +199,13 @@
                     },
                     "success": "Transacción creada satisfactoriamente"
                 }
+            },
+            "validate": {
+                "invalid_billing": "El registro de facturación es inválido",
+                "invalid_company": "La empresa es inválida",
+                "invalid_payment": "No se pudo validar el pago",
+                "no_method": "No se proporcionó un método de pago",
+                "success": "Pago validado satisfactoriamente"
             }
         },
         "dashboard": {
@@ -309,7 +321,10 @@
             "update": {
                 "success": "Configuración de la empresa actualizada satisfactoriamente"
             },
-            "emission_status_mode_not_allowed": "El modo de emisión no está permitido para el entorno tributario seleccionado"
+            "emission_status_mode_not_allowed": "El modo de emisión no está permitido para el entorno tributario seleccionado",
+            "production_tax_system": {
+                "success": "Sistema tributario de producción activado satisfactoriamente"
+            }
         }
     },
     "oauth": {
@@ -335,10 +350,24 @@
             "country_not_available": "El motor tributario no está disponible para este país",
             "creating_engine": "Ocurrió un error al cargar el motor tributario",
             "incorrect_credentials": "Las credenciales del motor tributario son inválidas",
-            "plan_limit_reached": "Se alcanzó el límite de emisiones del plan tributario"
+            "plan_limit_reached": "Se alcanzó el límite de emisiones del plan tributario",
+            "creating_subscription": "No se pudo crear el pago de la suscripción",
+            "getting_payment": "No se pudo obtener el estado del pago",
+            "incorrect_address_line": "La dirección tributaria está incompleta o es inválida",
+            "invalid_item_values": "Uno o más items de la venta tienen valores inválidos",
+            "sunat_error": "SUNAT devolvió un error al procesar el comprobante"
         },
         "api": {
-            "duplicated_company": "La empresa ya existe en el proveedor tributario"
+            "duplicated_company": "La empresa ya existe en el proveedor tributario",
+            "switch_mode": {
+                "error": "No se pudo cambiar la empresa a modo producción en el proveedor tributario"
+            }
+        }
+    },
+    "payments": {
+        "error": {
+            "creating_engine": "Ocurrió un error al cargar el motor de pagos",
+            "payment_provider_not_available": "El proveedor de pagos no está disponible"
         }
     }
 }

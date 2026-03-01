@@ -87,7 +87,25 @@ router.post("/plans/:plan_id", require_auth, async (req, res) => {
     const company_id = data.company_id;
 
     if (trial) return res.redirect(`/companies/${company_id}`);
-    else return res.json("Payment Opt");
+    else return res.redirect(`${data.payment_url}`);
+});
+
+/*************** Select Plan - POST ***************/
+router.post("/plans/:plan_id/validate", async (req, res) => {
+    // Variables
+    const company_id = req.query.company_id || "no_data";
+
+    // Body
+    const { token } = req.body;
+
+    // Request
+    const response = await send_data("/general/billing/validate", {}, {
+        token, company_id
+    }, req);
+
+    if (response.error) return res.redirect("/dashboard")
+
+    return res.redirect(`/companies/${company_id}`);
 });
 
 /*************** Export ***************/

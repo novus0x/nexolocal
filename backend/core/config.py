@@ -21,8 +21,13 @@ class Settings(BaseSettings):
     SMTP_USER: str
     SMTP_PASS: str
 
+    MAIN_DOMAIN: str
+
     GOOGLE_CLIENT_ID: str
     GOOGLE_SECRET_ID: str
+
+    FLOW_API_KEY: str
+    FLOW_SECRET_KEY: str
 
     EMAIL_ENABLED: bool = False
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7

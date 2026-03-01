@@ -1,7 +1,6 @@
 from fastapi import Request
 
 def detect_accept_language(header_value: str):
-    print(header_value)
     try:
         return header_value.split(",")[0].split("-")[0]
     except:

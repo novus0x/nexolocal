@@ -82,15 +82,11 @@
                             <span class="text-xs text-gray-400">Plan Mensual</span>
                             <span class="text-sm font-bold">S/ {{ plan.price }}</span>
                         </div>
-                        <div class="flex justify-between items-end">
-                            <span class="text-xs text-gray-400">Comisión de procesamiento</span>
-                            <span class="text-sm font-bold">S/ {{ plan.fee }}</span>
-                        </div>
                         {% if companies_q == 0 %}
                         <div class="flex justify-between items-end">
                             <span class="text-xs text-gray-400">Descuento: <span class="text-(--accent)">Mes de
                                     Prueba</span></span>
-                            <span class="text-sm font-bold text-red-500">S/ -{{ plan.fee + plan.price }}</span>
+                            <span class="text-sm font-bold text-red-500">S/ -{{ plan.fee }}</span>
                         </div>
                         {% endif %}
                     </div>
@@ -99,7 +95,7 @@
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-black uppercase italic">Total a pagar</span>
                             <span class="text-2xl font-black text-(--accent)">S/ {% if companies_q == 0 %} 0.00 {% else
-                                %} {{ plan.price + plan.fee }} {% endif %}</span>
+                                %} {{ plan.price }} {% endif %}</span>
                         </div>
                     </div>
 
