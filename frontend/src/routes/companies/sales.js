@@ -44,9 +44,12 @@ router.get("/check/:sale_id", require_auth, at_least_company, async (req, res) =
     // Variables
     const permissions = req.permissions;
     const sale_id = req.params.sale_id;
+    const company_id = req.company_id;
  
     // Check permissions
-    if (!permissions.includes("company.sales.read")) return res.redirect("/system-alert/403");
+    if (!permissions.includes("company.sales.read") && !permissions.includes("company.sales.create")) {
+        return res.redirect("/system-alert/403");
+    }
 
     const response = await get_data(`/company/sales/check_sale/${sale_id}`, {}, req)
 
@@ -96,23 +99,7 @@ router.get("/create/success/:sale_id", require_auth, at_least_company, async (re
  
     // Check permissions
     if (!permissions.includes("company.sales.create")) return res.redirect("/system-alert/403");
-
-    const response = await get_data(`/company/sales/check_sale/${sale_id}`, {}, req)
-
-    if (response.error) {
-        return res.redirect("/");
-    }
-
-    const data = response.data;
-    const qrcode = await svg_generator(data.sale.id);
-    const string_value = num_to_string(data.sale.total);
-
-    // Render content
-    return res.render("companies/sales/documents/ticket-to-print", {
-        company: data.company,
-        sale: data.sale,
-        qrcode, string_value
-    });
+    return res.redirect(`/companies/${company_id}/sales/check/${sale_id}`);
 });
 
 /*************** Check Sale ***************/

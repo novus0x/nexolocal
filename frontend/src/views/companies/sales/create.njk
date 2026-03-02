@@ -13,6 +13,47 @@
         background-color: rgba(253, 66, 10, 0.1) !important;
         color: white !important;
     }
+
+    #ticket-modal-overlay {
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    #ticket-modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .ticket-modal-content {
+        transform: scale(0.95);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #ticket-modal-overlay.active .ticket-modal-content {
+        transform: scale(1);
+    }
+
+    .ticket-loader {
+        border: 3px solid rgba(253, 66, 10, 0.1);
+        border-top: 3px solid #FD420A;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: ticket-spin 1s linear infinite;
+    }
+
+    @keyframes ticket-spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
 </style>
 <main class="flex-1 flex flex-col min-h-0">
     <div class="w-full flex-1 flex flex-col md:flex-row min-h-0 relative">
@@ -280,6 +321,53 @@
                 <i class="fa-solid fa-arrow-right"></i>
             </div>
         </button>
+
+        <div id="ticket-modal-overlay" class="fixed inset-0 flex items-center justify-center p-4" style="z-index: 110;">
+            <div
+                class="ticket-modal-content w-full max-w-5xl h-[85vh] bg-(--bg-card) border border-white/10 rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden">
+
+                <div class="flex items-center justify-between px-8 py-6 border-b border-white/10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-(--accent) rounded-xl flex items-center justify-center">
+                            <i class="fa-regular fa-file-lines text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 id="ticket-modal-title" class="text-xl font-black uppercase tracking-tight">
+                                Comprobante generado
+                            </h2>
+                            <p class="text-xs text-slate-500 font-bold tracking-widest uppercase">
+                                Vista previa antes de imprimir
+                            </p>
+                        </div>
+                    </div>
+                    <button onclick="close_ticket_modal()"
+                        class="p-2 hover:bg-white/5 rounded-full transition-colors cursor-pointer">
+                        <i class="fa-solid fa-close"></i>
+                    </button>
+                </div>
+
+                <div class="flex-1 relative bg-white">
+                    <div id="ticket-modal-loader"
+                        class="absolute inset-0 flex flex-col items-center justify-center bg-(--bg-card) z-10">
+                        <div class="ticket-loader mb-4"></div>
+                        <p class="text-xs font-bold uppercase text-slate-500 tracking-widest">Cargando comprobante...</p>
+                    </div>
+                    <iframe id="ticket-modal-iframe" src=""
+                        class="w-full h-full border-none opacity-0 transition-opacity duration-500"></iframe>
+                </div>
+
+                <div class="px-8 py-4 bg-(--bg-main) border-t border-white/10 flex justify-end gap-3">
+                    <button onclick="close_ticket_modal()"
+                        class="px-6 py-2.5 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition-all cursor-pointer">
+                        Cerrar
+                    </button>
+                    <button onclick="print_ticket_modal()"
+                        class="px-6 py-2.5 rounded-xl bg-(--accent) text-white text-xs font-bold uppercase tracking-widest hover:bg-(--accent-hover) transition-all cursor-pointer">
+                        Imprimir
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
 
@@ -301,6 +389,25 @@
         render_cart();
         toggle_send_sale();
     };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const overlay = document.getElementById('ticket-modal-overlay');
+        const ticket_iframe = document.getElementById('ticket-modal-iframe');
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') close_ticket_modal();
+        });
+
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) close_ticket_modal();
+            });
+        }
+
+        if (ticket_iframe) {
+            ticket_iframe.addEventListener('load', on_ticket_iframe_load);
+        }
+    });
 
     function get_step(item) {
         return item.is_bulk ? 0.1 : 1;
@@ -756,6 +863,64 @@
         }
     }
 
+    function on_ticket_iframe_load() {
+        const iframe = document.getElementById('ticket-modal-iframe');
+        const loader = document.getElementById('ticket-modal-loader');
+
+        if (!iframe || !iframe.src) return;
+
+        if (loader) loader.style.display = 'none';
+        iframe.classList.remove('opacity-0');
+        iframe.classList.add('opacity-100');
+    }
+
+    function open_ticket_modal(url, title = "Comprobante generado") {
+        const overlay = document.getElementById('ticket-modal-overlay');
+        const iframe = document.getElementById('ticket-modal-iframe');
+        const loader = document.getElementById('ticket-modal-loader');
+        const title_el = document.getElementById('ticket-modal-title');
+
+        if (title_el) title_el.innerText = title;
+
+        if (iframe) {
+            iframe.classList.remove('opacity-100');
+            iframe.classList.add('opacity-0');
+            iframe.src = url;
+        }
+
+        if (loader) loader.style.display = 'flex';
+        if (overlay) overlay.classList.add('active');
+
+        document.body.style.overflow = 'hidden';
+    }
+
+    function close_ticket_modal() {
+        const overlay = document.getElementById('ticket-modal-overlay');
+        const iframe = document.getElementById('ticket-modal-iframe');
+
+        if (overlay) overlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+
+        setTimeout(() => {
+            if (iframe) iframe.src = '';
+        }, 300);
+    }
+
+    function print_ticket_modal() {
+        const iframe = document.getElementById('ticket-modal-iframe');
+        if (!iframe) return;
+
+        const iframeWindow = iframe.contentWindow || iframe.contentDocument?.defaultView;
+
+        if (!iframeWindow) {
+            notify("No se pudo acceder al comprobante.", "error");
+            return;
+        }
+
+        iframeWindow.focus();
+        iframeWindow.print();
+    }
+
     function toggle2_scanner() {
         const wrapper = document.getElementById('scanner-wrapper');
         if (wrapper.classList.contains('hidden')) {
@@ -828,13 +993,25 @@
         const sale_id = result.sale_id;
 
         notify("Venta registrada correctamente", "success");
-        window.open(`/companies/${company_id}/sales/create/success/${sale_id}`, "_blank");
+        open_ticket_modal(
+            `/companies/${company_id}/sales/check/${sale_id}`,
+            `Comprobante de venta ${sale_id}`
+        );
 
         cart = [];
+        currentClient = null;
         selected_payment = null;
+        selected_invoice_method = null;
         render_cart();
 
         document.querySelectorAll('.pay-opt').forEach(b => b.classList.remove('active-payment'));
+        document.querySelectorAll('.invoice-opt').forEach(b => b.classList.remove('active-payment'));
+
+        const send_sale_toggle = document.getElementById('send_sale');
+        if (send_sale_toggle) {
+            send_sale_toggle.checked = false;
+            toggle_send_sale();
+        }
     }
 
 </script>

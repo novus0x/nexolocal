@@ -909,6 +909,14 @@ async def check_sale_item(request: Request, sale_id: str, db: Session = Depends(
         User.id == sale.seller_user_id
     ).first()
 
+    tax_profile = db.query(Tax_Profile).filter(
+        Tax_Profile.company_id == company.id
+    ).first()
+
+    tax_document = db.query(Tax_Document).filter(
+        Tax_Document.sale_id == sale.id
+    ).order_by(desc(Tax_Document.date)).first()
+
     items_data = db.query(Sale_Item).filter(
         Sale_Item.sale_id == sale.id
     ).all()
@@ -918,8 +926,11 @@ async def check_sale_item(request: Request, sale_id: str, db: Session = Depends(
             "name": item.name,
             "quantity": item.quantity,
             "price": item.unit_price,
+            "base_amount": item.line_base_amount,
+            "tax_amount": item.line_tax_amount,
             "total": item.total,
-            "is_service": item.is_service
+            "is_service": item.is_service,
+            "is_bulk": item.product.is_bulk if item.product else False
         }
 
         items.append(product_value)
@@ -928,22 +939,55 @@ async def check_sale_item(request: Request, sale_id: str, db: Session = Depends(
         "name": company.name,
         "phone": company.phone,
         "address": company.address,
-
         "is_formal": company.is_formal,
+        "legal_name": tax_profile.legal_name if tax_profile else None,
+        "tax_id": tax_profile.tax_id if tax_profile else None,
     }
 
     local_date = sale.date.astimezone(LOCAL_TZ)
 
+    tax_document_information = None
+
+    if tax_document:
+        issue_date = tax_document.issue_date.astimezone(LOCAL_TZ) if tax_document.issue_date else None
+        tax_document_information = {
+            "id": tax_document.id,
+            "doc_type": tax_document.doc_type,
+            "series": tax_document.series,
+            "number": tax_document.number,
+            "invoice": f"{tax_document.series}-{tax_document.number}",
+            "status": tax_document.status.value if tax_document.status else None,
+            "customer_name": tax_document.customer_name,
+            "customer_tax_id_type": tax_document.customer_tax_id_type,
+            "customer_tax_id": tax_document.customer_tax_id,
+            "subtotal": tax_document.subtotal,
+            "tax_total": tax_document.tax_total,
+            "total": tax_document.total,
+            "hash": tax_document.hash,
+            "issue_date": issue_date.strftime("%H:%M - %d %b %Y") if issue_date else None,
+        }
+
     sale_information = {
         "id": sale.id,
-        "invoice": sale.invoice_number,
+        "invoice": tax_document_information["invoice"] if tax_document_information else sale.invoice_number,
+        "internal_invoice": sale.invoice_number,
+        "doc_type": sale.doc_type,
+        "series": sale.series,
+        "correlativo": sale.correlativo,
         "items": items,
+        "subtotal": sale.subtotal,
+        "taxable_amount": sale.taxable_amount,
         "tax": sale.tax_amount,
         "total": sale.total,
+        "currency": sale.currency,
         "date": local_date.strftime("%H:%M - %d %b %Y"),
+        "client_name": sale.client_name,
+        "client_doc_type": sale.client_doc_type,
+        "client_doc_number": sale.client_doc_number,
+        "tax_document": tax_document_information,
 
         "seller": {
-            "name": seller.fullname
+            "name": seller.fullname if seller else "N/A"
         }
     }
     
