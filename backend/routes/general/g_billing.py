@@ -194,7 +194,8 @@ async def plan_transaction(request: Request, db: Session = Depends(get_db)):
             billing_cycle = Plan_Cicle.MONTHLY,
 
             company_id = new_company.id,
-            plan_id = plan_data.id
+            plan_id = plan_data.id,
+            user_id = user.get("id")
         )
 
         ### Save To DB ###
@@ -238,7 +239,8 @@ async def plan_transaction(request: Request, db: Session = Depends(get_db)):
         billing_cycle = Plan_Cicle.MONTHLY,
 
         company_id = new_company.id,
-        plan_id = plan_data.id
+        plan_id = plan_data.id,
+        user_id = user.get("id")
     )
 
     ### Create Payment ###
@@ -334,3 +336,37 @@ async def validate_company_payment(request: Request, db: Session = Depends(get_d
         return custom_response(status_code=200, message=translate(lang, "general.billing.validate.success"))
 
     return custom_response(status_code=400, message=translate(lang, "general.billing.validate.no_method"))
+
+########## Get Payment History ##########
+@router.get("/history")
+async def get_payment_history(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+    user = request.state.user
+
+    history = []
+
+    ### Validation ###
+    if user == None:
+        return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
+
+    ### Get History ###
+    history_data = db.query(Company_Billing).filter(
+        Company_Billing.user_id == user.get("id")
+    ).order_by(desc(Company_Billing.date)).limit(10)
+
+    for history_v in history_data:
+        history.append({
+            "id": history_v.id,
+            "reference": history_v.reference,
+            "amount": history_v.amount,
+            "status": history_v.status,
+            "date": {
+                "date": history_v.date.astimezone(LOCAL_TZ).strftime("%d %b %Y"),
+                "time": history_v.date.astimezone(LOCAL_TZ).strftime("%H:%M")
+            }
+        })
+        
+    return custom_response(status_code=200, message=translate(lang, "general.billing.history.get.success"), data={
+        "history": history
+    })

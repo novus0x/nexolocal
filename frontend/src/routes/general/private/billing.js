@@ -12,7 +12,7 @@ router.get("/", require_auth, async (req, res) => {
     return res.render("general/private/billing/main");
 });
 
-/*************** Billing ***************/
+/*************** Billing - Plans ***************/
 router.get("/plans", require_auth, async (req, res) => {
     // Variables
     let plans = [];
@@ -107,6 +107,25 @@ router.post("/plans/:plan_id/validate", async (req, res) => {
 
     return res.redirect(`/companies/${company_id}`);
 });
+
+/*************** Billing - History ***************/
+router.get("/history", require_auth, async (req, res) => {
+    // Variables
+
+    // Get History
+    const response = await get_data("/general/billing/history", {}, req);
+    
+    if (response.error) return res.redirect("/dashboard/billing");
+
+    // Set Data
+    const data = response.data;
+
+    // Render
+    return res.render("general/private/billing/history/main", {
+        history: data.history
+    })
+})
+
 
 /*************** Export ***************/
 export default router;

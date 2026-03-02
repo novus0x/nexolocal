@@ -127,9 +127,11 @@ class Company_Billing(Base):
 
     token_id = Column(String, nullable=True)
 
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
     company_id = Column(String, ForeignKey("companies.id"), nullable=False)
     plan_id = Column(String, ForeignKey("company_plans.id"), nullable=False)
 
     ## Relationships ##
+    user = relationship("User")
     plan = relationship("Company_Plan")
     company = relationship("Company", back_populates="billings")
