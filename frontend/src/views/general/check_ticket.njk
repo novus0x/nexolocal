@@ -58,6 +58,12 @@
         color: var(--color-nexo-orange);
     }
 
+    @media (min-width: 768px) {
+        .search-form {
+            flex-direction: row;
+        }
+    }
+
     /* Animaciones */
     .fade-in {
         animation: fadeIn 0.6s ease-out forwards;
@@ -76,21 +82,26 @@
     }
 </style>
 
+{% if ticket %}
+{% set display_company_name = ticket.company.legal_name or ticket.company.name %}
+{% set display_invoice = ticket.sale.tax_document.invoice if ticket.sale.tax_document and ticket.sale.tax_document.invoice else ticket.sale.invoice %}
+{% set display_client_name = ticket.sale.client_name or (ticket.sale.tax_document.customer_name if ticket.sale.tax_document else "CLIENTE VARIOS") or "CLIENTE VARIOS" %}
+{% set display_client_doc = ticket.sale.client_doc_number or (ticket.sale.tax_document.customer_tax_id if ticket.sale.tax_document else "00000000") or "00000000" %}
+{% set display_subtotal = ticket.sale.subtotal if ticket.sale.subtotal is not none else (ticket.sale.total - ticket.sale.tax) %}
+{% set display_taxable = ticket.sale.taxable_amount if ticket.sale.taxable_amount is not none else display_subtotal %}
+{% endif %}
+
 <div class="nexo-gradient-bg min-h-screen">
 
-    <!-- Header / Logo -->
     <header class="p-8 flex justify-center">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-(--accent) rounded-lg flex items-center justify-center">
-                <div class="w-4 h-4 bg-white rounded-sm rotate-45"></div>
-            </div>
-            <span class="text-xl font-extrabold tracking-tighter">NEXOLOCAL</span>
-        </div>
+        <a href="/" class="flex items-center gap-2">
+            <img src="/public/img/logo.svg" class="w-10 h-10">
+            <span class="text-xl font-extrabold tracking-tighter">Nexolocal</span>
+        </a>
     </header>
 
     <main class="max-w-4xl mx-auto px-6 py-12">
 
-        <!-- Hero Section -->
         <div class="text-center mb-16 fade-in">
             <h1 class="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
                 Tus facturas, <span class="text-nexo">al instante.</span>
@@ -100,93 +111,117 @@
             </p>
         </div>
 
-        <!-- Search Area -->
         <div class="max-w-2xl mx-auto mb-16 fade-in" style="animation-delay: 0.1s;">
-            <div class="nexo-card p-2 flex flex-col md:flex-row gap-2">
+            <form method="get" action="/check-ticket" class="nexo-card p-2 flex justify-between flex-col md:flex-row gap-0.5">
                 <div class="glow flex items-center px-4 py-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-3" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <input type="text" placeholder="Número de Ticket o Serie (Ej: F001-000123)"
+                    <i class="fa-solid fa-magnifying-glass text-gray-500 mr-3"></i>
+                    <input type="text" name="q" value="{{ query or '' }}"
+                        placeholder="Número de Ticket o Serie (Ej: B001-000123)"
                         class="bg-transparent w-full text-white placeholder-gray-600 focus:outline-none font-medium">
                 </div>
-                <button class="btn-primary px-8 py-4 rounded-xl font-bold text-sm uppercase tracking-wider">
+                <button type="submit" class="btn-primary px-8 py-4 rounded-xl font-bold text-sm uppercase tracking-wider cursor-pointer">
                     Consultar
                 </button>
-            </div>
+            </form>
         </div>
 
-        <!-- Results Display (Demo) -->
+        {% if ticket %}
         <div class="grid md:grid-cols-1 gap-8 fade-in" style="animation-delay: 0.2s;">
             <div class="nexo-card overflow-hidden">
                 <div class="p-8 border-b border-white/5 flex flex-wrap justify-between items-center gap-4">
                     <div>
                         <p class="text-xs font-bold text-nexo uppercase tracking-widest mb-1">Resultado de búsqueda</p>
-                        <h2 class="text-2xl font-bold">Factura Electrónica F001-4502</h2>
+                        <h2 class="text-2xl font-bold">{{ display_invoice }}</h2>
                     </div>
-                    <div class="status-pill px-4 py-1 rounded-full text-xs font-bold uppercase">
-                        Emitido con éxito
+                    <div class="status-pill px-4 py-1 rounded-full text-xs font-bold uppercase text-green-300 border border-green-500/20 bg-green-500/10">
+                        {{ ticket.sale.tax_document.status if ticket.sale.tax_document and ticket.sale.tax_document.status else "Disponible" }}
                     </div>
                 </div>
 
                 <div class="p-8 grid md:grid-cols-3 gap-8">
-                    <!-- Column 1 -->
                     <div>
-                        <span
-                            class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Cliente</span>
-                        <p class="font-bold text-white">Empresa de Servicios S.A.C.</p>
-                        <p class="text-sm text-gray-500 mt-1">RUC: 20459873121</p>
+                        <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Emisor</span>
+                        <p class="font-bold text-white">{{ display_company_name }}</p>
+                        {% if ticket.company.tax_id %}
+                        <p class="text-sm text-gray-500 mt-1">RUC: {{ ticket.company.tax_id }}</p>
+                        {% endif %}
                     </div>
 
-                    <!-- Column 2 -->
                     <div>
-                        <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Fecha y
-                            Moneda</span>
-                        <p class="font-bold text-white">12 de Octubre, 2023</p>
-                        <p class="text-sm text-gray-500 mt-1">Soles (PEN)</p>
+                        <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Cliente</span>
+                        <p class="font-bold text-white">{{ display_client_name }}</p>
+                        <p class="text-sm text-gray-500 mt-1">{{ display_client_doc }}</p>
                     </div>
 
-                    <!-- Column 3 -->
                     <div class="bg-black/20 p-4 rounded-2xl border border-white/5">
-                        <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">Total a
-                            Pagar</span>
-                        <p class="text-3xl font-extrabold text-white">S/ 1,250.00</p>
+                        <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">Total</span>
+                        <p class="text-3xl font-extrabold text-white">S/ {{ ticket.sale.total | round(2) }}</p>
                     </div>
                 </div>
 
-                <!-- Footer Actions -->
+                <div class="px-8 pb-8 grid md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Fecha y moneda</p>
+                        <p class="text-white font-bold">{{ ticket.sale.date }}</p>
+                        <p class="text-sm text-gray-500">{{ ticket.sale.currency or "PEN" }}</p>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Resumen</p>
+                        <p class="text-sm text-gray-300">Subtotal: S/ {{ display_subtotal | round(2) }}</p>
+                        <p class="text-sm text-gray-300">Op. Gravada: S/ {{ display_taxable | round(2) }}</p>
+                        <p class="text-sm text-gray-300">IGV: S/ {{ ticket.sale.tax | round(2) }}</p>
+                    </div>
+                </div>
+
+                <div class="px-8 pb-8">
+                    <div class="overflow-hidden rounded-2xl border border-white/5">
+                        <table class="w-full text-sm">
+                            <thead class="bg-white/5 text-gray-400 uppercase text-[10px] tracking-widest">
+                                <tr>
+                                    <th class="text-left px-4 py-3">Descripcion</th>
+                                    <th class="text-center px-4 py-3">Cant</th>
+                                    <th class="text-right px-4 py-3">P. Unit</th>
+                                    <th class="text-right px-4 py-3">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in ticket.sale.items %}
+                                <tr class="border-t border-white/5">
+                                    <td class="px-4 py-3 text-white">{{ item.name }}</td>
+                                    <td class="px-4 py-3 text-center text-gray-300">
+                                        {% if item.is_bulk %}{{ item.quantity | round(3) }}{% else %}{{ item.quantity }}{% endif %}
+                                    </td>
+                                    <td class="px-4 py-3 text-right text-gray-300">S/ {{ item.price | round(2) }}</td>
+                                    <td class="px-4 py-3 text-right text-white font-bold">S/ {{ item.total | round(2) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="bg-white/2 p-6 flex flex-wrap gap-4 justify-center md:justify-start">
-                    <button
-                        class="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-6 py-3 rounded-xl border border-white/10 transition-colors">
-                        <svg class="w-5 h-5 text-nexo" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
-                            </path>
-                        </svg>
-                        <span class="text-sm font-bold">PDF</span>
-                    </button>
-                    <button
-                        class="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-6 py-3 rounded-xl border border-white/10 transition-colors">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-                        </svg>
-                        <span class="text-sm font-bold">XML</span>
-                    </button>
-                    <button
-                        class="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-6 py-3 rounded-xl border border-white/10 transition-colors">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                            </path>
-                        </svg>
-                        <span class="text-sm font-bold">Imprimir</span>
-                    </button>
+                    {% if ticket.sale.tax_document and ticket.sale.tax_document.has_xml %}
+                    <span class="flex items-center gap-2 bg-white/5 px-6 py-3 rounded-xl border border-white/10">
+                        <span class="text-sm font-bold">XML disponible</span>
+                    </span>
+                    {% endif %}
                 </div>
             </div>
         </div>
+        {% elif error_message %}
+        <div class="grid md:grid-cols-1 gap-8 fade-in" style="animation-delay: 0.2s;">
+            <div class="nexo-card overflow-hidden">
+                <div class="p-8 border-b border-white/5">
+                    <p class="text-xs font-bold text-nexo uppercase tracking-widest mb-1">Resultado de búsqueda</p>
+                    <h2 class="text-2xl font-bold">{{ query }}</h2>
+                </div>
+                <div class="p-8">
+                    <p class="text-white font-bold">{{ error_message }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </main>
 
     <footer class="mt-20 py-10 border-t border-white/5 text-center">

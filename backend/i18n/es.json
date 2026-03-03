@@ -206,10 +206,24 @@
                 "invalid_payment": "No se pudo validar el pago",
                 "no_method": "No se proporcionó un método de pago",
                 "success": "Pago validado satisfactoriamente"
+            },
+            "history": {
+                "get": {
+                    "success": "Historial de facturación obtenido satisfactoriamente"
+                }
             }
         },
         "dashboard": {
             "get": "Datos del dashboard obtenidos satisfactoriamente"
+        },
+        "documents": {
+            "get": {
+                "success": "Documentos obtenidos satisfactoriamente"
+            },
+            "error": {
+                "company_not_found": "Empresa no encontrada",
+                "not_found": "Documento no encontrado"
+            }
         }
     },
     "company": {

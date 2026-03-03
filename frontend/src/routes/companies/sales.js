@@ -58,7 +58,8 @@ router.get("/check/:sale_id", require_auth, at_least_company, async (req, res) =
     }
 
     const data = response.data;
-    const qrcode = await svg_generator("nexolocal.floua.app/check-ticket"); // data.sale.id
+    const public_code = encodeURIComponent(data.sale.tax_document?.invoice || data.sale.invoice || data.sale.id);
+    const qrcode = await svg_generator(`nexolocal.floua.app/check-ticket?q=${public_code}`);
     const string_value = num_to_string(data.sale.total);
 
     // Render content

@@ -44,6 +44,7 @@
 {% set display_client_doc = sale.client_doc_number or (sale.tax_document.customer_tax_id if sale.tax_document else "00000000") or "00000000" %}
 {% set sale_subtotal = sale.subtotal if sale.subtotal is not none else (sale.total - sale.tax) %}
 {% set sale_taxable = sale.taxable_amount if sale.taxable_amount is not none else sale_subtotal %}
+{% set public_query = sale.tax_document.invoice if sale.tax_document and sale.tax_document.invoice else sale.invoice %}
 
 <div class="text-center">
     <div class="bold" style="font-size: 14px;">{{ display_company_name }}</div>
@@ -173,7 +174,7 @@
     <div style="font-size: 9px;">
         Boleta de Venta Electrónica.<br>
         Consulte su documento en:<br>
-        <span class="bold">nexolocal.floua.app/check-ticket</span>
+        <span class="bold">nexolocal.floua.app/check-ticket?q={{ public_query }}</span>
     </div>
     <br>
     <div class="bold">¡GRACIAS POR SU COMPRA!</div>

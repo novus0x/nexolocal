@@ -206,10 +206,24 @@
                 "invalid_payment": "Payment could not be validated",
                 "no_method": "No payment method was provided",
                 "success": "Payment validated successfully"
+            },
+            "history": {
+                "get": {
+                    "success": "Billing history obtained successfully"
+                }
             }
         },
         "dashboard": {
             "get": "Dashboard data obtained successfully"
+        },
+        "documents": {
+            "get": {
+                "success": "Documents obtained successfully"
+            },
+            "error": {
+                "company_not_found": "Company not found",
+                "not_found": "Document not found"
+            }
         }
     },
     "company": {

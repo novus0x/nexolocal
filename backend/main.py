@@ -10,7 +10,7 @@ from routes.auth.oauth import google
 
 from routes.users import u_settings
 from routes.platform import companies, roles, users, p_support, plans
-from routes.general import welcome, invitations, g_support, g_dashboard, g_billing
+from routes.general import welcome, invitations, g_support, g_dashboard, g_billing, g_documents
 from routes.auth import login, register, sessions, logout, forgot_password, email_verification
 from routes.companies import company, products, finance, sales, c_dashboard, cash, suppliers, c_settings
 
@@ -87,6 +87,7 @@ app.include_router(cash.router, prefix="/api/company/cash", tags=["Cash", "Compa
 app.include_router(c_settings.router, prefix="/api/company/settings", tags=["Settings", "Company"])
 
 app.include_router(welcome.router, prefix="/api/general", tags=["General", "Main"])
+app.include_router(g_documents.router, prefix="/api/general", tags=["General", "Documents"])
 app.include_router(g_dashboard.router, prefix="/api/general/dashboard", tags=["General", "Dashboard"])
 app.include_router(g_billing.router, prefix="/api/general/billing", tags=["General", "Billing"])
 app.include_router(invitations.router, prefix="/api/general/invitations", tags=["General", "Invitations"])
