@@ -365,12 +365,12 @@ async def update_company_information(request: Request, file: UploadFile = File(N
             check_invoice_series = db.query(Tax_Series).filter(
                 Tax_Series.doc_type == Tax_Document_Type.INVOICE,
                 Tax_Series.company_id == company_id
-            ).order_by(desc(Tax_Series.date)).first()
+            ).order_by(desc(Tax_Series.date), desc(Tax_Series.current_number)).first()
             
             check_receipt_series = db.query(Tax_Series).filter(
                 Tax_Series.doc_type == Tax_Document_Type.RECEIPT,
                 Tax_Series.company_id == company_id
-            ).order_by(desc(Tax_Series.date)).first()
+            ).order_by(desc(Tax_Series.date), desc(Tax_Series.current_number)).first()
 
             ### Update ###
             update_db(db)

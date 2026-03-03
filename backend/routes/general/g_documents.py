@@ -125,6 +125,8 @@ async def public_check_ticket(request: Request, q: str = "", db: Session = Depen
         "tax_id": tax_profile.tax_id if tax_profile else None,
         "phone": company.phone,
         "address": company.address,
+        "fiscal_address": tax_profile.address_line if tax_profile else None,
+        "tax_environment": tax_profile.environment.value if tax_profile and tax_profile.environment else None,
         "is_formal": company.is_formal,
     }
 
@@ -139,6 +141,7 @@ async def public_check_ticket(request: Request, q: str = "", db: Session = Depen
         "total": sale.total,
         "currency": sale.currency,
         "date": local_date.strftime("%H:%M - %d %b %Y"),
+        "issue_date": tax_document_information["issue_date"] if tax_document_information and tax_document_information.get("issue_date") else local_date.strftime("%H:%M - %d %b %Y"),
         "client_name": sale.client_name,
         "client_doc_type": sale.client_doc_type,
         "client_doc_number": sale.client_doc_number,

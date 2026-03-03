@@ -789,12 +789,16 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
 
             emission_dt = datetime.now(UTZ_TZ).astimezone(LOCAL_TZ).replace(hour=0, minute=0, second=0, microsecond=0)
 
+            new_sale.doc_type = doc_type.value
+            new_sale.series = series_doc.series
+            new_sale.correlativo = series_doc.current_number
+
             new_tax_document = Tax_Document(
                 id = get_uuid(db, Tax_Document),
                 doc_type = doc_type.value,
 
                 series = series_doc.series,
-                number = series_doc.current_number + 1,
+                number = series_doc.current_number,
 
                 issue_date = emission_dt,
 
@@ -942,6 +946,8 @@ async def check_sale_item(request: Request, sale_id: str, db: Session = Depends(
         "is_formal": company.is_formal,
         "legal_name": tax_profile.legal_name if tax_profile else None,
         "tax_id": tax_profile.tax_id if tax_profile else None,
+        "fiscal_address": tax_profile.address_line if tax_profile else None,
+        "tax_environment": tax_profile.environment.value if tax_profile and tax_profile.environment else None,
     }
 
     local_date = sale.date.astimezone(LOCAL_TZ)
@@ -981,6 +987,7 @@ async def check_sale_item(request: Request, sale_id: str, db: Session = Depends(
         "total": sale.total,
         "currency": sale.currency,
         "date": local_date.strftime("%H:%M - %d %b %Y"),
+        "issue_date": tax_document_information["issue_date"] if tax_document_information and tax_document_information.get("issue_date") else local_date.strftime("%H:%M - %d %b %Y"),
         "client_name": sale.client_name,
         "client_doc_type": sale.client_doc_type,
         "client_doc_number": sale.client_doc_number,
