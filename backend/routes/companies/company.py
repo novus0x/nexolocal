@@ -7,10 +7,10 @@ from db.database import get_db
 from db.model import Company, User_Company_Association
 
 from core.i18n import translate
-from core.generator import get_uuid
-from core.db_management import add_db
+from core.db_management import update_db
 from core.responses import custom_response
 from core.validators import read_json_body, validate_required_fields
+from core.company_subscription import sync_company_subscription, validate_company_access
 
 ########## Variables ##########
 router = APIRouter()
@@ -42,6 +42,23 @@ async def validate_company_id(request: Request, db: Session = Depends(get_db)):
 
     if not company:
         return custom_response(status_code=400, message=translate(lang, "company.companies.verify.no_exist"))
+
+    user_company = db.query(User_Company_Association).filter(
+        User_Company_Association.company_id == company.id,
+        User_Company_Association.user_id == user.get("id")
+    ).first()
+
+    if not user_company:
+        return custom_response(status_code=400, message=translate(lang, "validation.not_necessary_permission"))
+
+    ### Check Company ###
+    if sync_company_subscription(company):
+        update_db(db)
+
+    access, message = validate_company_access(company, lang, translate)
+
+    if not access:
+        return custom_response(status_code=400, message=message)
 
     company_data = {
         "id": company.id,

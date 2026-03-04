@@ -6,6 +6,9 @@
         "require_auth": "Debes iniciar sesión para poder acceder al contenido",
         "not_necessary_permission": "No tienes los permisos necesarios",
         "account_suspended": "Tu cuenta está suspendida",
+        "company_inactive": "La empresa no está activa",
+        "company_expired": "La suscripción de la empresa ha vencido",
+        "company_suspended": "La empresa está suspendida",
         "invalid_file_type": "Tipo de archivo inválido",
         "no_open_cash_session": "Debes tener una caja abierta",
         "settings": {

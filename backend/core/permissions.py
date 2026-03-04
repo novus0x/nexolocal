@@ -3,9 +3,11 @@ import json
 
 from sqlalchemy.orm import Session
 
-from db.model import User, User_Role, User_Company_Association
+from db.model import User, User_Role, User_Company_Association, Company
 
 from core.i18n import translate
+from core.db_management import update_db
+from core.company_subscription import sync_company_subscription, validate_company_access
 
 ########## Variables ##########
 _permissions = json.load(open("db/permissions.json"))
@@ -87,18 +89,30 @@ def check_permissions(db: Session, request, permission, company_id = None):
                     return True, ""
                 
         if company_id:
-            company = db.query(User_Company_Association).filter(
+            company_association = db.query(User_Company_Association).filter(
                 User_Company_Association.company_id == company_id,
                 User_Company_Association.user_id == user.id
             ).first()
 
-            if company:
+            if company_association:
                 role_c = db.query(User_Role).filter(
-                    User_Role.id == company.role_id
+                    User_Role.id == company_association.role_id
                 ).first()
 
                 if role_c:
                     if permission in role_c.permissions:
+                        company = db.query(Company).filter(
+                            Company.id == company_id
+                        ).first()
+
+                        if sync_company_subscription(company):
+                            update_db(db)
+
+                        access, message = validate_company_access(company, lang, translate)
+
+                        if not access:
+                            return False, message
+
                         return True, ""        
 
     return False, translate(lang, "validation.not_necessary_permission")

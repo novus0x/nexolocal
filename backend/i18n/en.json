@@ -6,6 +6,9 @@
         "require_auth": "You must log in to access the content",
         "not_necessary_permission": "You do not have the necessary permissions",
         "account_suspended": "Your account is suspended",
+        "company_inactive": "The company is not active",
+        "company_expired": "The company subscription has expired",
+        "company_suspended": "The company is suspended",
         "invalid_file_type": "Invalid file type",
         "no_open_cash_session": "You must have an open cash session",
         "settings": {
