@@ -86,6 +86,124 @@
             </a>
         </div>
 
+        <section class="mt-10 space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-xl font-bold uppercase">Acciones de Pago</h2>
+                    <p class="text-xs text-slate-500 mt-1">Renueva una empresa vencida o adelanta el siguiente ciclo si deseas mantener continuidad.</p>
+                </div>
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-300">
+                    <i class="fa-solid fa-clock-rotate-left text-(--accent)"></i>
+                    <span>{{ billing_overview.pending_count }} registro{% if billing_overview.pending_count != 1 %}s{% endif %}</span>
+                </div>
+            </div>
+
+            {% if billing_overview.items.length > 0 %}
+            <div class="glass-card rounded-[2.5rem] overflow-hidden border-white/5">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-white/2" />
+                            <th class="px-8 py-5 text-[10px] font-black text-gray-500 uppercase tracking-widest">Empresa</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-gray-500 uppercase tracking-widest">Plan</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-gray-500 uppercase tracking-widest">Próxima renovación</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-gray-500 uppercase tracking-widest">Monto</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-gray-500 uppercase tracking-widest">Estado</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            {% for item in billing_overview.items %}
+                            <tr class="table-row">
+                                <td class="px-8 py-6">
+                                    <span class="text-sm font-bold">{{ item.company_name }}</span>
+                                </td>
+                                <td class="px-8 py-6">
+                                    <span class="text-sm font-bold">{{ item.plan_name or "Sin plan" }}</span>
+                                    <span class="block text-[10px] text-gray-500 uppercase">
+                                        {% if item.cycle == "monthly" %}
+                                        MES
+                                        {% elif item.cycle == "yearly" %}
+                                        AÑO
+                                        {% else %}
+                                        {{ item.cycle }}
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td class="px-8 py-6">
+                                    <span class="text-sm font-bold">{{ item.date_label }}</span>
+                                    <span class="block text-[10px] text-gray-500">
+                                        {% if item.expired %}
+                                        Venció hace {{ (item.days_left * -1) }} día{% if (item.days_left * -1) != 1 %}s{% endif %}
+                                        {% else %}
+                                        Renueva en {{ item.days_left }} día{% if item.days_left != 1 %}s{% endif %}
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td class="px-8 py-6">
+                                    <span class="text-sm font-black italic">S/ {{ item.amount }}</span>
+                                </td>
+                                <td class="px-8 py-6">
+                                    {% if item.status == "expired" %}
+                                    <span class="status-badge badge-blocked">
+                                        <i class="fa-solid fa-circle text-[6px]"></i> Vencida
+                                    </span>
+                                    {% elif item.status == "trial" %}
+                                    <span class="status-badge badge-pending">
+                                        <i class="fa-solid fa-circle text-[6px]"></i> Trial
+                                    </span>
+                                    {% else %}
+                                    <span class="status-badge badge-active">
+                                        <i class="fa-solid fa-circle text-[6px]"></i> Activa
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-8 py-6">
+                                    <div class="flex items-center justify-end gap-3">
+                                        {% if item.can_pay_now %}
+                                        <form action="/dashboard/billing/renew/{{ item.company_id }}" method="post">
+                                            <button
+                                                class="px-4 py-2 bg-(--accent)/10 text-(--accent) hover:bg-(--accent) hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                                                {% if item.expired %}
+                                                Pagar ahora
+                                                {% else %}
+                                                Renovar ahora
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <span class="text-[10px] uppercase tracking-[0.14em] text-slate-500">
+                                            {% if item.status == "trial" %}
+                                            Disponible al finalizar trial
+                                            {% else %}
+                                            Sin acciones
+                                            {% endif %}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="rounded-3xl border border-white/5 bg-white/2 px-6 py-5 text-xs text-slate-400 leading-relaxed">
+                Si una empresa ya venció, solo se cobrará un nuevo ciclo desde la fecha de pago. Si renuevas antes del vencimiento, el nuevo ciclo se suma sobre la fecha actual de fin de suscripción.
+            </div>
+            {% else %}
+            <div class="glass-card rounded-3xl p-8">
+                <div class="flex flex-col items-center justify-center py-12 text-center">
+                    <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
+                        <i class="fa-solid fa-wallet text-slate-600 text-2xl"></i>
+                    </div>
+                    <p class="text-slate-400 text-sm">No hay renovaciones ni pagos por gestionar en este momento.</p>
+                    <p class="text-[10px] text-slate-600 mt-1 font-semibold tracking-wide">Cuando una empresa se acerque a su fecha de renovación, aparecerá aquí.</p>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+
     </div>
 </main>
 {% include "components/dashboard-footer.njk" %}

@@ -21,7 +21,8 @@ router.get("/", require_auth, async (req, res) => {
     // Render content
     return res.render("general/private/dashboard", {
         companies_q: data.companies_q,
-        companies: data.companies
+        companies: data.companies,
+        billing_overview: data.billing_overview
     });
 });
 

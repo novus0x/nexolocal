@@ -9,7 +9,25 @@ const router = express.Router();
 
 /*************** Billing ***************/
 router.get("/", require_auth, async (req, res) => {
-    return res.render("general/private/billing/main");
+    // Variables
+    let billing_overview = {
+        items: [],
+        next_item: {
+            available: false
+        },
+        pending_count: 0
+    };
+
+    // Get Overview
+    const response = await get_data("/general/billing/overview", {}, req);
+
+    if (response.error == false) {
+        billing_overview = response.data.billing_overview;
+    }
+
+    return res.render("general/private/billing/main", {
+        billing_overview
+    });
 });
 
 /*************** Billing - Plans ***************/
@@ -108,6 +126,39 @@ router.post("/plans/:plan_id/validate", async (req, res) => {
     return res.redirect(`/companies/${company_id}`);
 });
 
+/*************** Renew Company Subscription - Validate ***************/
+router.post("/renew/validate", async (req, res) => {
+    // Variables
+    const company_id = req.query.company_id || "no_data";
+
+    // Body
+    const { token } = req.body;
+
+    // Request
+    const response = await send_data("/general/billing/validate", {}, {
+        token, company_id
+    }, req);
+
+    if (response.error) return res.redirect("/dashboard/billing");
+
+    return res.redirect("/dashboard/billing");
+});
+
+/*************** Renew Company Subscription ***************/
+router.post("/renew/:id", require_auth, async (req, res) => {
+    // Variables
+    const id = req.params.id;
+
+    // Request
+    const response = await send_data("/general/billing/renew", {}, {
+        company_id: id
+    }, req);
+
+    if (response.error) return res.redirect("/dashboard/billing");
+
+    return res.redirect(`${response.data.payment_url}`);
+});
+
 /*************** Billing - History ***************/
 router.get("/history", require_auth, async (req, res) => {
     // Variables
@@ -125,7 +176,6 @@ router.get("/history", require_auth, async (req, res) => {
         history: data.history
     })
 })
-
 
 /*************** Export ***************/
 export default router;

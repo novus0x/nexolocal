@@ -172,9 +172,69 @@
                 <div class="glass-card rounded-3xl p-6">
                     <h4 class="text-xs font-semibold text-slate-400 tracking-wide mb-2">Próxima renovación
                     </h4>
-                    <p class="text-xl font-bold">N/A</p>
-                    <p class="text-xs text-slate-500 mt-2">No hay suscripciones activas vinculadas a este perfil.
+                    {% if billing_overview and billing_overview.next_item and billing_overview.next_item.available %}
+                    {% set next_item = billing_overview.next_item %}
+                    <p class="text-xl font-bold">
+                        {% if next_item.expired %}
+                        Venció el {{ next_item.date_label }}
+                        {% else %}
+                        {{ next_item.date_label }}
+                        {% endif %}
                     </p>
+                    <p class="text-xs text-slate-500 mt-2">
+                        {{ next_item.company_name }}{% if next_item.plan_name %} · {{ next_item.plan_name }}{% endif %}
+                    </p>
+                    <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-[10px] font-bold uppercase tracking-[0.12em]">
+                        {% if next_item.expired %}
+                        <span class="text-red-400">Vencida</span>
+                        {% elif next_item.status == "trial" %}
+                        <span class="text-amber-400">Trial</span>
+                        {% else %}
+                        <span class="text-emerald-400">Activa</span>
+                        {% endif %}
+                        <span class="text-slate-500">
+                            {% if next_item.expired %}
+                            {{ (next_item.days_left * -1) }} día{% if (next_item.days_left * -1) != 1 %}s{% endif %} de atraso
+                            {% else %}
+                            {{ next_item.days_left }} día{% if next_item.days_left != 1 %}s{% endif %} restantes
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    {% if billing_overview and billing_overview.pending_count > 1 %}
+                    <div class="mt-5 pt-5 border-t border-white/5 space-y-3">
+                        {% for item in billing_overview.items %}
+                        {% if loop.index > 1 and loop.index <= 3 %}
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold text-white truncate">{{ item.company_name }}</p>
+                                <p class="text-[10px] uppercase tracking-[0.14em] text-slate-500">
+                                    {{ item.date_label }}{% if item.plan_name %} · {{ item.plan_name }}{% endif %}
+                                </p>
+                            </div>
+                            <span class="text-[10px] font-bold uppercase tracking-[0.12em] {% if item.expired %}text-red-400{% else %}text-slate-400{% endif %}">
+                                {% if item.expired %}
+                                Venció hace {{ (item.days_left * -1) }} día{% if (item.days_left * -1) != 1 %}s{% endif %}
+                                {% else %}
+                                Renueva en {{ item.days_left }} día{% if item.days_left != 1 %}s{% endif %}
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <a href="/dashboard/billing"
+                        class="mt-5 inline-flex items-center gap-2 text-xs font-bold text-(--accent) hover:text-white transition-colors">
+                        Gestionar pagos
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </a>
+                    {% else %}
+                    <p class="text-xl font-bold">N/A</p>
+                    <p class="text-xs text-slate-500 mt-2">No hay renovaciones ni cargos próximos vinculados a este perfil.
+                    </p>
+                    {% endif %}
                 </div>
             </div>
         </div>

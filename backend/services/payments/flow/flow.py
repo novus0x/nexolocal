@@ -54,19 +54,22 @@ async def calculate_fee(net):
     return to_money(fee)
 
 ########## Create Payment ##########
-async def create_payment(plan: Company_Plan, user_email, company_id):
+async def create_payment(plan: Company_Plan, user_email, company_id, commerce_order = None, return_path = None):
     ### Variables ###
     url = FLOW_BASE_URL + "/payment/create"
+
+    final_commerce_order = commerce_order if commerce_order else company_id
+    final_return_path = return_path if return_path else f"{URL_REDIRECTION}/plans/{plan.id}/validate?company_id={company_id}"
     
     data = {
         "apiKey": settings.FLOW_API_KEY,
-        "commerceOrder": str(company_id),
+        "commerceOrder": str(final_commerce_order),
         "subject": f"Nexolocal - {plan.name}",
         "currency": "PEN",
         "amount": str(plan.price),
         "email": user_email,
         "urlConfirmation": f"{settings.MAIN_DOMAIN}{URL_CONFIRMATION}?company_id={company_id}",
-        "urlReturn": f"{settings.MAIN_DOMAIN}{URL_REDIRECTION}/plans/{plan.id}/validate?company_id={company_id}"
+        "urlReturn": f"{settings.MAIN_DOMAIN}{final_return_path}"
     }
 
     ### Sign ###

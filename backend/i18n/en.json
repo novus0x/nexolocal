@@ -186,6 +186,11 @@
             "get": "Plans obtained successfully"
         },
         "billing": {
+            "overview": {
+                "get": {
+                    "success": "Billing overview obtained successfully"
+                }
+            },
             "plans": {
                 "get": {
                     "unique": {
@@ -202,6 +207,16 @@
                     },
                     "success": "Transaction created successfully"
                 }
+            },
+            "renew": {
+                "error": {
+                    "required_email_verification": "You must verify your email before continuing",
+                    "invalid_company": "The selected company is invalid",
+                    "invalid_plan": "The current company plan is invalid",
+                    "company_suspended": "The company is suspended and cannot be renewed from this panel",
+                    "trial_not_supported": "The company is still in trial and does not require renewal yet"
+                },
+                "success": "Renewal created successfully"
             },
             "validate": {
                 "invalid_billing": "Billing record is invalid",

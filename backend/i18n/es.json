@@ -186,6 +186,11 @@
             "get": "Planes obtenidos satisfactoriamente"
         },
         "billing": {
+            "overview": {
+                "get": {
+                    "success": "Resumen de facturación obtenido satisfactoriamente"
+                }
+            },
             "plans": {
                 "get": {
                     "unique": {
@@ -202,6 +207,16 @@
                     },
                     "success": "Transacción creada satisfactoriamente"
                 }
+            },
+            "renew": {
+                "error": {
+                    "required_email_verification": "Debes verificar tu correo electrónico antes de continuar",
+                    "invalid_company": "La empresa seleccionada no es válida",
+                    "invalid_plan": "El plan actual de la empresa no es válido",
+                    "company_suspended": "La empresa está suspendida y no puede renovarse desde este panel",
+                    "trial_not_supported": "La empresa sigue en periodo de prueba y no requiere renovación todavía"
+                },
+                "success": "Renovación creada satisfactoriamente"
             },
             "validate": {
                 "invalid_billing": "El registro de facturación es inválido",
