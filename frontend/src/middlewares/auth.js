@@ -47,7 +47,7 @@ export async function require_auth(req, res, next) {
 
             if (response_permissions.error) {
                 res.clearCookie("company_id");
-                return res.redirect("/");
+                return res.redirect("/dashboard");
             }
 
             const company = response_permissions.data.company;

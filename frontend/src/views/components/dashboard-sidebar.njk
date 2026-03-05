@@ -48,12 +48,27 @@
 
             {% for user_company in user_companies %}
             <div class="max-h-60 overflow-y-auto">
-                <a href="/companies/{{ user_company.id }}" class="dropdown-link">
+                {% set company_href = "/companies/" ~ user_company.id if user_company.is_accessible else "/dashboard/billing" %}
+                {% set company_status_label = "Inactiva" %}
+                {% if user_company.status == "expired" %}
+                {% set company_status_label = "Vencida" %}
+                {% elif user_company.status == "suspended" %}
+                {% set company_status_label = "Suspendida" %}
+                {% elif user_company.status == "cancelled" %}
+                {% set company_status_label = "Cancelada" %}
+                {% endif %}
+
+                <a href="{{ company_href }}" class="dropdown-link">
                     <div class="w-6 h-6 rounded flex items-center justify-center text-[10px] text-white">
                         <img src="https://ui-avatars.com/api/?name={{ user_company.name }}&background=FD420A&color=fff"
                             class="w-6 h-6 rounded" alt="Avatar">
                     </div>
-                    <span>{{ user_company.name }}</span>
+                    <span class="{{ 'text-red-400' if not user_company.is_accessible else '' }}">{{ user_company.name }}</span>
+                    {% if not user_company.is_accessible %}
+                    <span class="ml-auto text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/50">
+                        {{ company_status_label }}
+                    </span>
+                    {% endif %}
                 </a>
             </div>
             {% endfor %}

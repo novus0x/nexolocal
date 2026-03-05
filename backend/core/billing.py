@@ -49,9 +49,14 @@ def build_billing_overview(db, user_id, local_tz):
         if sync_company_subscription(company):
             has_subscription_updates = True
 
+        company_status = company.subscription_status.value if company.subscription_status else "inactive"
+        company_is_accessible = company_status in ("active", "trial") and company.is_active and not company.is_suspended
+
         companies.append({
             "id": company.id,
-            "name": company.name
+            "name": company.name,
+            "status": company_status,
+            "is_accessible": company_is_accessible
         })
 
         renewal_date = None

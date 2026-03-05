@@ -9,6 +9,8 @@ from db.model import User, User_Role, Company, User_Company_Invitation, User_Com
 from core.i18n import translate
 from core.responses import custom_response
 from core.permissions import get_all_permissions_for_admin
+from core.db_management import update_db
+from core.company_subscription import sync_company_subscription
 
 ########## Variables ##########
 router = APIRouter()
@@ -28,6 +30,7 @@ async def user(request: Request, db: Session = Depends(get_db)):
         "quantity": 0
     }
     user_company_associations = []
+    updated_companies = False
 
     ### Validation ###
     if user == None:
@@ -78,10 +81,24 @@ async def user(request: Request, db: Session = Depends(get_db)):
             Company.id == company_association.company_id
         ).first()
 
+        if not company:
+            continue
+
+        if sync_company_subscription(company):
+            updated_companies = True
+
+        status = company.subscription_status.value if company.subscription_status else "inactive"
+        is_accessible = status in ("active", "trial") and company.is_active and not company.is_suspended
+
         user_company_associations.append({
             "id": company.id,
-            "name": company.name
+            "name": company.name,
+            "status": status,
+            "is_accessible": is_accessible
         })
+
+    if updated_companies:
+        update_db(db)
 
     invitations_data = db.query(User_Company_Invitation).filter(
         User_Company_Invitation.user_invited == user.get("id"),

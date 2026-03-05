@@ -136,8 +136,22 @@
                             <tbody class="text-sm font-medium">
                                 {% for company in companies %}
                                 <tr class="table-row">
+                                    {% set company_href = "/companies/" ~ company.id if company.is_accessible else "/dashboard/billing" %}
+                                    {% set company_status_label = "Inactiva" %}
+                                    {% if company.status == "expired" %}
+                                    {% set company_status_label = "Vencida" %}
+                                    {% elif company.status == "suspended" %}
+                                    {% set company_status_label = "Suspendida" %}
+                                    {% elif company.status == "cancelled" %}
+                                    {% set company_status_label = "Cancelada" %}
+                                    {% elif company.status == "trial" %}
+                                    {% set company_status_label = "Trial" %}
+                                    {% elif company.status == "active" %}
+                                    {% set company_status_label = "Activa" %}
+                                    {% endif %}
+
                                     <td class="px-6 py-5">
-                                        <a href="/companies/{{ company.id }}"
+                                        <a href="{{ company_href }}"
                                             class="group flex items-center gap-4 min-w-0">
                                             <div
                                                 class="flex items-center justify-center w-10 h-10 bg-(--accent)/10 text-(--accent) rounded-lg shrink-0">
@@ -148,14 +162,21 @@
                                                     class="font-bold text-white truncate group-hover:text-(--accent) transition-colors">
                                                     {{ company.name }}
                                                 </p>
+                                                <p class="text-[10px] uppercase tracking-[0.12em] mt-1 {% if company.is_accessible %}text-emerald-400{% elif company.status == 'trial' %}text-amber-400{% else %}text-red-400{% endif %}">
+                                                    {{ company_status_label }}
+                                                </p>
                                             </div>
                                         </a>
                                     </td>
                                     <td class="px-6 py-5">
                                         <div class="flex items-center justify-end gap-2 text-(--text-muted)">
-                                            <a href="/companies/{{ company.id }}"
-                                                class="px-4 py-2 bg-(--accent)/10 text-(--accent) hover:bg-(--accent) hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                                            <a href="{{ company_href }}"
+                                                class="px-4 py-2 {% if company.is_accessible %}bg-(--accent)/10 text-(--accent) hover:bg-(--accent){% else %}bg-red-500/10 text-red-400 hover:bg-red-500/20{% endif %} hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                                                {% if company.is_accessible %}
                                                 Abrir
+                                                {% else %}
+                                                Renovar
+                                                {% endif %}
                                             </a>
                                         </div>
                                     </td>
