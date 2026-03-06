@@ -300,6 +300,18 @@
                 },
                 "success": "Productos obtenidos satisfactoriamente"
             },
+            "update": {
+                "single": {
+                    "error": {
+                        "general": "El producto no existe",
+                        "incorrect_price": "El precio es inválido"
+                    },
+                    "inconsistent_price_comparation": "El precio de comparación no puede ser menor que el precio de venta",
+                    "no_supplier": "El proveedor no existe",
+                    "product_does_not_exist": "El producto no existe",
+                    "success": "Producto actualizado satisfactoriamente"
+                }
+            },
             "import": {
                 "invalid_headers": "El archivo importado tiene encabezados inválidos",
                 "success": "Productos importados satisfactoriamente"

@@ -61,17 +61,17 @@
                     </h3>
                     <div class="grid grid-cols-1 gap-6"> {# md:grid-cols-2 #}
                         <div class="md:col-span-2 space-y-2">
-                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Nombre</label>
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Nombre del Producto</label>
                             <input type="text" class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
                                 placeholder="Ej: Bebida" name="name" value="{{ name }}" required>
                         </div>
                         <div class="md:col-span-2 space-y-2">
-                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Identificador Único</label>
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Identificador Único (Código de Barras)</label>
                             <input type="text" class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
                                 placeholder="Ej: 7750236173896" name="identifier" value="{{ identifier }}" required>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">SKU</label>
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">SKU Interno</label>
                             <input type="text" class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
                                 placeholder="0 - auto" name="sku" value="{{ sku or 0 }}" required>
                             <p class="text-xs text-gray-600 italic">* Si no sabe qué agregar, deje 0 y se generará

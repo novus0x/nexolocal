@@ -49,6 +49,8 @@ router.get("/create", require_auth, at_least_company, async (req, res) => {
     // Variables
     const permissions = req.permissions;
 
+    let supplier = [];
+
     // Check permissions
     if (!permissions.includes("company.products.create")) return res.redirect("/system-alert/403");
 
@@ -299,6 +301,102 @@ router.get("/:product_id/batchs", require_auth, at_least_company, async (req, re
     if (!permissions.includes("company.products.read")) return res.redirect("/system-alert/403");
 
     return res.json("batchs");
+});
+
+/*************** Edit Product - GET ***************/
+router.get("/update/:product_id", require_auth, at_least_company, async (req, res) => {
+    // Variables
+    const company_id = req.company_id;
+    const permissions = req.permissions;
+    const product_id = req.params.product_id;
+
+    let supplier = {};
+    let suppliers = [];
+
+    // Check permissions
+    if (!permissions.includes("company.products.update")) return res.redirect("/system-alert/403");
+
+    // Request
+    const response = await get_data(`/company/products/get/${product_id}`, {}, req);
+
+    if (response.error) return res.redirect(`/companies/${company_id}/products`);
+
+    // Get data
+    const response2 = await get_data("/company/products/create", {}, req);
+
+    if (!response2.error) suppliers = response2.data.suppliers;
+
+    const data = response.data;
+    
+    supplier = data.supplier;
+
+    const product = data.product;
+
+    return res.render("companies/products/update", {
+        product,
+        suppliers,
+
+        supplier_d: supplier,
+    });
+});
+
+/*************** Edit Product - PUT ***************/
+router.put("/update/:product_id", require_auth, at_least_company, async (req, res) => {
+    // Variables
+    const company_id = req.company_id;
+    const permissions = req.permissions;
+    const product_id = req.params.product_id;
+
+    let description_v = "no_change";
+    let supplier_id_v = "no_change";
+    let suppliers = [];
+    let supplier = {};
+    let errors = [];
+
+    // Check permissions
+    if (!permissions.includes("company.products.update")) return res.redirect("/system-alert/403");
+
+    // Get Body
+    const { name, identifier, sku, description, supplier_id, sale_price, sale_cost } = req.body;
+
+    if (supplier_id != "no_change") supplier_id_v = supplier_id;
+    if (description) description_v = description;
+
+    // Send Data
+    const response = await send_data(`/company/products/update/${product_id}`, {}, {
+        name, identifier, sku, sale_price, sale_cost,
+
+        description: description_v,
+        supplier_id: supplier_id_v
+    }, req);
+
+    if (response.error) {
+        if (response.details.length > 0) errors = response.details;
+        else errors = [response.message];
+
+        const response2 = await get_data(`/company/products/get/${product_id}`, {}, req);
+
+        if (response2.error) return res.redirect(`/companies/${company_id}/products`);
+
+        const response3 = await get_data("/company/products/create", {}, req);
+
+        if (!response3.error) suppliers = response3.data.suppliers;
+
+        const data = response2.data;
+        const product = data.product;
+
+        supplier = data.supplier;
+
+        return res.render("companies/products/update", {
+            errors,
+            product,
+            suppliers,
+
+            supplier_d: supplier,
+        });
+    }
+
+    return res.redirect(`/companies/${company_id}/products/read/${product_id}`);
 });
 
 /*************** Create Product Batch - GET ***************/

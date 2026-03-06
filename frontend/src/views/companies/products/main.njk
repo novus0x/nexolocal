@@ -26,6 +26,11 @@
                         </div>
                     </li>
                 </ol>
+                <a href="/companies/{{ company_information.id }}/products/create"
+                    class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="hidden md:block">Nuevo Producto</span>
+                </a>
             </nav>
         </div>
 
@@ -37,23 +42,18 @@
             </div>
 
             <div class="flex items-center gap-4">
-                <div class="hidden md:flex gap-6 mr-6 border-r border-white/10 pr-6">
+                <div class="hidden md:flex gap-6 mr-6 pr-6">
                     <div class="text-right">
                         <p class="text-xs text-gray-500 font-bold uppercase">Valor Stock</p>
                         <p class="text-sm font-bold">S/ {{ stock_value }}</p>
                     </div>
                     {% if low_products_quantity %}
-                    <div class="text-right">
+                    <div class="text-right border-l border-white/10 pl-4">
                         <p class="text-xs text-red-500 font-bold uppercase tracking-tighter">Bajo Stock</p>
                         <p class="text-sm font-bold text-red-400">{{ low_products_quantity }} productos</p>
                     </div>
                     {% endif %}
                 </div>
-                <a href="/companies/{{ company_information.id }}/products/create"
-                    class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer w-full">
-                    <i class="fa-solid fa-plus"></i>
-                    <span class="hidden md:block">Nuevo Producto</span>
-                </a>
             </div>
         </header>
 
@@ -161,6 +161,10 @@
                                         class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all text-gray-400 hover:text-white cursor-pointer"><i
                                             class="fas fa-plus text-xs"></i></a>
                                     {% endif %}
+                                    <a href="/companies/{{ company_information.id }}/products/update/{{ product.id }}"
+                                        title="Editar"
+                                        class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all text-gray-400 hover:text-white cursor-pointer"><i
+                                            class="fas fa-pen text-xs"></i></a>
                                     <a href="/companies/{{ company_information.id }}/products/read/{{ product.id }}"
                                         title="Editar"
                                         class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all text-gray-400 hover:text-white cursor-pointer"><i

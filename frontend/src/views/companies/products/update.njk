@@ -1,0 +1,152 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Platform Dashboard{% endblock %}
+
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/companies/{{ company_information.id }}"
+                            class="hover:text-white transition-colors">Negocio</a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/companies/{{ company_information.id }}/products" id="breadcrumb-workspace"
+                                class="hover:text-white ml-1 md:ml-2 transition-colors">Productos</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <a href="/companies/{{ company_information.id }}/products/read/{{ product.id }}"
+                                id="breadcrumb-workspace" class="hover:text-white ml-1 md:ml-2 transition-colors">{{
+                                product.name }}</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Actualizar</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <form class="space-y-8" action="/companies/{{ company_information.id }}/products/update/{{ product.id }}"
+            method="post">
+            <input type="hidden" name="_method" value="put" />
+            <section class="glass-card p-8">
+                <h3 class="text-sm font-bold mb-6 flex items-center gap-2">
+                    <i class="fas fa-tag text-(--accent)"></i> Datos del Producto
+                </h3>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">Nombre del Producto</label>
+                        <input type="text" class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
+                            placeholder="Ej: Bebida" name="name" value="{{ product.name }}" required>
+                    </div>
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">Identificador Único (Código de
+                            Barras)</label>
+                        <input type="text" class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
+                            placeholder="Ej: 7750236173896" name="identifier" value="{{ product.identifier }}" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">SKU Interno</label>
+                        <input type="text" class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
+                            placeholder="0 - auto" name="sku" value="{{ product.sku or 0 }}" required>
+                        <p class="text-xs text-gray-600 italic">* Si no sabe qué agregar, deje 0 y se generará
+                            automáticamente</p>
+                    </div>
+                    <div class="space-y-2 hidden">
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">Categoría</label>
+                        <select class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold appearance-none"
+                            name="category" required>
+                            <option class="input-field" value="no_category">Sin categoría</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">Descripción (Opcional)</label>
+                        <textarea rows="2" class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
+                            placeholder="Detalles..." name="description">{{ product.description }}</textarea>
+                    </div>
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">Provedor (Opcional)</label>
+                        <select class="w-full input-glass px-5 py-3.5 mt-2 rounded-xl text-sm font-bold appearance-none"
+                            name="supplier_id" required>
+                            <option class="input-field" value="no_change">seleccionar Provedor</option>
+                            {% for supplier in suppliers %}
+                            <option class="input-field" value="{{ supplier.id }}" {% if supplier.id==supplier_id or
+                                supplier.id==supplier_d.id %} selected {% endif %}>{{ supplier.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="glass-card p-8">
+                <h3 class="text-xs font-black uppercase tracking-widest mb-8 flex items-center gap-3 text-gray-400">
+                    <span class="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-500">
+                        <i class="fas fa-coins"></i>
+                    </span>
+                    Estructura de Precios
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-500 uppercase ml-1 tracking-widest">Precio de
+                            Venta</label>
+                        <div class="relative">
+                            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-orange-500 font-black">S/</span>
+                            <input type="number" step="0.01" name="sale_price" value="{{ product.price }}"
+                                class="w-full input-glass pl-12 pr-5 py-4 rounded-xl text-lg font-black italic">
+                        </div>
+                        <p class="text-[10px] text-gray-600 italic mt-1">* Este es el precio final al consumidor.</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-500 uppercase ml-1 tracking-widest">Costo de
+                            Compra</label>
+                        <div class="relative">
+                            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 font-bold">S/</span>
+                            <input type="number" step="0.01" name="sale_cost" value="{{ product.cost }}"
+                                class="w-full input-glass pl-12 pr-5 py-4 rounded-xl text-lg font-bold">
+                        </div>
+                        <p class="text-[10px] text-gray-600 italic mt-1">* Utilizado para calcular tu margen de
+                            ganancia.</p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="flex items-center justify-between pt-4">
+                <a href="/companies/{{ company_information.id }}/products/read/{{ product.id }}"
+                    class="text-xs font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i> Descartar Cambios
+                </a>
+                <div class="flex gap-4">
+                    <button type="submit"
+                        class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-base font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer">
+                        Actualizar Producto
+                    </button>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</main>
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

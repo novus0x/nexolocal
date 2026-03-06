@@ -300,6 +300,18 @@
                 },
                 "success": "Products obtained successfully"
             },
+            "update": {
+                "single": {
+                    "error": {
+                        "general": "Product does not exist",
+                        "incorrect_price": "Price is invalid"
+                    },
+                    "inconsistent_price_comparation": "Comparison price cannot be lower than the sale price",
+                    "no_supplier": "Supplier does not exist",
+                    "product_does_not_exist": "Product does not exist",
+                    "success": "Product updated successfully"
+                }
+            },
             "import": {
                 "invalid_headers": "The imported file has invalid headers",
                 "success": "Products imported successfully"

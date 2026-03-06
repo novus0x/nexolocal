@@ -26,14 +26,31 @@ router = APIRouter()
 def check_sku(db, sku_v, company_id):
     while (1):
         if db.query(Product).filter(
-            Product.sku == sku_v,
-            Product.company_id == company_id
+                Product.sku == sku_v,
+                Product.company_id == company_id
             ).first():
-            sku_v = get_uuid_value()
+                sku_v = get_uuid_value()
         else:
             break
 
     return sku_v
+
+def check_identifier(db, identifier, company_id, exclude_product_id = None):
+    while (1):
+        query = db.query(Product).filter(
+            Product.identifier == identifier,
+            Product.company_id == company_id
+        )
+
+        if exclude_product_id:
+            query = query.filter(Product.id != exclude_product_id)
+
+        if query.first():
+            identifier = get_uuid_value()
+        else:
+            break
+
+    return identifier
 
 ########## Get Products ##########
 @router.get("/")
@@ -296,7 +313,6 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
     # Create Product
     new_product = Product(
         id = get_uuid(db, Product),
-        identifier = product_check.identifier,
         name = product_check.name,
         description = product_check.description,
         price = price,
@@ -309,15 +325,22 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
 
     sku_v = product_check.sku
     
-    ## Check sku ##
+    ### Check sku ###
     if not sku_v or sku_v == "0":
         sku_v = get_uuid_value()
 
     new_product.sku = check_sku(db, sku_v, company_id)
 
-    ## Supplier ##
+    ### Check Identifier ###
+    identifier_v = product_check.identifier
+
+    if not identifier_v or identifier_v == "0":
+        identifier_v = get_uuid_value()
+
+    new_product.identifier = check_identifier(db, identifier_v, company_id)
+
+    ### Supplier ###
     if product_check.supplier_id != "none":
-        print(product_check.supplier_id)
         check_supplier = db.query(Supplier).filter(
             Supplier.id == product_check.supplier_id
         ).first()
@@ -325,9 +348,7 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         if check_supplier:
             new_product.supplier_id = check_supplier.id
 
-            print(new_product.supplier_id)
-
-    ## Track Inventory ##
+    ### Track Inventory ###
     if product_check.track_product == "1":
         low_stock = to_decimal(product_check.low_stock)
 
@@ -337,13 +358,13 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         new_product.track_inventory = True
         new_product.low_stock_alert = low_stock
 
-    ## Bulk ##
+    ### Bulk ###
     if is_bulk == "1":
         new_product.weight = 0
         new_product.is_bulk = True
         new_product.dimensions = "0x0x0"
 
-    ## Service ##
+    ### Service ###
     if is_service == "1":
         new_product.is_service = True
         new_product.duration_type = Product_Service_Duration(product_check.duration_type)
@@ -353,7 +374,7 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         if product_check.staff_id != "0":
             print("check staff id")
 
-    ## Check Company Status - Taxes
+    ### Check Company Status - Taxes ###
     check_company = db.query(Company).filter(Company.id == company_id).first()
 
     if check_company.is_formal:
@@ -369,7 +390,7 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
 
     add_db(db, new_product)
 
-    ## Create Product Batch
+    ### Create Product Batch ###
     new_product_batch = None
 
     if new_product.stock > 0:
@@ -389,9 +410,9 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
         else:
             new_product_batch.expiration_active = False
 
-    ## Create Expense ##
+    ### Create Expense ###
     if new_product_batch and new_product.cost > 0:
-        # Create Expense
+        ### Create Expense ###
         amount_v = stock * new_product.cost
 
         new_expense = Expense(
@@ -670,8 +691,6 @@ async def get_product_by_id(request: Request, product_id: str, db: Session = Dep
         Supplier.id == check_product.supplier_id
     ).first()
 
-    print(check_product.supplier_id)
-
     if supplier:
         supplier ={
             "id": supplier.id,
@@ -704,13 +723,124 @@ async def get_product_by_id(request: Request, product_id: str, db: Session = Dep
 
         product_batchs_values.append(batch_value)
 
-    print(supplier)
-
     return custom_response(status_code=200, message=translate(lang, "company.products.get.single.success"), data={
         "product": check_product,
         "supplier": supplier,
         "batchs": product_batchs_values
     })
+
+########## Update Product ##########
+@router.post("/update/{product_id}")
+async def update_product_by_id(request: Request, product_id: str, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+    user = request.state.user
+    company_id = request.state.company_id
+
+    ### Validation ###
+    if user == None:
+        return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
+
+    ### Check permissions ###
+    access, message = check_permissions(db, request, "company.products.update", company_id)
+    
+    if not access:
+        return custom_response(status_code=400, message=message)
+    
+    ### Check Product ###
+    if not product_id:
+        return custom_response(status_code=400, message=translate(lang, "company.products.update.single.error.general"))
+
+    check_product = db.query(Product).filter(
+        Product.id == product_id,
+        Product.company_id == company_id
+    ).first()
+
+    if not check_product:
+        return custom_response(status_code=400, message=translate(lang, "company.products.update.single.error.general"))
+    
+    ### Get Body ###
+    product_data, error = await read_json_body(request)
+
+    if error: 
+        return custom_response(status_code=400, message=error)
+
+    required_fields, error = validate_required_fields(product_data, [
+        "name", "identifier", "sku", "description", "supplier_id", "sale_price", "sale_cost"
+    ], lang)
+
+    if error:
+        return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
+    
+    cost = to_decimal(product_data.sale_cost)
+    price = to_decimal(product_data.sale_price)
+
+    if price is None or cost is None:
+        return custom_response(status_code=400, message=translate(lang, "company.products.update.single.error.incorrect_price"))
+    
+    if price <= 0 or cost < 0:
+        return custom_response(status_code=400, message=translate(lang, "company.products.update.single.error.incorrect_price"))
+
+    if price < cost:
+        return custom_response(status_code=400, message=translate(lang, "company.products.update.single.inconsistent_price_comparation"), details=required_fields)
+
+    ### Check Product ###
+    product = db.query(Product).filter(
+        Product.id == product_id,
+        Product.company_id == company_id
+    ).first()
+
+    if not product:
+        return custom_response(status_code=400, message=translate(lang, "company.products.update.single.product_does_not_exist"))
+
+    ### Check Supplier ###
+    if product_data.supplier_id != "no_change":
+        supplier = db.query(Supplier).filter(
+            Supplier.id == product_data.supplier_id,
+            Supplier.company_id == company_id
+        ).first()
+
+        if not supplier:
+            return custom_response(status_code=400, message=translate(lang, "company.products.update.single.no_supplier"))
+        
+        product.supplier_id = supplier.id
+
+    else:
+        product.supplier_id = None
+
+    ### Check sku ###
+    sku_v = product_data.sku
+
+    if product.sku != sku_v:
+        if not sku_v or sku_v == "0":
+            sku_v = get_uuid_value()
+
+        product.sku = check_sku(db, sku_v, company_id)
+
+    ### Check Identifier ###
+    identifier_v = product_data.identifier
+
+    if product.identifier != identifier_v:
+        if not identifier_v or identifier_v == "0":
+            identifier_v = get_uuid_value()
+
+        product.identifier = check_identifier(db, identifier_v, company_id, product.id)
+
+    ### Update ###
+    if product_data.description != "no_change":
+        product.description = product_data.description
+    else:
+        product.description = None
+
+    product.name = product_data.name
+
+    product.price = price
+    product.cost = cost
+
+    ### Update DB ###
+    update_db(db)
+
+    return custom_response(status_code=200, message=translate(lang, "company.products.update.single.success"))
 
 ########## Get Product - Batch Section ##########
 @router.get("/{product_id}/batchs/create")
@@ -730,6 +860,7 @@ async def get_product_by_id_to_create_batch(request: Request, product_id: str, d
     if not access:
         return custom_response(status_code=400, message=message)
     
+    ### Check Product ###
     if not product_id:
         return custom_response(status_code=400, message=translate(lang, "company.products.get.single.error"))
 
