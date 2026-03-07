@@ -186,9 +186,9 @@
                         class="{% if not is_service %} hidden {% else %} grid {% endif %} grid-cols-1 gap-6 pt-4 border-t border-white/5 transition-all-custom">
                         <div class="space-y-2 col-span-2">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Tipo de Duración</label>
-                            <select
+                            <select id="duration_type"
                                 class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold appearance-none"
-                                name="duration_type" required>
+                                name="duration_type">
                                 <option class="input-field" value="minutes" {% if duration_type=='minutes' %} selected
                                     {% endif %}>Minutos</option>
                                 <option class="input-field" value="hours" {% if duration_type=='hours' %} selected {%
@@ -197,8 +197,8 @@
                                     endif %}>Dias</option>
                                 <option class="input-field" value="weeks" {% if duration_type=='weeks' %} selected {%
                                     endif %}>Semanas</option>
-                                <option class="input-field" value="minutes" {% if duration_type=='minutes' %} selected
-                                    {% endif %}>Meses</option>
+                                <option class="input-field" value="months" {% if duration_type=='months' %} selected {%
+                                    endif %}>Meses</option>
                                 <option class="input-field" value="years" {% if duration_type=='years' %} selected {%
                                     endif %}>Años</option>
                                 <option class="input-field" value="sessions" {% if duration_type=='sessions' %} selected
@@ -208,9 +208,9 @@
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-gray-500 uppercase ml-1">Duración</label>
                             <div class="relative">
-                                <input type="number"
+                                <input type="number" id="duration"
                                     class="w-full input-glass mt-2 px-5 py-3.5 rounded-xl text-sm font-bold"
-                                    placeholder="30" name="duration" value="{{ duration }}">
+                                    placeholder="30" name="duration" value="{{ duration }}" min="1" step="1">
                                 <i class="fas fa-stopwatch absolute right-5 top-1/2 -translate-y-1/2 text-gray-600"></i>
                             </div>
                         </div>
@@ -342,6 +342,14 @@
 </main>
 
 <script>
+    function set_service_fields(is_service) {
+        const duration = document.getElementById("duration");
+        const durationType = document.getElementById("duration_type");
+
+        duration.required = is_service;
+        durationType.required = is_service;
+    }
+
     function toggle_bulk(is_bulk) {
         const weight_section = document.getElementById("weight_section");
 
@@ -363,6 +371,7 @@
             section.classList.add('grid');
             section.classList.remove('hidden');
             product_type_container.classList.add("hidden");
+            set_service_fields(true);
 
             inventary_section.forEach((e) => e.classList.add('hidden'));
 
@@ -376,6 +385,7 @@
         } else {
             inventary_section.forEach((e) => e.classList.remove('hidden'));
             product_type_container.classList.remove("hidden");
+            set_service_fields(false);
 
             section.style.opacity = '0';
             setTimeout(() => {
@@ -408,6 +418,8 @@
             }, 300);
         }
     }
+
+    set_service_fields(document.getElementById("serviceSwitch").checked);
 
 </script>
 

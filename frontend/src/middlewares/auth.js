@@ -53,9 +53,9 @@ export async function require_auth(req, res, next) {
             const company = response_permissions.data.company;
 
             res.cookie("company_id", company, {
-                httpOnly: false,
+                httpOnly: true,
                 sameSite: "lax",
-                secure: false,
+                secure: true,
                 path: "/"
             });
 

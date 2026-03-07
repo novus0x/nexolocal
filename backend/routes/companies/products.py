@@ -250,6 +250,8 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
     user = request.state.user
     company_id = request.state.company_id
 
+    duration_value = None
+    
     ### Validation ###
     if user == None:
         return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
@@ -297,6 +299,12 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
     if is_service == "1":
         if not product_check.duration_type in Product_Service_Duration._value2member_map_:
             return custom_response(status_code=400, message=translate(lang, "company.products.create.incorrect_servide_duration"))
+
+        duration_value = to_decimal(product_check.duration)
+
+        if duration_value is None or duration_value <= 0:
+            return custom_response(status_code=400, message=translate(lang, "company.products.create.incorrect_servide_duration"))
+        
     else:
         if not is_bulk == "1":
             if stock != is_int(stock):
@@ -367,8 +375,12 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
     ### Service ###
     if is_service == "1":
         new_product.is_service = True
+        new_product.stock = 0
+        new_product.weight = 0
+        new_product.dimensions = "0x0x0"
+        new_product.low_stock_alert = 0
         new_product.duration_type = Product_Service_Duration(product_check.duration_type)
-        new_product.duration = product_check.duration
+        new_product.duration = str(duration_value.normalize())
         new_product.track_inventory = False
 
         if product_check.staff_id != "0":
@@ -393,7 +405,7 @@ async def create_product(request: Request, db: Session = Depends(get_db)):
     ### Create Product Batch ###
     new_product_batch = None
 
-    if new_product.stock > 0:
+    if not new_product.is_service and new_product.stock > 0:
         new_product_batch = Product_Batch(
             id = get_uuid(db, Product_Batch),
             stock = new_product.stock,

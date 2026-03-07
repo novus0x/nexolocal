@@ -61,7 +61,7 @@ async def login(request: Request, db: Session = Depends(get_db)):
         key = settings.TOKEN_NAME,
         value = token,
         httponly = True,
-        secure = False, # prod (change to True)
+        secure = True, # prod (change to True)
         max_age = new_session.expires_at
     )
 
