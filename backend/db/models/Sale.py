@@ -57,6 +57,7 @@ class Sale(Base):
     date = Column(DateTime(timezone=True), default=func.now())
     
     company_id = Column(String, ForeignKey("companies.id"), nullable=False)
+    customer_id = Column(String, ForeignKey("company_customers.id"), nullable=True)
     customer_user_id = Column(String, ForeignKey("users.id"), nullable=True)
     seller_user_id = Column(String, ForeignKey("users.id"), nullable=False)
     income_id = Column(String, ForeignKey("incomes.id"), nullable=False)
@@ -66,6 +67,8 @@ class Sale(Base):
 
     seller_user = relationship("User", foreign_keys=[seller_user_id])
     customer_user = relationship("User", foreign_keys=[customer_user_id])
+    
+    customer = relationship("Company_Customer")
     company = relationship("Company", back_populates="sales")
     items = relationship("Sale_Item", back_populates="sale", cascade="all, delete-orphan")
 

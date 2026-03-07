@@ -67,6 +67,31 @@ class Company(Base):
     categories = relationship("Category", back_populates="company")
     billings = relationship("Company_Billing", back_populates="company")
     user_associations = relationship("User_Company_Association", back_populates="company")
+    customers = relationship("Company_Customer", back_populates="company")
+
+##### Company Customer #####
+class Company_Customer(Base):
+    __tablename__ = "company_customers"
+
+    id = Column(String, primary_key=True, nullable=False)
+
+    name = Column(String, nullable=True)
+    email = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
+
+    doc_type = Column(String, nullable=True)
+    doc_number = Column(String, nullable=True)
+
+    address = Column(Text, nullable=True)
+    notes = Column(Text, nullable=True)
+
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+    date = Column(DateTime(timezone=True), default=func.now())
+
+    company_id = Column(String, ForeignKey("companies.id"), nullable=False)
+
+    ## Relationships ##
+    company = relationship("Company", back_populates="customers")
 
 ##### Company Plan #####
 class Plan_Cicle(enum.Enum):

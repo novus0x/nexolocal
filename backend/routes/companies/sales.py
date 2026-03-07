@@ -9,7 +9,7 @@ from sqlalchemy import or_, desc, func, extract
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import Product, Product_Batch, Company, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Tax_Profile, Tax_Document, Tax_Document_Type, Tax_Document_Status, Tax_Series, Tax_Subscription, Tax_Emission_Status, Tax_Environment_Type
+from db.model import Product, Product_Batch, Company, Company_Customer, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Tax_Profile, Tax_Document, Tax_Document_Type, Tax_Document_Status, Tax_Series, Tax_Subscription, Tax_Emission_Status, Tax_Environment_Type
 
 from core.config import settings
 
@@ -29,6 +29,129 @@ TIMEZONE = settings.TIMEZONE
 
 LOCAL_TZ = ZoneInfo(TIMEZONE)
 UTZ_TZ = ZoneInfo("UTC")
+
+########## Save Company Customer - Aux Function ##########
+def save_company_customer(db: Session, company_id: str, client_data: dict):
+    ### Variables ###
+    customer = None
+
+    client_name = (client_data.get("name") or "").strip()
+    client_email = (client_data.get("email") or "").strip()
+    client_phone = (client_data.get("phone") or "").strip()
+    client_doc_type = (client_data.get("doc_type") or "").strip().upper()
+    client_doc_number = (client_data.get("doc_number") or "").strip()
+
+    ### Search Priority ###
+    if client_doc_type and client_doc_number:
+        customer = db.query(Company_Customer).filter(
+            Company_Customer.company_id == company_id,
+            Company_Customer.doc_type == client_doc_type,
+            Company_Customer.doc_number == client_doc_number
+        ).first()
+
+    if not customer and client_email:
+        customer = db.query(Company_Customer).filter(
+            Company_Customer.company_id == company_id,
+            Company_Customer.email == client_email
+        ).first()
+
+    if not customer and client_phone:
+        customer = db.query(Company_Customer).filter(
+            Company_Customer.company_id == company_id,
+            Company_Customer.phone == client_phone
+        ).first()
+
+    ### Create ###
+    if not customer:
+        customer = Company_Customer(
+            id = get_uuid(db, Company_Customer),
+            company_id = company_id
+        )
+
+    ### Update Values ###
+    if client_name:
+        customer.name = client_name
+
+    if client_email:
+        customer.email = client_email
+
+    if client_phone:
+        customer.phone = client_phone
+
+    if client_doc_type:
+        customer.doc_type = client_doc_type
+
+    if client_doc_number:
+        customer.doc_number = client_doc_number
+
+    add_db(db, customer)
+
+    return customer
+
+########## Get Company Customer ##########
+@router.post("/check_customer")
+async def check_company_customer(request: Request, db: Session = Depends(get_db)):
+    ### Variables ###
+    lang = request.state.lang
+    user = request.state.user
+    company_id = request.state.company_id
+
+    customer = None
+
+    ### Validation ###
+    if user == None:
+        return custom_response(status_code=400, message=translate(lang, "validation.require_auth"))
+
+    ### Check permissions ###
+    access, message = check_permissions(db, request, "company.sales.create", company_id)
+
+    if not access:
+        return custom_response(status_code=400, message=message)
+
+    ### Get Body ###
+    check_customer, error = await read_json_body(request)
+    if error:
+        return custom_response(status_code=400, message=error)
+
+    customer_email = (getattr(check_customer, "email", "") or "").strip()
+    customer_phone = (getattr(check_customer, "phone", "") or "").strip()
+    customer_doc_type = (getattr(check_customer, "doc_type", "") or "").strip().upper()
+    customer_doc_number = (getattr(check_customer, "doc_number", "") or "").strip()
+
+    if customer_doc_type and customer_doc_number:
+        customer = db.query(Company_Customer).filter(
+            Company_Customer.company_id == company_id,
+            Company_Customer.doc_type == customer_doc_type,
+            Company_Customer.doc_number == customer_doc_number
+        ).first()
+
+    if not customer and customer_email:
+        customer = db.query(Company_Customer).filter(
+            Company_Customer.company_id == company_id,
+            func.lower(Company_Customer.email) == customer_email.lower()
+        ).first()
+
+    if not customer and customer_phone:
+        customer = db.query(Company_Customer).filter(
+            Company_Customer.company_id == company_id,
+            Company_Customer.phone == customer_phone
+        ).first()
+
+    if not customer:
+        return custom_response(status_code=200, message="Customer not found", data={
+            "customer": None
+        })
+
+    return custom_response(status_code=200, message="Customer found", data={
+        "customer": {
+            "id": customer.id,
+            "name": customer.name,
+            "email": customer.email,
+            "phone": customer.phone,
+            "doc_type": customer.doc_type,
+            "doc_number": customer.doc_number
+        }
+    })
 
 ########## Check Sale - Company ##########
 @router.get("/")
@@ -593,16 +716,18 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         return custom_response(status_code=400, message=error)
 
     required_fields, error = validate_required_fields(check_sale, [
-        "client_id", "payment_method", "items", "send_sale", "invoice_method"
+        "payment_method", "items"
     ], lang)
 
     if error:
         return custom_response(status_code=400, message=translate(lang, "validation.required_f"), details=required_fields)
 
-
-    client_id_data = check_sale.client_id # To-Do
     products_data = check_sale.items
     payment_method_value = check_sale.payment_method
+    client_data = getattr(check_sale, "client", None)
+
+    send_sale_value = getattr(check_sale, "send_sale", "0")
+    invoice_method_value = getattr(check_sale, "invoice_method", "3")
 
     if not payment_method_value in Payment_Method._value2member_map_:
         return custom_response(status_code=400, message=translate(lang, "company.sales.create.error.incorrect_payment_method"))
@@ -633,6 +758,45 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         company_id = company_id,
         seller_user_id = user.get("id")
     )
+
+    ### Optional Client Data ###
+    if isinstance(client_data, dict):
+        client_name = (client_data.get("name") or "").strip()
+        client_email = (client_data.get("email") or "").strip()
+        client_phone = (client_data.get("phone") or "").strip()
+        client_doc_type = (client_data.get("doc_type") or "").strip().upper()
+        client_doc_number = (client_data.get("doc_number") or "").strip()
+
+        has_client_data = any([
+            client_name,
+            client_email,
+            client_phone,
+            client_doc_type,
+            client_doc_number
+        ])
+
+        if has_client_data and not client_name:
+            return custom_response(status_code=400, message="El nombre del cliente es obligatorio si agregas datos del cliente")
+
+        if client_doc_type and not client_doc_number:
+            return custom_response(status_code=400, message="Completa el numero de documento del cliente")
+
+        if client_doc_number and not client_doc_type:
+            return custom_response(status_code=400, message="Selecciona el tipo de documento del cliente")
+
+        if client_doc_type and not client_doc_type in ["DNI", "RUC", "OTRO"]:
+            return custom_response(status_code=400, message="Tipo de documento de cliente invalido")
+
+        if has_client_data:
+            new_sale.client_name = client_name
+            new_sale.client_email = client_email or None
+            new_sale.client_phone = client_phone or None
+            new_sale.client_doc_type = client_doc_type or None
+            new_sale.client_doc_number = client_doc_number or None
+
+            ### Save Company Customer ###
+            company_customer = save_company_customer(db, company_id, client_data)
+            new_sale.customer_id = company_customer.id
 
     for product in products_data:
         raw_qty = product.get("qty")
@@ -748,7 +912,7 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         send_sale = False
 
         ### Check Document Type ###
-        if check_sale.invoice_method == "3":
+        if invoice_method_value == "3":
             invoice_method = Tax_Document_Type.RECEIPT
         else:
             invoice_method = Tax_Document_Type.INVOICE
@@ -764,7 +928,7 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
             ### FOR NOW ###
             invoice_method = Tax_Document_Type.RECEIPT
         else:
-            if check_sale.send_sale == "1":
+            if send_sale_value == "1":
                 send_sale = True
 
         ### Tax Profile Validation ###
@@ -774,6 +938,16 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
 
         if tax_profile.environment == Tax_Environment_Type.SANDBOX:
             send_sale = False
+
+        ### Optional Fiscal Customer ###
+        customer_name = new_sale.client_name or "VARIOS"
+        customer_tax_id_type = "1"
+        customer_tax_id = new_sale.client_doc_number or "99999999"
+
+        if new_sale.client_doc_type == "RUC":
+            customer_tax_id_type = "6"
+        elif new_sale.client_doc_type == "OTRO":
+            customer_tax_id_type = "0"
 
         ### Engine decides manual/auto + send receipt/invoice ###
         receipt, message, details = await create_receipt(db, company_id, new_sale, sale_items, send_sale, invoice_method)
@@ -802,9 +976,9 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
 
                 issue_date = emission_dt,
 
-                customer_name = "VARIOS",
-                customer_tax_id_type = "1",
-                customer_tax_id = "99999999",
+                customer_name = customer_name,
+                customer_tax_id_type = customer_tax_id_type,
+                customer_tax_id = customer_tax_id,
 
                 subtotal = to_decimal_or_zero(new_sale.subtotal),
                 tax_total = to_decimal_or_zero(new_sale.tax_amount),

@@ -120,7 +120,7 @@
             </section>
 
             <aside id="checkout-sidebar"
-                class="glass-card fixed inset-y-0 right-0 z-60 w-full md:w-100 bg-card border-l border-white/5 flex flex-col translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:relative"
+                class="glass-card fixed inset-y-0 right-0 z-60 w-full md:w-100 bg-card border-l border-white/5 flex flex-col min-h-0 overflow-hidden translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:relative"
                 style="border-radius: 0px;">
 
                 <div class="flex md:hidden p-4 border-b border-white/5 items-center justify-between">
@@ -129,65 +129,125 @@
                             class="fa-solid fa-chevron-right"></i></button>
                 </div>
 
-                <div class="flex-1 p-6 flex flex-col">
-                    <div class="flex-1 space-y-6 overflow-y-auto">
-                        <!-- SECCIÓN CLIENTE -->
-                        <div class="hidden border-b border-white/5 ">
-                            <h3
-                                class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-4 flex justify-between">
-                                <span>Identificación de Cliente</span>
-                                <i class="fa-solid fa-user-plus text-brand cursor-pointer"
-                                    onclick="show_register_form()"></i>
+                <div class="flex-1 min-h-0 p-6 flex flex-col">
+                    <div class="flex-1 min-h-0 space-y-6 overflow-y-auto pr-3">
+                        <div class="border-b border-white/5 pb-6">
+                            <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-4">
+                                Informacion del Cliente
                             </h3>
-
-                            <div class="relative" id="client_search_container">
-                                <input type="text" id="clientLookup" oninput="search_client()"
-                                    placeholder="Email, Nombre o RUT..."
-                                    class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-brand transition-all">
-                                <div id="clientDropdown"
-                                    class="hidden absolute top-full left-0 right-0 glass-card rounded-b-xl shadow-2xl z-60 mt-1 max-h-48 overflow-y-auto">
+                            <div id="client_empty_state"
+                                class="rounded-[1.4rem] bg-transparent p-0">
+                                <div>
+                                    <p class="text-sm font-black text-white uppercase tracking-tight">Cliente generico</p>
+                                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">La venta seguira como cliente
+                                        varios. Agrega datos solo si necesitas identificar al comprador.</p>
                                 </div>
+                                <button type="button" onclick="toggle_client_form(true)"
+                                    class="mt-4 bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer w-full">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                    Agregar Cliente
+                                </button>
                             </div>
 
-                            <!-- Formulario Registro Rápido (Oculto) -->
-                            <div id="register_form" class="hidden space-y-3 animate-in slide-in-from-top duration-300">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="text" id="newName" placeholder="Nombre completo"
-                                        class="bg-white/5 border border-white/10 rounded-lg p-2 text-xs focus:border-brand outline-none">
-                                    <input type="text" id="newPhone" placeholder="Teléfono"
-                                        class="bg-white/5 border border-white/10 rounded-lg p-2 text-xs focus:border-brand outline-none">
+                            <div id="client_form"
+                                class="hidden mt-3 space-y-3 animate-in slide-in-from-top duration-300 max-h-[52vh] overflow-y-auto pr-1">
+                                <div class="px-1">
+                                    <p class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-300">Datos del cliente
+                                    </p>
+                                    <p class="text-[11px] text-slate-500 mt-1">Opcional. Util para servicios y seguimiento.</p>
                                 </div>
-                                <input type="email" id="newEmail" placeholder="Correo electrónico"
-                                    class="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs focus:border-brand outline-none">
-                                <div class="flex gap-2">
-                                    <button
+                                <div class="grid grid-cols-1 gap-3">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Nombre
+                                            completo</label>
+                                        <input type="text" id="new_client_name" placeholder="Ej: Andrea Soto"
+                                            class="w-full input-glass px-4 py-3 text-sm">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Telefono</label>
+                                        <input type="text" id="new_client_phone" placeholder="Ej: 987654321"
+                                            onblur="autofill_client_data('phone')"
+                                            class="w-full input-glass px-4 py-3 text-sm">
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Correo
+                                        electronico</label>
+                                    <input type="email" id="new_client_email" placeholder="cliente@email.com"
+                                        onblur="autofill_client_data('email')"
+                                        class="w-full input-glass px-4 py-3 text-sm">
+                                </div>
+                                <div class="grid grid-cols-1 gap-3">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Tipo de
+                                            documento</label>
+                                        <select id="new_client_doc_type"
+                                            class="w-full input-glass px-4 py-3 text-sm appearance-none">
+                                            <option value="">Sin documento</option>
+                                            <option value="DNI">DNI</option>
+                                        </select>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Numero
+                                            de documento</label>
+                                        <input type="text" id="new_client_doc_number" placeholder="00000000"
+                                            onblur="autofill_client_data('doc_number')"
+                                            class="w-full input-glass px-4 py-3 text-sm">
+                                    </div>
+                                </div>
+                                <p class="text-[10px] text-slate-500 uppercase font-bold leading-relaxed">
+                                    Si vendes un servicio, estos datos ayudan a validarlo despues por persona.
+                                </p>
+                                <div class="flex gap-2 pt-1">
+                                    <button type="button"
                                         class="bg-(--accent) hover:bg-(--accent-hover) text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-orange-900/20 active:scale-95 cursor-pointer w-full"
-                                        onclick="register_Client()">
-                                        Registrar y Seleccionar
+                                        onclick="save_client_details()">
+                                        Usar este cliente
                                     </button>
-                                    <button onclick="show_search_form()"
-                                        class="px-4 bg-white/5 text-slate-400 py-2 rounded-lg text-[10px] font-black uppercase cursor-pointer">Cancelar</button>
+                                    <button type="button" onclick="clear_client_form(); toggle_client_form(false)"
+                                        class="px-4 bg-white/5 text-slate-400 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.18em] cursor-pointer hover:bg-white/10 transition-all">Cancelar</button>
                                 </div>
                             </div>
 
-                            <!-- Cliente Seleccionado -->
                             <div id="clientDetails"
-                                class="mt-3 flex items-center justify-between glass-card p-4 rounded-2xl hidden">
-                                <div class="flex items-center gap-3">
+                                class="mt-4 hidden rounded-[1.5rem] border border-emerald-500/20 bg-linear-to-br from-emerald-500/12 to-emerald-500/4 p-4">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-400/20 flex items-center justify-center text-emerald-300 text-lg">
+                                            <i class="fa-solid fa-user-check"></i>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span id="det-name"
+                                                    class="block text-sm font-black text-white uppercase tracking-tight">Cliente</span>
+                                                <span
+                                                    class="px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-300 text-[9px] font-black uppercase tracking-[0.18em]">Activo</span>
+                                            </div>
+                                            <span id="det-email" class="block text-[11px] text-slate-300 mt-1">Sin contacto</span>
+                                            <span id="det-doc" class="block text-[10px] text-slate-400 mt-2"></span>
+                                        </div>
+                                    </div>
+                                    <button type="button" onclick="clear_client()"
+                                        class="w-9 h-9 rounded-xl bg-white/6 border border-white/10 text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer flex items-center justify-center">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="service-client-note"
+                                class="hidden mt-4 rounded-[1.4rem] border border-yellow-500/20 bg-linear-to-r from-yellow-500/10 to-orange-500/8 p-4 text-[11px] text-yellow-200">
+                                <div class="flex items-start gap-3">
                                     <div
-                                        class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500 text-lg">
-                                        <i class="fa-solid fa-user-check"></i>
+                                        class="w-9 h-9 shrink-0 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-300">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
                                     </div>
                                     <div>
-                                        <span id="det-name"
-                                            class="block text-sm font-black text-white uppercase tracking-tight">Andrés
-                                            García</span>
-                                        <span id="det-email" class="text-[10px] text-slate-500">andres@nexo.cl</span>
+                                        <p class="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Servicio sin
+                                            cliente</p>
+                                        <p class="mt-2 leading-relaxed">La venta seguira, pero luego solo podras validarla por
+                                            ticket o codigo.</p>
                                     </div>
                                 </div>
-                                <button onclick="clear_client()"
-                                    class="text-slate-600 hover:text-red-500 transition-colors"><i
-                                        class="fa-solid fa-xmark"></i></button>
                             </div>
                         </div>
 
@@ -372,22 +432,21 @@
 </main>
 
 <script>
-    let db_clients = [
-        { id: 'c1', name: 'Andrés García', email: 'andres@nexolocal.floua.app', phone: '912345678' }
-    ];
-
     let cart = [];
 
-    let currentClient = null;
+    let current_client = null;
+    let client_form_open = false;
     let selected_payment = null;
     let selected_invoice_method = null;
 
     let html5QrCode = null;
     let scanLocked = false;
+    let customer_autofill_lock = false;
 
     window.onload = () => {
         render_cart();
         toggle_send_sale();
+        render_client_state();
     };
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -574,79 +633,147 @@
         render_cart();
     }
 
-    function show_register_form() {
-        document.getElementById('client_search_container').classList.add('hidden');
-        document.getElementById('register_form').classList.remove('hidden');
-        document.getElementById('clientDetails').classList.add('hidden');
+    /*************** Service Client Warning ***************/
+    function cart_has_services() {
+        return cart.some(item => item.is_service);
     }
 
-    function show_search_form() {
-        document.getElementById('client_search_container').classList.remove('hidden');
-        document.getElementById('register_form').classList.add('hidden');
-    }
+    function toggle_client_form(force_open = false) {
+        const form = document.getElementById('client_form');
 
-    function search_client() {
-        const val = document.getElementById('clientLookup').value.toLowerCase();
-        const dropdown = document.getElementById('clientDropdown');
-        dropdown.innerHTML = '';
-
-        if (val.length < 3) {
-            dropdown.classList.add('hidden');
+        if (force_open) {
+            client_form_open = true;
+            form.classList.remove('hidden');
+            render_client_state();
             return;
         }
 
-        const results = db_clients.filter(c => c.email.includes(val) || c.name.toLowerCase().includes(val));
-        dropdown.classList.remove('hidden');
+        client_form_open = false;
+        form.classList.add('hidden');
+        render_client_state();
+    }
 
-        if (results.length > 0) {
-            results.forEach(c => {
-                const div = document.createElement('div');
-                div.className = "p-3 glass-card cursor-pointer flex flex-col";
-                div.innerHTML = `<span class="text-xs font-bold text-white uppercase">${c.name}</span><span class="text-[10px] text-slate-500">${c.email}</span>`;
-                div.onclick = () => select_client(c);
-                dropdown.appendChild(div);
-            });
+    /*************** Autofill Client ***************/
+    async function autofill_client_data(type) {
+        if (customer_autofill_lock) return;
+
+        const email = document.getElementById('new_client_email').value.trim();
+        const phone = document.getElementById('new_client_phone').value.trim();
+        const doc_type = document.getElementById('new_client_doc_type').value.trim();
+        const doc_number = document.getElementById('new_client_doc_number').value.trim();
+
+        const has_doc = type === "doc_number" && doc_type && doc_number;
+        const has_email = type === "email" && email;
+        const has_phone = type === "phone" && phone;
+
+        if (!has_doc && !has_email && !has_phone) return;
+
+        customer_autofill_lock = true;
+
+        const response = await fetch(`/companies/${company_id}/api/sales/check_customer`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email,
+                phone,
+                doc_type,
+                doc_number
+            })
+        });
+
+        const result = await response.json();
+
+        customer_autofill_lock = false;
+
+        if (result.error || !result.data?.customer) return;
+
+        const customer = result.data.customer;
+
+        if (customer.name) document.getElementById('new_client_name').value = customer.name;
+        if (customer.email) document.getElementById('new_client_email').value = customer.email;
+        if (customer.phone) document.getElementById('new_client_phone').value = customer.phone;
+        if (customer.doc_type) document.getElementById('new_client_doc_type').value = customer.doc_type;
+        if (customer.doc_number) document.getElementById('new_client_doc_number').value = customer.doc_number;
+    }
+
+    /*************** Client State ***************/
+    function render_client_state() {
+        const emptyState = document.getElementById('client_empty_state');
+        const details = document.getElementById('clientDetails');
+        const note = document.getElementById('service-client-note');
+        const form = document.getElementById('client_form');
+
+        if (current_client) {
+            emptyState.classList.add('hidden');
+            details.classList.remove('hidden');
+            document.getElementById('det-name').innerText = current_client.name;
+            document.getElementById('det-email').innerText = current_client.email || current_client.phone || "Sin contacto";
+            document.getElementById('det-doc').innerText = current_client.doc_number
+                ? `${current_client.doc_type || 'DOC'}: ${current_client.doc_number}`
+                : "Sin documento";
+            form.classList.add('hidden');
+            client_form_open = false;
         } else {
-            dropdown.innerHTML = `
-                    <div class="p-4 text-center">
-                        <p class="text-[10px] font-black text-slate-500 uppercase mb-2">Cliente no encontrado</p>
-                        <button onclick="show_register_form()" class="text-[10px] font-black text-brand uppercase underline">Registrar Nuevo</button>
-                    </div>`;
+            if (client_form_open) emptyState.classList.add('hidden');
+            else emptyState.classList.remove('hidden');
+
+            if (client_form_open) form.classList.remove('hidden');
+            else form.classList.add('hidden');
+
+            details.classList.add('hidden');
+        }
+
+        if (cart_has_services() && !current_client) {
+            note.classList.remove('hidden');
+        } else {
+            note.classList.add('hidden');
         }
     }
 
-    function register_Client() {
-        const name = document.getElementById('newName').value;
-        const email = document.getElementById('newEmail').value;
-        const phone = document.getElementById('newPhone').value;
-
-        if (!name || !email) return notify("Nombre y Email son obligatorios", "info");
-
-        const newClient = { id: Date.now().toString(), name, email, phone };
-        db_clients.push(newClient);
-        select_client(newClient);
-        show_search_form();
-
-        // Limpiar campos
-        document.getElementById('newName').value = '';
-        document.getElementById('newEmail').value = '';
-        document.getElementById('newPhone').value = '';
-    }
-
-    function select_client(c) {
-        currentClient = c;
-        document.getElementById('client_search_container').classList.add('hidden');
-        document.getElementById('clientDropdown').classList.add('hidden');
-        document.getElementById('clientDetails').classList.remove('hidden');
-        document.getElementById('det-name').innerText = c.name;
-        document.getElementById('det-email').innerText = c.email;
-    }
-
     function clear_client() {
-        currentClient = null;
-        document.getElementById('client_search_container').classList.remove('hidden');
-        document.getElementById('clientDetails').classList.add('hidden');
-        document.getElementById('clientLookup').value = '';
+        current_client = null;
+        client_form_open = false;
+        clear_client_form();
+        render_client_state();
+    }
+
+    function clear_client_form() {
+        document.getElementById('new_client_name').value = '';
+        document.getElementById('new_client_email').value = '';
+        document.getElementById('new_client_phone').value = '';
+        document.getElementById('new_client_doc_type').value = '';
+        document.getElementById('new_client_doc_number').value = '';
+    }
+
+    /*************** Save Client ***************/
+    function save_client_details() {
+        const name = document.getElementById('new_client_name').value.trim();
+        const email = document.getElementById('new_client_email').value.trim();
+        const phone = document.getElementById('new_client_phone').value.trim();
+        const doc_type = document.getElementById('new_client_doc_type').value.trim();
+        const doc_number = document.getElementById('new_client_doc_number').value.trim();
+
+        if (!name) {
+            notify("Si agregas cliente, el nombre es obligatorio", "info");
+            return;
+        }
+
+        if ((doc_type && !doc_number) || (!doc_type && doc_number)) {
+            notify("Completa tipo y numero de documento", "info");
+            return;
+        }
+
+        current_client = {
+            name,
+            email,
+            phone,
+            doc_type,
+            doc_number
+        };
+
+        render_client_state();
     }
 
     function add_to_cart(p) {
@@ -673,6 +800,7 @@
         }
 
         render_cart();
+        render_client_state();
     }
 
     function render_cart() {
@@ -785,6 +913,7 @@
     function remove_from_cart(id) {
         cart = cart.filter(i => i.id !== id);
         render_cart();
+        render_client_state();
     }
 
     function calculate_totals() {
@@ -948,7 +1077,7 @@
         const total = subtotal + tax;
 
         const payload = {
-            client_id: currentClient ? currentClient.id : null,
+            client: current_client,
             payment_method: selected_payment,
             items: cart.map(item => ({
                 id: item.id,
@@ -999,7 +1128,7 @@
         );
 
         cart = [];
-        currentClient = null;
+        clear_client();
         selected_payment = null;
         selected_invoice_method = null;
         render_cart();
@@ -1012,6 +1141,7 @@
             send_sale_toggle.checked = false;
             toggle_send_sale();
         }
+
     }
 
 </script>

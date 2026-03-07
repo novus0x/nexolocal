@@ -324,6 +324,16 @@ async def create_receipt(db: Session, company: Company, sale: Sale, items: list[
     ### Date ###
     emission_date = datetime.now(UTZ_TZ).astimezone(LOCAL_TZ).strftime("%Y-%m-%dT00:00:00-05:00")
 
+    ### Optional Fiscal Customer ###
+    customer_doc_type = "1"
+    customer_doc_number = sale.client_doc_number or "99999999"
+    customer_name = sale.client_name or "VARIOS"
+
+    if sale.client_doc_type == "RUC":
+        customer_doc_type = "6"
+    elif sale.client_doc_type == "OTRO":
+        customer_doc_type = "0"
+
     ### Sunat Payload ###
     payload = {
         "ublVersion": "2.1",
@@ -338,9 +348,9 @@ async def create_receipt(db: Session, company: Company, sale: Sale, items: list[
         },
         "tipoMoneda": "PEN",
         "client": {
-            "tipoDoc": "1", # 6 RUC
-            "numDoc": "99999999",
-            "rznSocial": "VARIOS",
+            "tipoDoc": customer_doc_type, # 6 RUC
+            "numDoc": customer_doc_number,
+            "rznSocial": customer_name,
             "address": {
                 "direccion": "Direccion cliente",
                 "provincia": "LIMA",

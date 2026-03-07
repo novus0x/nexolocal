@@ -126,12 +126,44 @@ router.post("/sales/check_product_search", require_auth, at_least_company, async
     })
 });
 
+/*************** Sale Check Customer ***************/
+router.post("/sales/check_customer", require_auth, at_least_company, async (req, res) => {
+    // Variables
+    const permissions = req.permissions;
+
+    // Check permissions
+    if (!permissions.includes("company.sales.create")) return res.redirect("/");
+
+    const { email, phone, doc_type, doc_number } = req.body;
+
+    const response = await send_data("/company/sales/check_customer", {}, {
+        email,
+        phone,
+        doc_type,
+        doc_number
+    }, req);
+
+    if (response.error) {
+        return res.json({
+            error: true,
+            msg: response.message
+        })
+    }
+
+    return res.json({
+        error: false,
+        data: {
+            customer: response.data.customer
+        }
+    })
+});
+
 /*************** New Sale - Create ***************/
 router.post("/sales/create", require_auth, at_least_company, async (req, res) => {
     // Variables
     const permissions = req.permissions;
 
-    let client_id_value = "null";
+    let client_value = null;
 
     let send_sale_v = "0";
     let invoice_method_v = "3";
@@ -139,20 +171,19 @@ router.post("/sales/create", require_auth, at_least_company, async (req, res) =>
     // Check permissions
     if (!permissions.includes("company.sales.create")) return res.redirect("/");
 
-    const { client_id, payment_method, items, send_sale, invoice_method } = req.body;
+    const { client, payment_method, items, send_sale, invoice_method } = req.body;
 
     if (send_sale) send_sale_v = "1";
 
     if (invoice_method == "receipt") invoice_method_v = "3";
     else invoice_method_v = "1";
 
-    if (client_id) client_id_value = client_id;    
+    if (client) client_value = client;
 
     const response = await send_data("/company/sales/create", {}, {
         payment_method,
         items,
-        
-        client_id: client_id_value,
+        client: client_value,
         send_sale: send_sale_v,
         invoice_method: invoice_method_v
     }, req);
