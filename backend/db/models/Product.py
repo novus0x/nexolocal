@@ -65,6 +65,7 @@ class Product(Base):
     company = relationship("Company", back_populates="products")
     category = relationship("Category", back_populates="products")
     sale_items = relationship("Sale_Item", back_populates="product")
+    active_services = relationship("Active_Service", back_populates="product")
 
 ##### Product Batch #####
 class Product_Batch(Base):

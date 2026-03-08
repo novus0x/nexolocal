@@ -68,6 +68,7 @@ class Company(Base):
     billings = relationship("Company_Billing", back_populates="company")
     user_associations = relationship("User_Company_Association", back_populates="company")
     customers = relationship("Company_Customer", back_populates="company")
+    active_services = relationship("Active_Service", back_populates="company")
 
 ##### Company Customer #####
 class Company_Customer(Base):
@@ -92,6 +93,7 @@ class Company_Customer(Base):
 
     ## Relationships ##
     company = relationship("Company", back_populates="customers")
+    active_services = relationship("Active_Service", back_populates="customer")
 
 ##### Company Plan #####
 class Plan_Cicle(enum.Enum):

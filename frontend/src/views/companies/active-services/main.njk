@@ -1,0 +1,935 @@
+{% extends "layouts/dashboard.njk" %}
+
+{% block title %}Servicios Activos - NexoLocal{% endblock %}
+
+{% block content %}
+{% include "components/dashboard-sidebar.njk" %}
+{% include "components/dashboard-header.njk" %}
+
+<style>
+    #ticket-modal-overlay {
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    #ticket-modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .ticket-modal-content {
+        transform: scale(0.95);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #ticket-modal-overlay.active .ticket-modal-content {
+        transform: scale(1);
+    }
+
+    #validate-service-modal-overlay {
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    #validate-service-modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .validate-service-modal-content {
+        transform: scale(0.95);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #validate-service-modal-overlay.active .validate-service-modal-content {
+        transform: scale(1);
+    }
+
+    .ticket-loader {
+        border: 3px solid rgba(253, 66, 10, 0.1);
+        border-top: 3px solid #FD420A;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: ticket-spin 1s linear infinite;
+    }
+
+    @keyframes ticket-spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+{% set current_status = query.status or 'all' %}
+{% set current_type = query.type or 'all' %}
+{% set total_pages = pagination.q_pages if pagination.q_pages > 0 else 1 %}
+{% set can_manage_active_services = "company.sales.create" in permissions or "company.active_services.update" in permissions %}
+
+<main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="w-full space-y-8">
+
+        <div class="mb-8">
+            <nav class="flex mb-3 text-xs font-bold tracking-widest text-gray-500 justify-between flex-col md:flex-row gap-5"
+                aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3 uppercase">
+                    <li class="inline-flex items-center">
+                        <a href="/companies/{{ company_information.id }}"
+                            class="hover:text-white transition-colors">Negocio</a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            <span class="ml-1 md:ml-2 text-orange-500">Servicios Activos</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <header class="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+                <h1 class="font-extrabold text-2xl tracking-tight">Servicios Activos</h1>
+                <p class="text-sm text-gray-500 font-bold uppercase tracking-widest">Total: {{ items_quantity }}
+                    registros</p>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div class="text-right">
+                    <p class="text-xs text-gray-500 font-bold uppercase">Vigentes</p>
+                    <p id="active-services-count" class="text-sm font-bold text-emerald-400">{{ active_quantity }} servicios</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+                <a href="{{ update_query(query, { status: 'all', page: 1 }) }}"
+                    class="px-4 py-2 rounded-lg {% if current_status == 'all' %}bg-white/5 text-white{% else %}hover:bg-white/5 text-gray-400{% endif %} text-sm font-bold cursor-pointer whitespace-nowrap">Todo</a>
+                <a href="{{ update_query(query, { status: 'pending', page: 1 }) }}"
+                    class="px-4 py-2 rounded-lg {% if current_status == 'pending' %}bg-white/5 text-white{% else %}hover:bg-white/5 text-gray-400{% endif %} text-sm font-bold cursor-pointer whitespace-nowrap">Pendientes</a>
+                <a href="{{ update_query(query, { status: 'active', page: 1 }) }}"
+                    class="px-4 py-2 rounded-lg {% if current_status == 'active' %}bg-white/5 text-white{% else %}hover:bg-white/5 text-gray-400{% endif %} text-sm font-bold cursor-pointer whitespace-nowrap">Activos</a>
+                <a href="{{ update_query(query, { status: 'expired', page: 1 }) }}"
+                    class="px-4 py-2 rounded-lg {% if current_status == 'expired' %}bg-white/5 text-white{% else %}hover:bg-white/5 text-gray-400{% endif %} text-sm font-bold cursor-pointer whitespace-nowrap">Vencidos</a>
+                <a href="{{ update_query(query, { status: 'exhausted', page: 1 }) }}"
+                    class="px-4 py-2 rounded-lg {% if current_status == 'exhausted' %}bg-white/5 text-white{% else %}hover:bg-white/5 text-gray-400{% endif %} text-sm font-bold cursor-pointer whitespace-nowrap">Agotados</a>
+                <a href="{{ update_query(query, { status: 'no_customer', page: 1 }) }}"
+                    class="px-4 py-2 rounded-lg {% if current_status == 'no_customer' %}bg-white/5 text-white{% else %}hover:bg-white/5 text-gray-400{% endif %} text-sm font-bold cursor-pointer whitespace-nowrap">Sin Cliente</a>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-3">
+                <div class="relative group">
+                    <i
+                        class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-white group-focus-within:text-(--accent) transition-colors"></i>
+                    <input type="text" placeholder="Buscar por cliente, DNI, telefono o ticket..."
+                        class="w-full lg:w-96 input-glass pl-10 pr-4 py-3 rounded-xl" value="{{ query.q or '' }}"
+                        onkeydown="if (event.key === 'Enter') submit_search(this.value)">
+                </div>
+
+                <div class="relative min-w-47.5">
+                    <select class="w-full input-glass px-4 py-3 rounded-xl pr-10 appearance-none"
+                        onchange="submit_type_filter(this.value)">
+                        <option value="all" {% if current_type == "all" %}selected{% endif %}>Todos los tipos</option>
+                        <option value="time" {% if current_type == "time" %}selected{% endif %}>Por tiempo</option>
+                        <option value="sessions" {% if current_type == "sessions" %}selected{% endif %}>Por sesiones</option>
+                    </select>
+                    <i
+                        class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none text-[10px]"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card rounded-3xl overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white/3 text-xs uppercase tracking-[0.15em] text-gray-500 font-black">
+                            <th class="px-8 py-5">Cliente / Referencia</th>
+                            <th class="px-6 py-5">Servicio</th>
+                            <th class="px-6 py-5">Tipo</th>
+                            <th class="px-6 py-5">Estado</th>
+                            <th class="px-6 py-5">Uso</th>
+                            <th class="px-6 py-5">Vencimiento</th>
+                            <th class="px-8 py-5 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="active-services-table-body" class="divide-y divide-white/5">
+                        {% if services | length > 0 %}
+                        {% for service in services %}
+                        <tr id="service-row-{{ service.id }}" data-status="{{ service.status }}" class="group hover:bg-white/2 transition-all">
+                            <td class="px-8 py-5">
+                                <div>
+                                    <p class="text-sm font-bold {% if service.status == 'no_customer' %}text-yellow-400{% else %}text-white{% endif %}">
+                                        {{ service.customer_name }}
+                                    </p>
+                                    <p class="text-xs text-gray-600 tracking-tighter">
+                                        {{ service.sale_reference }} | {{ service.customer_reference }}
+                                    </p>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div>
+                                    <p class="text-sm font-bold text-white group-hover:text-(--accent) transition-colors">
+                                        {{ service.service_name }}
+                                    </p>
+                                    <p class="text-xs text-gray-600 tracking-tighter">
+                                        Inicio: {{ service.starts_at or 'Sin fecha' }}
+                                    </p>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                {% if service.mode == "sessions" %}
+                                <span class="cat-badge cat-style-1">Sesiones</span>
+                                {% else %}
+                                <span class="cat-badge cat-style-4">Tiempo</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-5">
+                                {% if service.status == "active" %}
+                                <span class="px-2.5 py-1 bg-green-500/10 text-green-500 text-[10px] font-black rounded-full uppercase">Activo</span>
+                                {% elif service.status == "pending" %}
+                                <span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-black rounded-full uppercase">Pendiente</span>
+                                {% elif service.status == "expired" %}
+                                <span class="px-2.5 py-1 bg-red-500/10 text-red-500 text-[10px] font-black rounded-full uppercase">Vencido</span>
+                                {% elif service.status == "exhausted" %}
+                                <span class="px-2.5 py-1 bg-orange-500/10 text-orange-400 text-[10px] font-black rounded-full uppercase">Agotado</span>
+                                {% elif service.status == "no_customer" %}
+                                <span class="px-2.5 py-1 bg-yellow-500/10 text-yellow-500 text-[10px] font-black rounded-full uppercase">Sin cliente</span>
+                                {% else %}
+                                <span class="px-2.5 py-1 bg-white/10 text-gray-300 text-[10px] font-black rounded-full uppercase">{{ service.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-5">
+                                {% if service.mode == "sessions" and service.sessions_label %}
+                                <div class="min-w-32">
+                                    <div class="flex justify-between text-xs font-bold mb-1">
+                                        <span>{{ service.sessions_label }}</span>
+                                        <span class="text-gray-500">Usado</span>
+                                    </div>
+                                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-(--accent) shadow-[0_0_8px_rgba(253,66,10,0.35)]"
+                                            style="width: {{ service.progress_value }}%"></div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <span class="text-sm text-gray-500 font-medium">Por tiempo</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-5 text-sm text-gray-400 font-medium">{{ service.expires_at }}</td>
+                            <td class="px-8 py-5">
+                                <div class="flex justify-end gap-2">
+                                    {% if can_manage_active_services and service.status == "no_customer" %}
+                                    <button title="Vincular cliente"
+                                        onclick="open_link_customer_modal('{{ service.id }}')"
+                                        class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-yellow-500/10 transition-all text-gray-400 hover:text-yellow-400 cursor-pointer">
+                                        <i class="fas fa-user-plus text-xs"></i>
+                                    </button>
+                                    {% endif %}
+                                    {% if can_manage_active_services and service.status != "expired" and service.status != "exhausted" and service.status != "no_customer" %}
+                                    <button title="Validar servicio"
+                                        onclick="validate_active_service('{{ service.id }}', '{{ service.mode }}', '{{ service.service_name | escape }}')"
+                                        class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all text-gray-400 hover:text-white cursor-pointer">
+                                        <i class="fas fa-check-double text-xs"></i>
+                                    </button>
+                                    {% endif %}
+                                    <button title="Ver comprobante"
+                                        onclick="open_ticket_modal('/companies/{{ company_information.id }}/sales/check/{{ service.sale_id }}', 'Comprobante {{ service.sale_reference | escape }}')"
+                                        class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all text-gray-400 hover:text-white cursor-pointer">
+                                        <i class="fas fa-receipt text-xs"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr id="active-services-empty-row">
+                            <td colspan="7" class="px-8 py-16 text-center">
+                                <div class="max-w-md mx-auto space-y-3">
+                                    <div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mx-auto text-gray-500">
+                                        <i class="fa-solid fa-calendar-check text-lg"></i>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-white">No hay servicios para mostrar</h3>
+                                    <p class="text-sm text-gray-500">
+                                        Cuando vendas servicios, apareceran aqui con su estado, vencimiento y referencia de venta.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between mt-6">
+            {% if pagination.back %}
+            <a href="{{ update_query(query, { page: page - 1 }) }}"
+                class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition">
+                <i class="fa-duotone fa-regular fa-angle-left"></i> Anterior
+            </a>
+            {% else %}
+            <span class="px-4 py-2 rounded-xl bg-white/5 text-gray-500 cursor-not-allowed">
+                <i class="fa-duotone fa-regular fa-angle-left"></i> Anterior
+            </span>
+            {% endif %}
+
+            <span class="text-sm text-gray-400">
+                Página {{ page }} de {{ total_pages }}
+            </span>
+
+            {% if pagination.next %}
+            <a href="{{ update_query(query, { page: page + 1 }) }}"
+                class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition">
+                Siguiente <i class="fa-duotone fa-regular fa-angle-right"></i>
+            </a>
+            {% else %}
+            <span class="px-4 py-2 rounded-xl bg-white/5 text-gray-500 cursor-not-allowed">
+                Siguiente <i class="fa-duotone fa-regular fa-angle-right"></i>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<div id="ticket-modal-overlay" class="fixed inset-0 flex items-center justify-center p-4" style="z-index: 110;">
+    <div
+        class="ticket-modal-content w-full max-w-5xl h-[85vh] bg-(--bg-card) border border-white/10 rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden">
+
+        <div class="flex items-center justify-between px-8 py-6 border-b border-white/10">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-(--accent) rounded-xl flex items-center justify-center">
+                    <i class="fa-regular fa-file-lines text-white text-lg"></i>
+                </div>
+                <div>
+                    <h2 id="ticket-modal-title" class="text-xl font-black uppercase tracking-tight">
+                        Comprobante
+                    </h2>
+                    <p class="text-xs text-slate-500 font-bold tracking-widest uppercase">
+                        Vista previa sin salir de servicios activos
+                    </p>
+                </div>
+            </div>
+            <button onclick="close_ticket_modal()"
+                class="p-2 hover:bg-white/5 rounded-full transition-colors cursor-pointer">
+                <i class="fa-solid fa-close"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 relative bg-white">
+            <div id="ticket-modal-loader"
+                class="absolute inset-0 flex flex-col items-center justify-center bg-(--bg-card) z-10">
+                <div class="ticket-loader mb-4"></div>
+                <p class="text-xs font-bold uppercase text-slate-500 tracking-widest">Cargando comprobante...</p>
+            </div>
+            <iframe id="ticket-modal-iframe" src=""
+                class="w-full h-full border-none opacity-0 transition-opacity duration-500"></iframe>
+        </div>
+
+        <div class="px-8 py-4 bg-(--bg-main) border-t border-white/10 flex justify-end gap-3">
+            <button onclick="close_ticket_modal()"
+                class="px-6 py-2.5 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition-all cursor-pointer">
+                Cerrar
+            </button>
+            <button onclick="print_ticket_modal()"
+                class="px-6 py-2.5 rounded-xl bg-(--accent) text-white text-xs font-bold uppercase tracking-widest hover:bg-(--accent-hover) transition-all cursor-pointer">
+                Imprimir
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="validate-service-modal-overlay" class="fixed inset-0 flex items-center justify-center p-4" style="z-index: 110;">
+    <div class="validate-service-modal-content w-full max-w-md glass-card rounded-3xl p-6 space-y-5 border border-white/10">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Validar Servicio</h3>
+                    <p class="text-sm text-gray-500">Confirma el siguiente movimiento antes de continuar.</p>
+                </div>
+                <button onclick="close_validate_service_modal()"
+                    class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 transition text-gray-400 hover:text-white cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="rounded-2xl border border-white/10 bg-white/3 px-4 py-4 space-y-2">
+                <p id="validate_service_name" class="text-sm font-bold text-white"></p>
+                <p id="validate_service_message" class="text-sm text-gray-400"></p>
+            </div>
+
+            <div class="flex gap-3 pt-1">
+                <button id="validate_service_submit" onclick="submit_validate_service()"
+                    class="flex-1 bg-(--accent) hover:bg-(--accent-hover) text-white px-5 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer">
+                    Confirmar
+                </button>
+                <button onclick="close_validate_service_modal()"
+                    class="px-5 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-300 text-sm font-bold transition-all cursor-pointer">
+                    Cancelar
+                </button>
+            </div>
+    </div>
+</div>
+
+<div id="link_customer_modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="close_link_customer_modal()"></div>
+
+    <div class="relative min-h-full flex items-center justify-center p-4">
+        <div class="w-full max-w-md glass-card rounded-3xl p-6 space-y-5 border border-white/10">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Vincular Cliente</h3>
+                    <p class="text-sm text-gray-500">Asocia este servicio a un cliente de tu empresa.</p>
+                </div>
+                <button onclick="close_link_customer_modal()"
+                    class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 transition text-gray-400 hover:text-white cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 mb-2">Nombre Completo</label>
+                    <input id="link_customer_name" type="text" class="w-full input-glass" placeholder="Ej: Andrea Soto">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 mb-2">Telefono</label>
+                    <input id="link_customer_phone" type="text" class="w-full input-glass" placeholder="Ej: 987654321"
+                        onblur="autofill_link_customer_data('phone')">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 mb-2">Correo Electronico</label>
+                    <input id="link_customer_email" type="email" class="w-full input-glass" placeholder="cliente@email.com"
+                        onblur="autofill_link_customer_data('email')">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 mb-2">Tipo de Documento</label>
+                    <select id="link_customer_doc_type" class="w-full input-glass">
+                        <option value="">Sin documento</option>
+                        <option value="DNI">DNI</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 mb-2">Numero de Documento</label>
+                    <input id="link_customer_doc_number" type="text" class="w-full input-glass" placeholder="00000000"
+                        onblur="autofill_link_customer_data('doc_number')">
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-1">
+                <button onclick="submit_link_customer()"
+                    class="flex-1 bg-(--accent) hover:bg-(--accent-hover) text-white px-5 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer">
+                    Guardar Cliente
+                </button>
+                <button onclick="close_link_customer_modal()"
+                    class="px-5 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-300 text-sm font-bold transition-all cursor-pointer">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    /*************** Variables ***************/
+    const company_id = "{{ company_information.id }}";
+    const current_status = "{{ current_status }}";
+    const can_manage_active_services = {{ "true" if can_manage_active_services else "false" }};
+    let current_active_service_id = null;
+    let current_validate_service = null;
+    let link_customer_lock = false;
+
+    /*************** Active Services UI ***************/
+    function escape_html(value = "") {
+        return `${value}`
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
+    }
+
+    function status_badge(service) {
+        if (service.status === "active") return '<span class="px-2.5 py-1 bg-green-500/10 text-green-500 text-[10px] font-black rounded-full uppercase">Activo</span>';
+        if (service.status === "pending") return '<span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-black rounded-full uppercase">Pendiente</span>';
+        if (service.status === "expired") return '<span class="px-2.5 py-1 bg-red-500/10 text-red-500 text-[10px] font-black rounded-full uppercase">Vencido</span>';
+        if (service.status === "exhausted") return '<span class="px-2.5 py-1 bg-orange-500/10 text-orange-400 text-[10px] font-black rounded-full uppercase">Agotado</span>';
+        if (service.status === "no_customer") return '<span class="px-2.5 py-1 bg-yellow-500/10 text-yellow-500 text-[10px] font-black rounded-full uppercase">Sin cliente</span>';
+        return `<span class="px-2.5 py-1 bg-white/10 text-gray-300 text-[10px] font-black rounded-full uppercase">${escape_html(service.status)}</span>`;
+    }
+
+    function usage_cell(service) {
+        if (service.mode === "sessions" && service.sessions_label) {
+            return `
+                <div class="min-w-32">
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span>${escape_html(service.sessions_label)}</span>
+                        <span class="text-gray-500">Usado</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-(--accent) shadow-[0_0_8px_rgba(253,66,10,0.35)]" style="width: ${service.progress_value || 0}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        return '<span class="text-sm text-gray-500 font-medium">Por tiempo</span>';
+    }
+
+    function actions_cell(service) {
+        const actions = [];
+
+        if (can_manage_active_services && service.status === "no_customer") {
+            actions.push(`
+                <button title="Vincular cliente"
+                    onclick="open_link_customer_modal('${service.id}')"
+                    class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-yellow-500/10 transition-all text-gray-400 hover:text-yellow-400 cursor-pointer">
+                    <i class="fas fa-user-plus text-xs"></i>
+                </button>
+            `);
+        }
+
+        if (can_manage_active_services && service.status !== "expired" && service.status !== "exhausted" && service.status !== "no_customer") {
+            const safe_service_name = JSON.stringify(service.service_name || "");
+            actions.push(`
+                <button title="Validar servicio"
+                    onclick='validate_active_service("${service.id}", "${service.mode}", ${safe_service_name})'
+                    class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all text-gray-400 hover:text-white cursor-pointer">
+                    <i class="fas fa-check-double text-xs"></i>
+                </button>
+            `);
+        }
+
+        actions.push(`
+            <button title="Ver comprobante"
+                onclick="open_ticket_modal('/companies/${company_id}/sales/check/${service.sale_id}', 'Comprobante ${escape_html(service.sale_reference)}')"
+                class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all text-gray-400 hover:text-white cursor-pointer">
+                <i class="fas fa-receipt text-xs"></i>
+            </button>
+        `);
+
+        return `<div class="flex justify-end gap-2">${actions.join("")}</div>`;
+    }
+
+    function service_row_template(service) {
+        const customer_color = service.status === "no_customer" ? "text-yellow-400" : "text-white";
+        const type_badge = service.mode === "sessions"
+            ? '<span class="cat-badge cat-style-1">Sesiones</span>'
+            : '<span class="cat-badge cat-style-4">Tiempo</span>';
+
+        return `
+            <tr id="service-row-${service.id}" data-status="${escape_html(service.status)}" class="group hover:bg-white/2 transition-all">
+                <td class="px-8 py-5">
+                    <div>
+                        <p class="text-sm font-bold ${customer_color}">${escape_html(service.customer_name)}</p>
+                        <p class="text-xs text-gray-600 tracking-tighter">${escape_html(service.sale_reference)} | ${escape_html(service.customer_reference)}</p>
+                    </div>
+                </td>
+                <td class="px-6 py-5">
+                    <div>
+                        <p class="text-sm font-bold text-white group-hover:text-(--accent) transition-colors">${escape_html(service.service_name)}</p>
+                        <p class="text-xs text-gray-600 tracking-tighter">Inicio: ${escape_html(service.starts_at || 'Sin fecha')}</p>
+                    </div>
+                </td>
+                <td class="px-6 py-5">${type_badge}</td>
+                <td class="px-6 py-5">${status_badge(service)}</td>
+                <td class="px-6 py-5">${usage_cell(service)}</td>
+                <td class="px-6 py-5 text-sm text-gray-400 font-medium">${escape_html(service.expires_at)}</td>
+                <td class="px-8 py-5">${actions_cell(service)}</td>
+            </tr>
+        `;
+    }
+
+    function service_matches_current_filter(service) {
+        return current_status === "all" || service.status === current_status;
+    }
+
+    function sync_empty_state() {
+        const tbody = document.getElementById("active-services-table-body");
+        if (!tbody) return;
+
+        const service_rows = Array.from(tbody.querySelectorAll('tr[id^="service-row-"]'));
+        let empty_row = document.getElementById("active-services-empty-row");
+
+        if (service_rows.length === 0) {
+            if (!empty_row) {
+                tbody.insertAdjacentHTML("beforeend", `
+                    <tr id="active-services-empty-row">
+                        <td colspan="7" class="px-8 py-16 text-center">
+                            <div class="max-w-md mx-auto space-y-3">
+                                <div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mx-auto text-gray-500">
+                                    <i class="fa-solid fa-calendar-check text-lg"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-white">No hay servicios para mostrar</h3>
+                                <p class="text-sm text-gray-500">
+                                    Cuando vendas servicios, apareceran aqui con su estado, vencimiento y referencia de venta.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+            }
+        } else if (empty_row) {
+            empty_row.remove();
+        }
+    }
+
+    function update_active_counter(active_quantity = null) {
+        const counter = document.getElementById("active-services-count");
+        if (!counter) return;
+
+        if (active_quantity !== null) {
+            counter.innerText = `${active_quantity} servicios`;
+            return;
+        }
+
+        const tbody = document.getElementById("active-services-table-body");
+        if (!tbody) return;
+
+        const active_rows = tbody.querySelectorAll('tr[id^="service-row-"][data-status="active"]').length;
+        counter.innerText = `${active_rows} servicios`;
+    }
+
+    function upsert_service_row(service, active_quantity = null) {
+        const tbody = document.getElementById("active-services-table-body");
+        if (!tbody) return;
+
+        const existing_row = document.getElementById(`service-row-${service.id}`);
+        const empty_row = document.getElementById("active-services-empty-row");
+
+        if (!service_matches_current_filter(service)) {
+            if (existing_row) existing_row.remove();
+            sync_empty_state();
+            update_active_counter(active_quantity);
+            return;
+        }
+
+        const template = service_row_template(service);
+
+        if (existing_row) {
+            existing_row.outerHTML = template;
+        } else {
+            if (empty_row) empty_row.remove();
+            tbody.insertAdjacentHTML("afterbegin", template);
+        }
+
+        const current_row = document.getElementById(`service-row-${service.id}`);
+        if (current_row) current_row.dataset.status = service.status;
+
+        sync_empty_state();
+        update_active_counter(active_quantity);
+    }
+
+    /*************** Search ***************/
+    function submit_search(value) {
+        const params = new URLSearchParams(window.location.search);
+
+        if (value && value.trim().length >= 2) {
+            params.set("q", value.trim());
+        } else {
+            params.delete("q");
+        }
+
+        params.set("page", 1);
+        window.location.search = params.toString();
+    }
+
+    /*************** Type Filter ***************/
+    function submit_type_filter(value) {
+        const params = new URLSearchParams(window.location.search);
+
+        if (value && value !== "all") params.set("type", value);
+        else params.delete("type");
+
+        params.set("page", 1);
+        window.location.search = params.toString();
+    }
+
+    /*************** Ticket Modal ***************/
+    function on_ticket_iframe_load() {
+        const iframe = document.getElementById('ticket-modal-iframe');
+        const loader = document.getElementById('ticket-modal-loader');
+
+        if (!iframe || !iframe.src) return;
+
+        if (loader) loader.style.display = 'none';
+        iframe.classList.remove('opacity-0');
+        iframe.classList.add('opacity-100');
+    }
+
+    function open_ticket_modal(url, title = "Comprobante") {
+        const overlay = document.getElementById('ticket-modal-overlay');
+        const iframe = document.getElementById('ticket-modal-iframe');
+        const loader = document.getElementById('ticket-modal-loader');
+        const title_el = document.getElementById('ticket-modal-title');
+
+        if (title_el) title_el.innerText = title;
+
+        if (iframe) {
+            iframe.classList.remove('opacity-100');
+            iframe.classList.add('opacity-0');
+            iframe.src = url;
+        }
+
+        if (loader) loader.style.display = 'flex';
+        if (overlay) overlay.classList.add('active');
+
+        document.body.style.overflow = 'hidden';
+    }
+
+    function close_ticket_modal() {
+        const overlay = document.getElementById('ticket-modal-overlay');
+        const iframe = document.getElementById('ticket-modal-iframe');
+
+        if (overlay) overlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+
+        setTimeout(() => {
+            if (iframe) iframe.src = '';
+        }, 300);
+    }
+
+    function print_ticket_modal() {
+        const iframe = document.getElementById('ticket-modal-iframe');
+        if (!iframe) return;
+
+        const iframeWindow = iframe.contentWindow || iframe.contentDocument?.defaultView;
+
+        if (!iframeWindow) {
+            notify("No se pudo acceder al comprobante.", "error");
+            return;
+        }
+
+        iframeWindow.focus();
+        iframeWindow.print();
+    }
+
+    /*************** Validate Active Service ***************/
+    function validate_active_service(active_service_id, mode, service_name) {
+        const action_text = mode === "sessions"
+            ? `Esto descontara una sesion de "${service_name}".`
+            : `Esto iniciara o validara la vigencia de "${service_name}".`;
+
+        current_validate_service = {
+            active_service_id,
+            mode,
+            service_name
+        };
+
+        document.getElementById("validate_service_name").innerText = service_name;
+        document.getElementById("validate_service_message").innerText = action_text;
+        document.getElementById("validate-service-modal-overlay").classList.add("active");
+        document.body.style.overflow = 'hidden';
+    }
+
+    function close_validate_service_modal() {
+        current_validate_service = null;
+        document.getElementById("validate-service-modal-overlay").classList.remove("active");
+        document.body.style.overflow = 'auto';
+    }
+
+    async function submit_validate_service() {
+        if (!current_validate_service?.active_service_id) {
+            notify("Servicio no encontrado", "error");
+            return;
+        }
+
+        const submit_button = document.getElementById("validate_service_submit");
+
+        if (submit_button) {
+            submit_button.disabled = true;
+            submit_button.classList.add("opacity-60", "cursor-not-allowed");
+        }
+
+        const response = await fetch(`/companies/${company_id}/api/active_services/validate`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                active_service_id: current_validate_service.active_service_id
+            })
+        });
+
+        const result = await response.json();
+
+        if (submit_button) {
+            submit_button.disabled = false;
+            submit_button.classList.remove("opacity-60", "cursor-not-allowed");
+        }
+
+        if (result.error) {
+            notify(result.msg || "No se pudo validar el servicio", "error");
+            return;
+        }
+
+        notify("Servicio validado correctamente", "success");
+        close_validate_service_modal();
+        upsert_service_row(result.data.service, result.data.active_quantity);
+    }
+
+    /*************** Link Customer Modal ***************/
+    function open_link_customer_modal(active_service_id) {
+        current_active_service_id = active_service_id;
+        document.getElementById("link_customer_modal").classList.remove("hidden");
+    }
+
+    function close_link_customer_modal() {
+        current_active_service_id = null;
+        clear_link_customer_form();
+        document.getElementById("link_customer_modal").classList.add("hidden");
+    }
+
+    function clear_link_customer_form() {
+        document.getElementById("link_customer_name").value = "";
+        document.getElementById("link_customer_phone").value = "";
+        document.getElementById("link_customer_email").value = "";
+        document.getElementById("link_customer_doc_type").value = "";
+        document.getElementById("link_customer_doc_number").value = "";
+    }
+
+    /*************** Autofill Link Customer ***************/
+    async function autofill_link_customer_data(type) {
+        if (link_customer_lock) return;
+
+        const email = document.getElementById('link_customer_email').value.trim();
+        const phone = document.getElementById('link_customer_phone').value.trim();
+        const doc_type = document.getElementById('link_customer_doc_type').value.trim();
+        const doc_number = document.getElementById('link_customer_doc_number').value.trim();
+
+        const has_doc = type === "doc_number" && doc_type && doc_number;
+        const has_email = type === "email" && email;
+        const has_phone = type === "phone" && phone;
+
+        if (!has_doc && !has_email && !has_phone) return;
+
+        link_customer_lock = true;
+
+        const response = await fetch(`/companies/${company_id}/api/sales/check_customer`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email,
+                phone,
+                doc_type,
+                doc_number
+            })
+        });
+
+        const result = await response.json();
+
+        link_customer_lock = false;
+
+        if (result.error || !result.data?.customer) return;
+
+        const customer = result.data.customer;
+
+        if (customer.name) document.getElementById('link_customer_name').value = customer.name;
+        if (customer.email) document.getElementById('link_customer_email').value = customer.email;
+        if (customer.phone) document.getElementById('link_customer_phone').value = customer.phone;
+        if (customer.doc_type) document.getElementById('link_customer_doc_type').value = customer.doc_type;
+        if (customer.doc_number) document.getElementById('link_customer_doc_number').value = customer.doc_number;
+    }
+
+    /*************** Submit Link Customer ***************/
+    async function submit_link_customer() {
+        const name = document.getElementById("link_customer_name").value.trim();
+        const phone = document.getElementById("link_customer_phone").value.trim();
+        const email = document.getElementById("link_customer_email").value.trim();
+        const doc_type = document.getElementById("link_customer_doc_type").value.trim();
+        const doc_number = document.getElementById("link_customer_doc_number").value.trim();
+
+        if (!current_active_service_id) {
+            notify("Servicio no encontrado", "error");
+            return;
+        }
+
+        if (!name) {
+            notify("El nombre del cliente es obligatorio", "info");
+            return;
+        }
+
+        if (doc_number && !doc_type) {
+            notify("Completa el tipo de documento", "info");
+            return;
+        }
+
+        const response = await fetch(`/companies/${company_id}/api/active_services/link_customer`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                active_service_id: current_active_service_id,
+                name,
+                phone,
+                email,
+                doc_type,
+                doc_number
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.error) {
+            notify(result.msg || "No se pudo vincular el cliente", "error");
+            return;
+        }
+
+        notify("Cliente vinculado correctamente", "success");
+        close_link_customer_modal();
+        upsert_service_row(result.data.service, result.data.active_quantity);
+    }
+
+    /*************** Events ***************/
+    document.addEventListener('DOMContentLoaded', () => {
+        const overlay = document.getElementById('ticket-modal-overlay');
+        const validate_overlay = document.getElementById('validate-service-modal-overlay');
+        const ticket_iframe = document.getElementById('ticket-modal-iframe');
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                close_ticket_modal();
+                close_validate_service_modal();
+                close_link_customer_modal();
+            }
+        });
+
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) close_ticket_modal();
+            });
+        }
+
+        if (validate_overlay) {
+            validate_overlay.addEventListener('click', (e) => {
+                if (e.target === validate_overlay) close_validate_service_modal();
+            });
+        }
+
+        if (ticket_iframe) {
+            ticket_iframe.addEventListener('load', on_ticket_iframe_load);
+        }
+    });
+
+</script>
+
+{% include "components/dashboard-footer.njk" %}
+
+{% endblock %}

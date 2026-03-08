@@ -115,6 +115,13 @@
         ]
       },
       {
+        "label": "Active Services",
+        "permissions": [
+          { "key": "company.active_services.read", "label": "View Active Services" },
+          { "key": "company.active_services.update", "label": "Manage Active Services" }
+        ]
+      },
+      {
         "label": "Cash",
         "permissions": [
           { "key": "company.cash.read", "label": "Read cash day company" },

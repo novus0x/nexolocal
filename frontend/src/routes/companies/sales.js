@@ -58,7 +58,7 @@ router.get("/check/:sale_id", require_auth, at_least_company, async (req, res) =
     }
 
     const data = response.data;
-    const public_code = encodeURIComponent(data.sale.tax_document?.invoice || data.sale.invoice || data.sale.id);
+    const public_code = encodeURIComponent(data.sale.internal_invoice || data.sale.invoice || data.sale.id);
     const qrcode = await svg_generator(`nexolocal.floua.app/check-ticket?q=${public_code}`);
     const string_value = num_to_string(data.sale.total);
 
@@ -66,7 +66,8 @@ router.get("/check/:sale_id", require_auth, at_least_company, async (req, res) =
     return res.render("companies/sales/documents/internal-ticket", {
         company: data.company,
         sale: data.sale,
-        qrcode, string_value
+        qrcode, string_value,
+        public_query: data.sale.internal_invoice || data.sale.invoice || data.sale.id
     });
 });
 

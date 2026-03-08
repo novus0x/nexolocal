@@ -12,6 +12,7 @@ export function get_sidebar_active(req) {
 
     const company_id = segments[1] || "";
     const company_section = segments[2] || "";
+    const normalized_company_section = company_section.replaceAll("-", "_");
 
     let base_path = path;
     let company_path = null;
@@ -40,6 +41,7 @@ export function get_sidebar_active(req) {
         "": "company.home",
         team: "company.team",
         suppliers: "company.suppliers",
+        active_services: "company.active_services",
         products: "company.products",
         cash: "company.cash",
         sales: "company.sales",
@@ -76,7 +78,7 @@ export function get_sidebar_active(req) {
             : `/companies/${company_id}`;
 
         base_path = company_path || "/companies";
-        key = company_keys[company_section] || null;
+        key = company_keys[normalized_company_section] || null;
     }
 
     // Response

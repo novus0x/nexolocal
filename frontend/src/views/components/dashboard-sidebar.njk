@@ -209,6 +209,14 @@
                 <span class="sidebar-text">Productos</span>
             </a>
             {% endif %}
+
+            {% if "company.active_services.read" in permissions %}
+            <a href="/companies/{{ company_information.id }}/active-services"
+                class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'company.active_services' else '' }}">
+                <i class="fa-regular fa-calendar-check text-xl"></i>
+                <span class="sidebar-text">Servicios Activos</span>
+            </a>
+            {% endif %}
             {% if "company.cash.read" in permissions %}
             <a href="/companies/{{ company_information.id }}/cash"
                 class="flex items-center gap-4 px-4 py-3 rounded-xl text-gray-400 hover:bg-[#161B22] hover:text-white transition-all group{{ ' active-link' if sidebar_active_key == 'company.cash' else '' }}">

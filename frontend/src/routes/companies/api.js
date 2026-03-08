@@ -3,7 +3,6 @@ import express from 'express';
 
 import { get_data, send_data } from '../../utils/api.js';
 import { require_auth, at_least_company } from '../../middlewares/auth.js';
-import e from 'express';
 
 /*************** Variables ***************/
 const router = express.Router({ mergeParams: true });
@@ -232,6 +231,70 @@ router.get("/cash/flow/:type", require_auth, at_least_company, async (req, res) 
         error: false,
         data
     })
+});
+
+/*************** Validate Active Service ***************/
+router.post("/active_services/validate", require_auth, at_least_company, async (req, res) => {
+    // Variables
+    const permissions = req.permissions;
+    const { active_service_id } = req.body;
+
+    // Check permissions
+    if (!permissions.includes("company.sales.create") && !permissions.includes("company.active_services.update")) {
+        return res.redirect("/");
+    }
+
+    const response = await send_data(`/company/active_services/validate/${active_service_id}`, {}, {}, req);
+
+    if (response.error) {
+        return res.json({
+            error: true,
+            msg: response.message
+        });
+    }
+
+    return res.json({
+        error: false,
+        data: {
+            service: response.data.service,
+            active_quantity: response.data.active_quantity
+        }
+    });
+});
+
+/*************** Link Active Service Customer ***************/
+router.post("/active_services/link_customer", require_auth, at_least_company, async (req, res) => {
+    // Variables
+    const permissions = req.permissions;
+    const { active_service_id, name, email, phone, doc_type, doc_number } = req.body;
+
+    // Check permissions
+    if (!permissions.includes("company.sales.create") && !permissions.includes("company.active_services.update")) {
+        return res.redirect("/");
+    }
+
+    const response = await send_data(`/company/active_services/link_customer/${active_service_id}`, {}, {
+        name,
+        email,
+        phone,
+        doc_type,
+        doc_number
+    }, req);
+
+    if (response.error) {
+        return res.json({
+            error: true,
+            msg: response.message
+        });
+    }
+
+    return res.json({
+        error: false,
+        data: {
+            service: response.data.service,
+            active_quantity: response.data.active_quantity
+        }
+    });
 });
 
 /*************** Export ***************/

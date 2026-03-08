@@ -9,7 +9,7 @@ from sqlalchemy import or_, desc, func, extract
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.model import Product, Product_Batch, Company, Company_Customer, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Tax_Profile, Tax_Document, Tax_Document_Type, Tax_Document_Status, Tax_Series, Tax_Subscription, Tax_Emission_Status, Tax_Environment_Type
+from db.model import Product, Product_Batch, Product_Service_Duration, Active_Service, Active_Service_Status, Company, Company_Customer, Payment_Method, Sale, Sale_Item, Sale_Status, Income, Income_Status, User, Cash_Session_Status, Cash_Session, Cash_Movement_Type, Cash_Movement, Tax_Profile, Tax_Document, Tax_Document_Type, Tax_Document_Status, Tax_Series, Tax_Subscription, Tax_Emission_Status, Tax_Environment_Type
 
 from core.config import settings
 
@@ -87,6 +87,44 @@ def save_company_customer(db: Session, company_id: str, client_data: dict):
     add_db(db, customer)
 
     return customer
+
+########## Create Active Service ##########
+def create_active_service(db: Session, company_id: str, sale: Sale, sale_item: Sale_Item, product: Product):
+    ### Variables ###
+    quantity = to_decimal_or_zero(sale_item.quantity)
+    duration_value = to_decimal(product.duration)
+
+    sessions_total = None
+    starts_at = None
+    expires_at = None
+
+    status = Active_Service_Status.PENDING
+
+    if not sale.customer_id:
+        status = Active_Service_Status.NO_CUSTOMER
+
+    ### Duration Rules ###
+    if product.duration_type == Product_Service_Duration.SESSIONS:
+        if duration_value is not None:
+            sessions_total = int(duration_value * quantity)
+
+    return Active_Service(
+        id = get_uuid(db, Active_Service),
+        name = product.name,
+        quantity = quantity,
+        duration = duration_value,
+        duration_type = product.duration_type,
+        sessions_total = sessions_total,
+        sessions_used = 0,
+        status = status,
+        starts_at = starts_at,
+        expires_at = expires_at,
+        company_id = company_id,
+        sale_id = sale.id,
+        sale_item_id = sale_item.id,
+        product_id = product.id,
+        customer_id = sale.customer_id
+    )
 
 ########## Get Company Customer ##########
 @router.post("/check_customer")
@@ -744,6 +782,7 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
 
     sale_items = []
     sale_items_ids = []
+    active_services = []
 
     invoice_number = generate_nxid("sale")
 
@@ -888,6 +927,11 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
         )
 
         sale_items.append(new_sale_item)
+
+        if check_product.is_service:
+            active_services.append(
+                create_active_service(db, company_id, new_sale, new_sale_item, check_product)
+            )
 
     new_tax_document = None
 
@@ -1038,6 +1082,7 @@ async def create_new_sale(request: Request, db: Session = Depends(get_db)):
     add_db(db, new_sale)
     add_db(db, new_cash_movement)
     add_multiple_db(db, sale_items)
+    add_multiple_db(db, active_services)
 
     ### Save Tax Document ###
     if new_tax_document:

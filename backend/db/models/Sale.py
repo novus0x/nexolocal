@@ -71,6 +71,7 @@ class Sale(Base):
     customer = relationship("Company_Customer")
     company = relationship("Company", back_populates="sales")
     items = relationship("Sale_Item", back_populates="sale", cascade="all, delete-orphan")
+    active_services = relationship("Active_Service", back_populates="sale")
 
 ##### Sale Item #####
 class Sale_Item(Base):
@@ -97,3 +98,4 @@ class Sale_Item(Base):
     ## Relationships ##
     sale = relationship("Sale", back_populates="items")
     product = relationship("Product", back_populates="sale_items")
+    active_services = relationship("Active_Service", back_populates="sale_item")
